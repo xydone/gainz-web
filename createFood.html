@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+    <title>Add Food - Gainz Web</title>
+    <link rel="stylesheet" href="./css/createFood.css" >
+  </head>
+  <body>
+    <header>
+      <h1>Gainz Web</h1>
+      <p>Add a new food item to the database</p>
+    </header>
+
+    <div class="container">
+      <form id="addFoodForm">
+        <div>
+          <input type="text" id="foodName" placeholder="Food Name" >
+        </div>
+        <div>
+          <input type="text" id="brandName" placeholder="Brand Name" >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="calories"
+            placeholder="Calories (kcal)"
+            step="0.01"
+            required
+          >
+        </div>
+        <div>
+          <input type="number" id="fat" placeholder="Fat (g)" step="0.01" >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="sat_fat"
+            placeholder="Saturated Fat (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="polyunsat_fat"
+            placeholder="Polyunsaturated Fat (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="monounsat_fat"
+            placeholder="Monounsaturated Fat (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="trans_fat"
+            placeholder="Trans Fat (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="cholesterol"
+            placeholder="Cholesterol (mg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="sodium"
+            placeholder="Sodium (mg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="potassium"
+            placeholder="Potassium (mg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input type="number" id="carbs" placeholder="Carbs (g)" step="0.01" >
+        </div>
+        <div>
+          <input type="number" id="fiber" placeholder="Fiber (g)" step="0.01" >
+        </div>
+        <div>
+          <input type="number" id="sugar" placeholder="Sugar (g)" step="0.01" >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="added_sugars"
+            placeholder="Added Sugar (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="sugar_alcohols"
+            placeholder="Sugar Alcohols (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="protein"
+            placeholder="Protein (g)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="vitamin_a"
+            placeholder="Vitamin A (mcg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="vitamin_c"
+            placeholder="Vitamin C (mg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="vitamin_d"
+            placeholder="Vitamin D (mcg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input
+            type="number"
+            id="calcium"
+            placeholder="Calcium (mg)"
+            step="0.01"
+          >
+        </div>
+        <div>
+          <input type="number" id="iron" placeholder="Iron (mg)" step="0.01" >
+        </div>
+        <button type="submit" class="action-button">Submit</button>
+      </form>
+      <div id="message" class="hidden"></div>
+    </div>
+
+    <script src="./js/createFood.js"></script>
+  </body>
+</html>

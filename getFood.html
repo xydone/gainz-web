@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Food - Gainz Web</title>
+    <link rel="stylesheet" href="./css/getFood.css">
+  </head>
+  <body>
+    <header>
+      <h1>Gainz Web</h1>
+      <p>Search for a food item and add it to your entries</p>
+    </header>
+
+    <div class="container">
+      <div>
+        <select id="mealCategory">
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+          <option value="misc">Misc</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search food...">
+        <button id="searchButton">Search</button>
+      </div>
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Food Name</th>
+            <th>Brand Name</th>
+            <th>Calories</th>
+            <th>Carbs</th>
+            <th>Fat</th>
+            <th>Protein</th>
+            <th>Sugar</th>
+            <th>Details</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Results will be appended here -->
+        </tbody>
+      </table>
+    </div>
+
+    <script src="./js/getFood.js"></script>
+  </body>
+</html>
