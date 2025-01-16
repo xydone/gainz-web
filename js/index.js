@@ -56,18 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       // Extract tokens
-      const { access_token, refresh_token } = data;
+      const { access_token, refresh_token, display_name } = data;
 
       // Store tokens in localStorage (or sessionStorage if you prefer)
       localStorage.setItem("accessToken", access_token);
       localStorage.setItem("refreshToken", refresh_token);
+      localStorage.setItem("displayName", display_name);
 
       // Display login success message and hide the form
       authForm.style.display = "none";
-      const successMessage = document.createElement("p");
-      successMessage.textContent = `You are logged in as ${username}`;
-      successMessage.style.marginTop = "20px";
-      container.appendChild(successMessage);
+      showLoggedInMessage(display_name);
     } catch (error) {
       // Handle errors (e.g., invalid credentials, server issues)
       alert(error.message);
