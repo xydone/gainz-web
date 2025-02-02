@@ -1,73 +1,79 @@
-function formatGroupDate(timestamp) {
-  const date = new Date(timestamp / 1000);
-  return date.toLocaleDateString();
-}
-
-function generateTableRows(data) {
-  const tableBody = document
-    .getElementById("resultsTable")
-    .querySelector("tbody");
-  tableBody.innerHTML = "";
-
-  data.forEach((item) => {
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-          <td>${formatGroupDate(item.group_date)}</td>
-          <td>${item.macronutrients.calories.toFixed(2)}</td>
-          <td>${item.macronutrients.carbs.toFixed(2)}</td>
-          <td>${item.macronutrients.fat.toFixed(2)}</td>
-          <td>${item.macronutrients.protein.toFixed(2)}</td>
-          <td>${item.macronutrients.sugar.toFixed(2)}</td>
-          <td><span class="expand">Show Details</span></td>
-      `;
-
-    const detailsRow = document.createElement("tr");
-    detailsRow.classList.add("hidden");
-    detailsRow.innerHTML = `
-            <td colspan="8">
-                <pre>${JSON.stringify(item.macronutrients, null, 2)}</pre>
-            </td>
-        `;
-
-    row.querySelector(".expand").addEventListener("click", () => {
-      detailsRow.classList.toggle("hidden");
-    });
-
-    tableBody.appendChild(row);
-    tableBody.appendChild(detailsRow);
-  });
-}
-
-document.getElementById("fetch-data").addEventListener("click", async () => {
-  const category = document.getElementById("category-select").value;
+async function fetchData() {
   const startDate = document.getElementById("start-date").value;
   const endDate = document.getElementById("end-date").value;
-
   if (!startDate || !endDate) {
     alert("Please select both start and end dates.");
     return;
   }
-
-  await fetch(
-    `http://localhost:3000/api/user/entry?group=${category}&start=${startDate}&end=${endDate}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "x-access-token": localStorage.getItem("accessToken"),
-      },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.length > 0) {
-        generateTableRows(data);
-      } else {
-        alert("No data found for the given date range.");
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/user/entry?start=${startDate}&end=${endDate}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": localStorage.getItem("accessToken"),
+        },
       }
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      alert(`There was an error fetching the data. Error is: ${error}`);
+    ); // Replace with actual API URL
+    const data = await response.json();
+    displayData(data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+function displayData(data) {
+  const tableBody = document.getElementById("table-body");
+  let html = "";
+
+  const groupedData = {};
+  data.forEach((item) => {
+    const date = new Date(item.created_at / 1000).toISOString().split("T")[0];
+    if (!groupedData[date]) groupedData[date] = {};
+    if (!groupedData[date][item.category])
+      groupedData[date][item.category] = [];
+    groupedData[date][item.category].push(item);
+  });
+
+  for (const date in groupedData) {
+    html += `<tr class="date-row"><td colspan="7">Date: ${date}</td></tr>`;
+    for (const category in groupedData[date]) {
+      html += `<tr class="category-row"><td colspan="7">Category: ${category}</td></tr>`;
+      groupedData[date][category].forEach((item) => {
+        html += `
+        <tr>
+          <td>${item.food_name}</td>
+          <td>${item.brand_name ? item.brand_name : ""}</td>
+          <td>${item.macronutrients.calories.toFixed(2)}</td>
+          <td>${item.macronutrients.carbs.toFixed(2)}</td>
+          <td>${item.macronutrients.protein.toFixed(2)}</td>
+          <td>${item.macronutrients.fat.toFixed(2)}</td>
+          <td><span class="expand">Show Details</span></td>
+          <tr class="details" style="display: none;">
+            <td colspan="7">
+              <pre>${JSON.stringify(item, null, 2)}</pre>
+            </td>
+          </tr>
+        </tr>`;
+      });
+    }
+  }
+
+  tableBody.innerHTML = html;
+
+  // Attach event listeners to toggle the details row.
+  const expandButtons = document.querySelectorAll(".expand");
+  expandButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      // Get the parent row (the food-row) and then the next row, which is the details row.
+      const detailsRow = this.closest("tr").nextElementSibling;
+      if (detailsRow.style.display === "none") {
+        detailsRow.style.display = "table-row";
+        this.textContent = "Hide Details";
+      } else {
+        detailsRow.style.display = "none";
+        this.textContent = "Show Details";
+      }
     });
-});
+  });
+}

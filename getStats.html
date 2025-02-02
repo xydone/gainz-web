@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Stats - Gainz Web</title>
+    <link rel="stylesheet" href="./css/getStats.css">
+    <link rel="stylesheet" href="./css/common.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Gainz Web</h1>
+      <p>Get statistics for intake based on period of time</p>
+      <div class="controls">
+        <div>
+          <label for="category-select">Choose a category:</label>
+          <select id="category-select">
+            <option value="day">Day</option>
+            <option value="week">Week</option>
+            <option value="month">Month</option>
+            <option value="year">Year</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date">
+        </div>
+        
+        <div>
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date">
+        </div>
+        
+        <div>
+          
+          <button class="action-button" id="fetch-data">Fetch Data</button>
+        </div>
+      </div>
+      
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Group Date</th>
+            <th>Calories</th>
+            <th>Carbs</th>
+            <th>Fat</th>
+            <th>Protein</th>
+            <th>Sugar</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be injected here -->
+        </tbody>
+      </table>
+    </div>
+    
+  </body>
+  <script src="./js/getStats.js"></script>
+  <script src="./js/common.js"></script>
+  </html>
+  

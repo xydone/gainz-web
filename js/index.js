@@ -1,7 +1,11 @@
 const links = [
   {
-    name: "Get entries based on range of time",
+    name: "Get entries for a given range of time",
     url: "getEntries.html",
+  },
+  {
+    name: "Get statistics for intake based on period of time",
+    url: "getStats.html",
   },
   { name: "Search and add food", url: "getFood.html" },
   { name: "Create new food", url: "createFood.html" },
