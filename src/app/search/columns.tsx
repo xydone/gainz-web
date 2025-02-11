@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import TableDialog from "../components/TableDialog";
+import CustomDialog from "./CustomDialog";
 
 export type Food = {
   id: number;
@@ -72,9 +72,24 @@ export const columns: ColumnDef<Food>[] = [
     cell: createRoundedCell("calories", 0),
   },
   {
+    accessorKey: "macronutrients.carbs",
+    header: "Carbs",
+    cell: createRoundedCell("carbs", 1),
+  },
+  {
+    accessorKey: "macronutrients.fat",
+    header: "Fat",
+    cell: createRoundedCell("fat", 1),
+  },
+  {
+    accessorKey: "macronutrients.protein",
+    header: "Protein",
+    cell: createRoundedCell("protein", 1),
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
-      return <TableDialog food={row.original} />;
+      return <CustomDialog food={row.original} />;
     },
   },
 ];

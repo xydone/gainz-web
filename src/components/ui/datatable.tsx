@@ -47,7 +47,10 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="grid justify-center place-items-center">
-      <div className="rounded-md border w-4/5 mt-10 overflow-x-auto">
+      <h1 className="mt-5 block sm:hidden text-text-muted">
+        psst. swipe to see more →
+      </h1>
+      <div className="rounded-md border w-[90%] overflow-x-auto mt-0 sm:mt-10">
         <Table className="table-auto w-50">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -75,7 +78,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="max-w-l min-w-l">
+                    <TableCell key={cell.id} className="max-w-l min-w-l ">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

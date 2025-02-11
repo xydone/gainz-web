@@ -12,7 +12,10 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        text: "var(--text-color)",
+        text: {
+          DEFAULT: "var(--text-color)",
+          muted: "var(--muted-text-color)",
+        },
         accent: {
           DEFAULT: "var(--accent)",
           strong: "var(--accent-strong)",
