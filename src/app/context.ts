@@ -8,6 +8,8 @@ import {
 export interface User {
   accessToken: string | null;
   setAccessToken: Dispatch<SetStateAction<string | null>>;
+  refreshToken: string | null;
+  setRefreshToken: Dispatch<SetStateAction<string | null>>;
   isSignedIn: boolean;
   setIsSignedIn: Dispatch<SetStateAction<boolean>>;
 }

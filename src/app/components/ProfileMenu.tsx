@@ -35,7 +35,7 @@ export default function ProfileMenu({
           <p>{displayName}</p>
           <Button
             onClick={toggleMenu}
-            className="bg-accent text-white cursor-pointer px-[2em] py-[0.5em] rounded-lg border-none hover:bg-background active:bg-accent_strong"
+            className="bg-accent text-white cursor-pointer px-[2em] py-[0.5em] rounded-lg border-none hover:bg-accent active:bg-accent-strong"
           >
             Sign out
           </Button>

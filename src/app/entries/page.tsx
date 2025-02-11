@@ -7,6 +7,7 @@ import { useUserContext } from "../context";
 import { DataTable } from "@/components/ui/datatable";
 import { columns, Entry } from "./columns";
 import { DateRange } from "react-day-picker";
+import { axiosInstance } from "@/lib/api";
 
 export default function Entries() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -20,28 +21,24 @@ export default function Entries() {
     if (accessToken === null) {
       throw new Error("Access token is null!");
     }
-    const headers: HeadersInit = {
-      "x-access-token": accessToken,
-    };
 
-    try {
-      //annoying little thing we have to do because of errors
-      if (date == undefined || date.from == undefined || date.to == undefined)
-        throw new Error("Dates are not defined");
-      const response = await fetch(
+    //annoying little thing we have to do because of errors
+    if (date == undefined || date.from == undefined || date.to == undefined)
+      throw new Error("Dates are not defined");
+    axiosInstance
+      .get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry?start=${format(
           date.from,
           "yyyy-MM-dd"
         )}&end=${format(date.to, "yyyy-MM-dd")}`,
-        {
-          headers: headers,
-        }
-      );
-      const json = await response.json();
-      setAPIResponse(json);
-    } catch (error) {
-      console.error("Fetch error:", error);
-    }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      .then((response) => {
+        setAPIResponse(response.data);
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+      });
   };
 
   return (
@@ -59,7 +56,9 @@ export default function Entries() {
           Submit
         </Button>
       </div>
-      {APIResponse && <DataTable columns={columns} data={APIResponse} />}
+      {APIResponse && (
+        <DataTable columns={columns} data={APIResponse} paginated={true} />
+      )}
     </>
   );
 }

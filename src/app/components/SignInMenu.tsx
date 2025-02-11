@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUserContext } from "../context";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 
 export default function SignInMenu({
   isVisible,
@@ -21,34 +22,28 @@ export default function SignInMenu({
   };
 
   const sendRequest = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
-        method: "POST",
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        const { access_token, refresh_token, display_name } = response.data;
+
+        localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+        localStorage.setItem("displayName", display_name);
+
+        toggleVisibility();
+        setDisplayName(display_name);
+        context.setAccessToken(access_token);
+        context.setRefreshToken(refresh_token);
+        context.setIsSignedIn(true);
+      })
+      .catch((error) => {
+        setFailedSignIn(true);
+        console.warn(error);
       });
-
-      if (!response.ok) {
-        throw new Error("Invalid credentials or server error");
-      }
-
-      const data = await response.json();
-      const { access_token, refresh_token, display_name } = data;
-
-      localStorage.setItem("accessToken", access_token);
-      localStorage.setItem("refreshToken", refresh_token);
-      localStorage.setItem("displayName", display_name);
-
-      toggleVisibility();
-      setDisplayName(display_name);
-      context.setAccessToken(access_token);
-      context.setIsSignedIn(true);
-    } catch (error) {
-      setFailedSignIn(true);
-      console.warn(error);
-    }
   };
   return (
     <>
@@ -93,7 +88,7 @@ export default function SignInMenu({
               <label htmlFor="show-password">Show password</label>
             </div>
             <Button
-              className="bg-accent text-white cursor-pointer px-[2em] py-[0.5em] rounded-lg border-none hover:bg-background active:bg-accent_strong"
+              className="bg-accent text-white cursor-pointer px-[2em] py-[0.5em] rounded-lg border-none hover:bg-background active:bg-accent-strong"
               id="sign-in-button"
               onClick={sendRequest}
             >

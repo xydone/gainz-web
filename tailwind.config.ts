@@ -15,7 +15,7 @@ export default {
         text: "var(--text-color)",
         accent: {
           DEFAULT: "var(--accent)",
-          accent_strong: "var(--accent-strong)",
+          strong: "var(--accent-strong)",
           foreground: "var(--accent-foreground)",
         },
         card: {
