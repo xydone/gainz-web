@@ -49,7 +49,7 @@ export default function SignInMenu({
     <>
       {isVisible && (
         <div
-          className="flex-col items-center z-10 absolute bg-foreground text-text-color p-4 right-0 top-12"
+          className="flex-col items-center z-10 absolute bg-primary text-foreground p-4 right-0 top-12"
           id="sign-in-container"
         >
           <div className="flex flex-col gap-[1em]">

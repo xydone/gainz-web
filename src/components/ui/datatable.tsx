@@ -47,7 +47,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="grid justify-center place-items-center">
-      <h1 className="mt-5 block sm:hidden text-text-muted">
+      <h1 className="mt-5 block sm:hidden text-foreground-muted">
         psst. swipe to see more →
       </h1>
       <div className="rounded-md border w-[90%] overflow-x-auto mt-0 sm:mt-10">

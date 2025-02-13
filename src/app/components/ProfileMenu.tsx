@@ -29,7 +29,7 @@ export default function ProfileMenu({
     <>
       {isVisible && (
         <div
-          className="flex-col p-4 text-center items-center absolute z-10 bg-foreground text-text-color pb-[1em] right-0 top-12"
+          className="flex-col p-4 text-center items-center absolute z-10 bg-primary text-foreground pb-[1em] right-0 top-12"
           id="profile-container"
         >
           <p>{displayName}</p>

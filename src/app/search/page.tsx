@@ -23,7 +23,7 @@ export default function Search() {
   };
   return (
     <div className="mt-5 flex flex-col justify-center items-center gap-4">
-      <h1 className="text-xl">Search</h1>
+      <h1 className="text-xl">Search for food</h1>
       <Input
         type="text"
         className="w-2/3 sm:w-1/3"
