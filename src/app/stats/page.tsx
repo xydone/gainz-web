@@ -9,34 +9,12 @@ import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { subDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import NoResponse from "./NoResponse";
+import { MacronutrientMap } from "../types";
 
 interface MacronutrientDataPoint {
   macronutrient: string;
   value: number;
 }
-
-const MacronutrientMap: { [key: string]: string } = {
-  calories: "Calories",
-  fat: "Fat",
-  sat_fat: "Saturated Fat",
-  polyunsat_fat: "Polyunsaturated Fat",
-  monounsat_fat: "Monounsaturated Fat",
-  trans_fat: "Trans Fat",
-  cholesterol: "Cholesterol",
-  sodium: "Sodium",
-  potassium: "Potassium",
-  carbs: "Carbs",
-  fiber: "Fiber",
-  sugar: "Sugar",
-  protein: "Protein",
-  vitamin_a: "Vitamin A",
-  vitamin_c: "Vitamin C",
-  calcium: "Calcium",
-  iron: "Iron",
-  added_sugars: "Added Sugars",
-  vitamin_d: "Vitamin D",
-  sugar_alcohols: "Sugar Alcohols",
-};
 
 export default function Stats() {
   const [date, setDate] = useState<DateRange | undefined>({

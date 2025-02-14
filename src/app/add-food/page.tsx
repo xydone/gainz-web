@@ -1,0 +1,107 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+
+import { useUserContext } from "../context";
+import { axiosInstance } from "@/lib/api";
+import Labels from "./labels";
+import Macronutrients from "./macronutrients";
+import Fats from "./fats";
+import Carbs from "./carbs";
+import Minerals from "./minerals";
+import Vitamins from "./vitamins";
+import Others from "./others";
+
+export const FormSchema = z
+  .object({
+    brand_name: z.string().optional(),
+    food_name: z.string().optional(),
+    food_grams: z.coerce.number({
+      message: "Must be a number and cannot be empty!",
+    }),
+    calories: z.coerce.number({
+      message: "Must be a number and cannot be empty!",
+    }),
+    fat: z.coerce.number().optional(),
+    sat_fat: z.coerce.number().optional(),
+    polyunsat_fat: z.coerce.number().optional(),
+    monounsat_fat: z.coerce.number().optional(),
+    trans_fat: z.coerce.number().optional(),
+    cholesterol: z.coerce.number().optional(),
+    sodium: z.coerce.number().optional(),
+    potassium: z.coerce.number().optional(),
+    carbs: z.coerce.number().optional(),
+    fiber: z.coerce.number().optional(),
+    sugar: z.coerce.number().optional(),
+    protein: z.coerce.number().optional(),
+    vitamin_a: z.coerce.number().optional(),
+    vitamin_c: z.coerce.number().optional(),
+    calcium: z.coerce.number().optional(),
+    iron: z.coerce.number().optional(),
+    added_sugars: z.coerce.number().optional(),
+    vitamin_d: z.coerce.number().optional(),
+    sugar_alcohols: z.coerce.number().optional(),
+  })
+  .refine(
+    (data) => data.brand_name !== undefined || data.food_name !== undefined,
+    {
+      message: "At least one of brand name or food name must be present.",
+      path: ["brand_name"],
+    }
+  );
+
+export default function Create() {
+  const user = useUserContext();
+  // const [isAPIOkay, setApiOkay] = useState<boolean | null>(null);
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    const { brand_name, food_name, food_grams, ...macronutrients } = data;
+    axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/food`, {
+      brand_name,
+      food_name,
+      food_grams,
+      macronutrients: macronutrients,
+    });
+  }
+
+  return (
+    <div>
+      <h1 className="text-xl text-center">Add new food</h1>
+      <div className="flex justify-center ">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col w-3/5"
+          >
+            <div className="flex space-x-5 mb-4">
+              <Macronutrients form={form} />
+              <Labels form={form} />
+              <Fats form={form} />
+            </div>
+            <div className="flex space-x-5 mb-4">
+              <Carbs form={form} />
+              <Minerals form={form} />
+              <Vitamins form={form} />
+            </div>
+            <Others form={form} />
+            <Button
+              type="submit"
+              className="bg-accent w-1/6 mt-5 place-self-center text-white cursor-pointer rounded-lg border-none hover:bg-accent-strong active:bg-accent-foreground"
+              disabled={!user.isSignedIn}
+            >
+              Submit
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </div>
+  );
+}

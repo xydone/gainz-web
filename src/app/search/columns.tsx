@@ -3,33 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import CustomDialog from "./CustomDialog";
+import { Nutrients } from "../types";
 
 export type Food = {
   id: number;
   food_name: string;
   brand_name: string;
-  macronutrients: {
-    calories: number;
-    fat: number;
-    sat_fat: number;
-    polyunsat_fat: number;
-    monounsat_fat: number;
-    trans_fat: number;
-    cholesterol: number;
-    sodium: number;
-    potassium: number;
-    carbs: number;
-    fiber: number;
-    sugar: number;
-    protein: number;
-    vitamin_a: number;
-    vitamin_c: number;
-    calcium: number;
-    iron: number;
-    added_sugars: number;
-    vitamin_d: number;
-    sugar_alcohols: number;
-  };
+  macronutrients: Nutrients;
   servings: [
     {
       id: number;

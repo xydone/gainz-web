@@ -23,8 +23,8 @@ export default function Nav() {
       url: "/search",
     },
     {
-      name: "Create",
-      url: "/food",
+      name: "Add Food",
+      url: "/add-food",
     },
   ];
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function Nav() {
     setIsNavOpen(!isNavOpen);
   };
   return (
-    <nav className="flex justify-between items-center bg-primary px-5 py-2.5 overflow-scroll sm:overflow-hidden overflow-y-hidden[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-thumb]:bg-accent_strong [&::-webkit-scrollbar-thumb]:rounded-md">
+    <nav className="flex justify-between mb-10 items-center bg-primary px-5 py-2.5 overflow-scroll sm:overflow-hidden overflow-y-hidden[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-thumb]:bg-accent_strong [&::-webkit-scrollbar-thumb]:rounded-md">
       <Menu toggleNav={toggleNav} />
       <div
         className={`${
