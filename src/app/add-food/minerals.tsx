@@ -13,7 +13,6 @@ import {
 
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,16 +23,23 @@ import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "./page";
 import { z } from "zod";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Minerals({
   form,
+  className,
 }: {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
+  className?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Collapsible className="w-1/2  mt-5" open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible
+      className={cn("w-1/2  mt-5", className)}
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <Card>
         <CollapsibleTrigger className="flex flex-col space-y-1.5 text-left w-full">
           <CardHeader>

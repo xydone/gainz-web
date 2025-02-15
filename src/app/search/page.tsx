@@ -22,7 +22,7 @@ export default function Search() {
       });
   };
   return (
-    <div className="mt-5 flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <h1 className="text-xl">Search for food</h1>
       <Input
         type="text"
@@ -34,7 +34,8 @@ export default function Search() {
 
       <Button
         type="submit"
-        className="bg-accent text-white cursor-pointer px-[2em] py-[0.5em] rounded-lg border-none hover:bg-accent-strong active:bg-accent-foreground"
+        variant={"outline"}
+        className={"mt-3"}
         onClick={searchFood}
         disabled={!user.isSignedIn}
       >

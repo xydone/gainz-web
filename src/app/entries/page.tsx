@@ -43,13 +43,13 @@ export default function Entries() {
 
   return (
     <>
-      <div className="grid justify-center">
-        <h1 className="text-center text-xl m-5">Select a date range</h1>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <h1 className="text-center text-xl ">View Statistics</h1>
         <DatePickerWithRange className={""} date={date} setDate={setDate} />
         <Button
           id="date"
           variant={"outline"}
-          className={"mt-10"}
+          className={"mt-3"}
           onClick={fetchAPI}
           disabled={!isSignedIn}
         >

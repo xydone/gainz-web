@@ -15,9 +15,19 @@ interface MacronutrientDataPoint {
   macronutrient: string;
   value: number;
 }
+interface IDate {
+  from: Date;
+  to: Date;
+}
 
 export default function Stats() {
   const [date, setDate] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  });
+  //used for updating the date in the chart only when the submit is clicked
+  //using date,setDate above would cause the chart to update every time the range was changed, without the data in the chart getting changed
+  const [displayDate, setDisplayDate] = useState<IDate | undefined>({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
@@ -48,6 +58,8 @@ export default function Stats() {
         const transformed: MacronutrientDataPoint[] = [];
         const keys = Object.keys(response.data);
         for (const key of keys) {
+          if (date.from == undefined || date.to == undefined) return;
+          setDisplayDate({ from: date.from, to: date.to });
           transformed.push({
             macronutrient: MacronutrientMap[key],
             value: Math.round(response.data[key]),
@@ -61,8 +73,8 @@ export default function Stats() {
       });
   };
   return (
-    <div className="mt-5 flex flex-col justify-center items-center gap-4">
-      <h1 className="text-xl">Search for food</h1>
+    <div className="flex flex-col justify-center items-center gap-4">
+      <h1 className="text-xl">View Raw Data</h1>
       <DatePickerWithRange className={""} date={date} setDate={setDate} />
       <Button
         id="date"
@@ -73,7 +85,9 @@ export default function Stats() {
       >
         Submit
       </Button>
-      {APIResponse && <CustomBarChart chartData={APIResponse} />}
+      {APIResponse && date && (
+        <CustomBarChart chartData={APIResponse} date={displayDate} />
+      )}
       {isResponseOkay == false && <NoResponse />}
     </div>
   );

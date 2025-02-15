@@ -81,20 +81,21 @@ export default function Create() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col w-3/5"
           >
-            <div className="flex space-x-5 mb-4">
-              <Macronutrients form={form} />
-              <Labels form={form} />
-              <Fats form={form} />
+            <div className="flex flex-col lg:flex-row items-center lg:space-x-5">
+              <Labels form={form} className="min-w-44" />
+              <Macronutrients form={form} className="min-w-44" />
+              <Fats form={form} className="min-w-44" />
             </div>
-            <div className="flex space-x-5 mb-4">
-              <Carbs form={form} />
-              <Minerals form={form} />
-              <Vitamins form={form} />
+            <div className="flex flex-col lg:flex-row items-center lg:space-x-5">
+              <Carbs form={form} className="min-w-44" />
+              <Minerals form={form} className="min-w-44" />
+              <Vitamins form={form} className="min-w-44" />
             </div>
-            <Others form={form} />
+            <Others form={form} className="min-w-44" />
             <Button
               type="submit"
-              className="bg-accent w-1/6 mt-5 place-self-center text-white cursor-pointer rounded-lg border-none hover:bg-accent-strong active:bg-accent-foreground"
+              variant={"outline"}
+              className={"mt-3 place-self-center"}
               disabled={!user.isSignedIn}
             >
               Submit

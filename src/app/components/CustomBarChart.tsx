@@ -15,11 +15,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { format } from "date-fns";
 
 type MacronutrientDataPoint = {
   macronutrient: string;
   value: number;
 };
+interface IDate {
+  from: Date;
+  to: Date;
+}
 const chartConfig = {
   value: {
     label: "value",
@@ -27,14 +32,21 @@ const chartConfig = {
 } satisfies ChartConfig;
 export default function CustomBarChart({
   chartData,
+  date,
 }: {
   chartData: MacronutrientDataPoint[];
+  date: IDate | undefined;
 }) {
+  if (date == undefined || date.from == undefined || date.to == undefined)
+    return;
   return (
-    <Card className="w-[40%]">
+    <Card className="lg:w-[40%] w-[95%]">
       <CardHeader>
-        <CardTitle>Bar Chart - Horizontal</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Nutrient Intake Chart</CardTitle>
+        <CardDescription>{`${format(date.from, "dd MMMM yyyy")} - ${format(
+          date.to,
+          "dd MMMM yyyy"
+        )}`}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -43,6 +55,8 @@ export default function CustomBarChart({
             data={chartData}
             margin={{
               top: 20,
+              left: 8,
+              right: 8,
             }}
           >
             <CartesianGrid vertical={false} strokeWidth={0.2} />
