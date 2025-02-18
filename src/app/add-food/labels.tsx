@@ -100,7 +100,7 @@ export default function Labels({
                     set the macronutrients.
                   </FormDescription>
                   <FormDescription>
-                    (eg. 200 calories per <u>100g</u>)
+                    (e.g. 200 calories per <u>100g</u>)
                   </FormDescription>
                 </FormItem>
               )}
