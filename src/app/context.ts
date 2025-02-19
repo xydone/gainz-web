@@ -6,6 +6,8 @@ import {
   useEffect,
 } from "react";
 export interface User {
+  displayName: string | null;
+  setDisplayName: Dispatch<SetStateAction<string | null>>;
   accessToken: string | null;
   setAccessToken: Dispatch<SetStateAction<string | null>>;
   refreshToken: string | null;
@@ -26,8 +28,10 @@ export function useUserContext() {
   }
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
+    const storedName = localStorage.getItem("displayName");
     at.setAccessToken(storedToken);
     if (storedToken !== null) at.setIsSignedIn(true);
+    at.setDisplayName(storedName);
   });
   return at;
 }
