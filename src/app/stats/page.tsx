@@ -3,7 +3,7 @@ import { useUserContext } from "../context";
 import { axiosInstance } from "@/lib/api";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import CustomBarChart from "../components/CustomBarChart";
+import CustomBarChart from "@/components/ui/CustomBarChart";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 
 import { subDays, format } from "date-fns";
@@ -74,7 +74,7 @@ export default function Stats() {
   };
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <h1 className="text-xl">View Raw Data</h1>
+      <h1 className="text-xl">View Statistics</h1>
       <DatePickerWithRange className={""} date={date} setDate={setDate} />
       <Button
         id="date"

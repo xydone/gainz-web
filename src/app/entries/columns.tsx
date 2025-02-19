@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { ArrowUpDown } from "lucide-react";
 
 import { dropdownColumns } from "../search/dropdowncolumns";
-import TableDialog from "../components/TableDialog";
+import TableDialog from "@/components/ui/TableDialog";
 import { Nutrients } from "../types";
 
 export type Entry = {

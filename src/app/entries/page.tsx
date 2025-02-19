@@ -44,7 +44,7 @@ export default function Entries() {
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-center text-xl ">View Statistics</h1>
+        <h1 className="text-center text-xl ">View Raw Data</h1>
         <DatePickerWithRange className={""} date={date} setDate={setDate} />
         <Button
           id="date"
