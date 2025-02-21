@@ -1,7 +1,9 @@
-export default function Index() {
-  return (
-    <div>
-      <h1 className="text-center text-xl m-5">Gainz Web</h1>
-    </div>
-  );
+"use client";
+import { useUserContext } from "./context";
+import NotSignedIn from "@/app/not-signed-in";
+import SignedIn from "@/app/signed-in";
+export default function Root() {
+  const user = useUserContext();
+
+  return user.isSignedIn ? <SignedIn /> : <NotSignedIn />;
 }
