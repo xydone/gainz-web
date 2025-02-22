@@ -12,7 +12,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Label, Pie, PieChart } from "recharts";
+import { Label, Legend, Pie, PieChart } from "recharts";
 import { cn } from "@/lib/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { useUserContext } from "./context";
@@ -56,25 +56,24 @@ interface Summary {
   sugar: number;
 }
 
-interface CalorieDistributionProps {
+interface NutrientDistributionProps {
   className?: string;
+  todayData: DayData;
+  setTodayData: Dispatch<SetStateAction<DayData>>;
 }
 
-interface DayData {
+export interface DayData {
   nutrients: Nutrient[] | null;
   calories: number | null;
   summary: Summary | null;
 }
 
-export default function CalorieDistribution({
+export default function NutrientDistribution({
   className,
-}: CalorieDistributionProps) {
+  todayData,
+  setTodayData,
+}: NutrientDistributionProps) {
   const user = useUserContext();
-  const [todayData, setTodayData] = useState<DayData>({
-    nutrients: null,
-    calories: null,
-    summary: null,
-  });
 
   const [yesterdayData, setYesterdayData] = useState<DayData>({
     nutrients: null,
@@ -147,21 +146,21 @@ export default function CalorieDistribution({
   }, [user.accessToken]);
 
   if (!todayData.nutrients || !todayData.calories)
-    return <EmptyResponse className={cn("mx-5", className)} />;
+    return <EmptyResponse className={cn("", className)} />;
   return (
-    <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Calories</CardTitle>
-        <CardDescription className="text-center">
-          {"Today's calorie intake distribution"}
+    <Card className={cn("", className)}>
+      <CardHeader className="pb-0">
+        <CardTitle>Nutrients</CardTitle>
+        <CardDescription className="">
+          {"Today's nutrient distribution"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="flex-1 pb-0 mt-6 w-full">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[200px]"
         >
-          <PieChart>
+          <PieChart margin={{}}>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
@@ -170,7 +169,8 @@ export default function CalorieDistribution({
               data={todayData.nutrients}
               dataKey="intake"
               nameKey="nutrient"
-              innerRadius={60}
+              innerRadius={50}
+              outerRadius={70}
               strokeWidth={5}
               labelLine={false}
               label={({ payload, ...props }) => {
@@ -219,6 +219,7 @@ export default function CalorieDistribution({
                 }}
               />
             </Pie>
+            <Legend />
           </PieChart>
         </ChartContainer>
       </CardContent>
@@ -226,8 +227,8 @@ export default function CalorieDistribution({
         yesterdayData.nutrients &&
         todayData.summary &&
         yesterdayData.summary && (
-          <CardFooter className="flex-col gap-2 text-sm text-center">
-            <div className="flex items-center gap-2 font-medium leading-none">
+          <CardFooter className="mt-5 flex-col gap-2 text-sm text-center">
+            <div className="flex flex-col lg:flex-row items-center  font-medium leading-none">
               That is {Math.abs(todayData.calories - yesterdayData.calories)}{" "}
               {todayData.calories - yesterdayData.calories > 0
                 ? "more"
@@ -239,7 +240,7 @@ export default function CalorieDistribution({
                 <TrendingDown />
               )}
             </div>
-            <div className="flex items-center gap-5 font-medium leading-none text-muted-foreground">
+            <div className="flex flex-col lg:flex-row items-center gap-2 font-medium leading-none text-muted-foreground">
               <CalorieDistributionDescription
                 today={todayData.summary}
                 yesterday={yesterdayData.summary}

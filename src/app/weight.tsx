@@ -53,7 +53,7 @@ function processData(data: Response[]) {
     if (dataIndex < data.length && dataDate === currentDateString) {
       processedData.push({
         created_at: currentDateString,
-        value: data[dataIndex].value,
+        value: Math.round(data[dataIndex].value * 10) / 10,
       });
       dataIndex++;
     } else {
@@ -94,8 +94,8 @@ export default function Weight({ className }: { className?: string }) {
         <CardTitle>Weight</CardTitle>
         <CardDescription>Weight in the past 3 months</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent className="w-full">
+        <ChartContainer config={chartConfig} className="max-h-64 w-full">
           <LineChart
             accessibilityLayer
             data={processedData}
