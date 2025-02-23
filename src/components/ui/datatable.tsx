@@ -21,16 +21,19 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   paginated?: boolean;
+  tableDivStyles?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   paginated = false,
+  tableDivStyles,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
@@ -46,11 +49,16 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="grid justify-center place-items-center">
+    <div className="w-full grid justify-center place-items-center">
       <h1 className="mt-5 block sm:hidden text-foreground-muted">
         psst. swipe to see more →
       </h1>
-      <div className="rounded-md border w-[90%] overflow-x-auto mt-0 sm:mt-10">
+      <div
+        className={cn(
+          "rounded-md border w-full overflow-x-auto mt-0 sm:mt-10",
+          tableDivStyles
+        )}
+      >
         <Table className="table-auto w-50">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -25,10 +25,10 @@
     --input: hsl(0, 0%, 89.8%);
     --ring: hsl(0, 0%, 3.9%);
     --chart-1: hsl(0, 0%, 0%);
-    --chart-2: hsl(173, 58%, 39%);
-    --chart-3: hsl(197, 37%, 24%);
-    --chart-4: hsl(43, 74%, 66%);
-    --chart-5: hsl(27, 87%, 67%);
+    --protein: hsl(359, 47%, 71%);
+    --carbs: hsl(52, 46%, 31%);
+    --fat: hsl(77, 47%, 57%);
+    --chart-empty: hsl(0, 0%, 50%);
     --radius: 0.5rem;
   }
   .dark {
@@ -53,10 +53,11 @@
     --input: hsl(0, 0%, 14.9%);
     --ring: hsl(0, 0%, 83.1%);
     --chart-1: hsl(0, 0%, 98%);
-    --chart-2: hsl(160, 60%, 45%);
-    --chart-3: hsl(30, 80%, 55%);
-    --chart-4: hsl(280, 65%, 60%);
-    --chart-5: hsl(340, 75%, 55%);
+    --protein: hsl(0, 38%, 72%);
+    --carbs: hsl(0, 57%, 32%);
+    --fat: hsl(0, 75%, 54%);
+    --chart-empty: hsl(0, 0%, 50%);
+    --radius: 0.5rem;
   }
 }
 
