@@ -10,20 +10,12 @@ import {
 
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { DayData } from "./nutrient-distribution";
-import { useEffect } from "react";
-import { axiosInstance } from "@/lib/api";
 
 interface Data {
   nutrient: string;
   value: number;
   fill: string;
 }
-
-const goal = {
-  calories: 3000,
-  protein: 240,
-  sugar: 60,
-};
 
 const caloriesConfig = {
   value: {
@@ -55,9 +47,11 @@ const sugarConfig = {
 export function CalorieGoal({
   className,
   todayData,
+  goal,
 }: {
   className?: string;
   todayData: DayData;
+  goal: number;
 }) {
   if (!todayData.calories) return;
   const caloriesData = [
@@ -71,7 +65,7 @@ export function CalorieGoal({
     <BasicCard
       data={caloriesData}
       config={caloriesConfig}
-      goalValue={goal.calories}
+      goalValue={goal}
       className={cn("w-full", className)}
     />
   );
@@ -79,9 +73,11 @@ export function CalorieGoal({
 export function ProteinGoal({
   className,
   todayData,
+  goal,
 }: {
   className?: string;
   todayData: DayData;
+  goal: number;
 }) {
   if (!todayData.calories) return;
   const proteinData = [
@@ -95,7 +91,7 @@ export function ProteinGoal({
     <BasicCard
       data={proteinData}
       config={proteinConfig}
-      goalValue={goal.protein}
+      goalValue={goal}
       className={cn("w-full", className)}
     />
   );
@@ -103,9 +99,11 @@ export function ProteinGoal({
 export function SugarGoal({
   className,
   todayData,
+  goal,
 }: {
   className?: string;
   todayData: DayData;
+  goal: number;
 }) {
   if (!todayData.calories) return;
   const sugarData = [
@@ -119,7 +117,7 @@ export function SugarGoal({
     <BasicCard
       data={sugarData}
       config={sugarConfig}
-      goalValue={goal.sugar}
+      goalValue={goal}
       className={cn("w-full", className)}
     />
   );
