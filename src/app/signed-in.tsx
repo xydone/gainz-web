@@ -9,7 +9,7 @@ interface Goal {
   id: number;
   value: number;
 }
-interface Goals {
+export interface Goals {
   protein: Goal | null;
 
   sugar: Goal | null;
@@ -57,6 +57,7 @@ export default function SignedIn() {
       });
   }, [user.accessToken]);
   return (
+    //TODO: known issue in which setting the value in the goal element doesn't update the charts
     <div className="mx-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {goals && goals.calorie && (

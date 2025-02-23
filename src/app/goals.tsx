@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Label,
   PolarGrid,
@@ -10,6 +16,18 @@ import {
 
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { DayData } from "./nutrient-distribution";
+import { Minus, Plus, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import { axiosInstance } from "@/lib/api";
+import { useUserContext } from "./context";
 
 interface Data {
   nutrient: string;
@@ -134,13 +152,92 @@ function BasicCard({
   config: ChartConfig;
   goalValue: number;
 }) {
+  const [tempGoal, setTempGoal] = useState(goalValue);
+  const user = useUserContext();
+
+  function onClick(adjustment: number) {
+    setTempGoal(tempGoal + adjustment);
+  }
+  const submit = () => {
+    axiosInstance.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
+      { nutrient: data[0].nutrient, value: tempGoal },
+      {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      }
+    );
+  };
+  const nutrientCaps =
+    data[0].nutrient[0].toUpperCase() + data[0].nutrient.slice(1);
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
-          {`${
-            data[0].nutrient[0].toUpperCase() + data[0].nutrient.slice(1)
-          } goals`}
+          {`${nutrientCaps} goals`}
+          <CardDescription>Goal is {goalValue}</CardDescription>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="absolute top-5 right-5 text-muted"
+              >
+                <Settings />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit {data[0].nutrient} goals</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-row items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 gap-0 shrink-0 rounded-full"
+                  onClick={() => onClick(-100)}
+                  disabled={tempGoal <= 0}
+                >
+                  <Minus /> <Minus />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 rounded-full"
+                  onClick={() => onClick(-10)}
+                  disabled={tempGoal <= 0}
+                >
+                  <Minus />
+                </Button>
+
+                <div className="flex-1 text-center">
+                  <div className="text-7xl font-bold tracking-tighter">
+                    {tempGoal}
+                  </div>
+                  <div className="text-[0.70rem] uppercase text-muted-foreground">
+                    {nutrientCaps}/day
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 gap-0 shrink-0 rounded-full"
+                  onClick={() => onClick(10)}
+                >
+                  <Plus />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 gap-0 shrink-0 rounded-full"
+                  onClick={() => onClick(100)}
+                >
+                  <Plus /> <Plus />
+                </Button>
+              </div>
+              <Button variant="outline" onClick={submit}>
+                Submit
+              </Button>
+            </DialogContent>
+          </Dialog>
         </CardTitle>
       </CardHeader>
       <CardContent>
