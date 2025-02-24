@@ -22,15 +22,22 @@ function AxiosInterceptor() {
               if (refreshToken == null) throw new Error("No refresh token");
               user.setRefreshToken(refreshToken);
             }
-            const { data } = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-              {
+            await axios
+              .post(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
                 refresh_token: refreshToken,
-              }
-            );
-            user.setAccessToken(data.access_token);
-            localStorage.setItem("accessToken", data.access_token);
-            originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+              })
+              .then(({ data }) => {
+                user.setAccessToken(data.access_token);
+                localStorage.setItem("accessToken", data.access_token);
+                originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+              })
+              .catch(() => {
+                user.setAccessToken(null);
+                user.setRefreshToken(null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+              });
+
             return axiosInstance(originalRequest);
           } catch (refreshError) {
             console.error("Refresh token error:", refreshError);

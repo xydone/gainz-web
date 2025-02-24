@@ -25,9 +25,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
+import { Goals } from "./signed-in";
 
 interface Data {
   nutrient: string;
@@ -65,13 +66,15 @@ const sugarConfig = {
 export function CalorieGoal({
   className,
   todayData,
-  goal,
+  goals,
+  setGoals,
 }: {
   className?: string;
   todayData: DayData;
-  goal: number;
+  goals: Goals;
+  setGoals: Dispatch<SetStateAction<Goals | null>>;
 }) {
-  if (!todayData.calories) return;
+  if (!todayData.calories || !goals.calorie) return;
   const caloriesData = [
     {
       nutrient: "calories",
@@ -79,12 +82,14 @@ export function CalorieGoal({
       fill: "var(--color-calories)",
     },
   ];
+  const goal = goals.calorie.value;
   return (
     <BasicCard
       data={caloriesData}
       config={caloriesConfig}
       goalValue={goal}
       className={cn("w-full", className)}
+      setGoals={setGoals}
     />
   );
 }
@@ -92,10 +97,12 @@ export function ProteinGoal({
   className,
   todayData,
   goal,
+  setGoals,
 }: {
   className?: string;
   todayData: DayData;
   goal: number;
+  setGoals: Dispatch<SetStateAction<Goals | null>>;
 }) {
   if (!todayData.calories) return;
   const proteinData = [
@@ -111,6 +118,7 @@ export function ProteinGoal({
       config={proteinConfig}
       goalValue={goal}
       className={cn("w-full", className)}
+      setGoals={setGoals}
     />
   );
 }
@@ -118,10 +126,12 @@ export function SugarGoal({
   className,
   todayData,
   goal,
+  setGoals,
 }: {
   className?: string;
   todayData: DayData;
   goal: number;
+  setGoals: Dispatch<SetStateAction<Goals | null>>;
 }) {
   if (!todayData.calories) return;
   const sugarData = [
@@ -137,6 +147,7 @@ export function SugarGoal({
       config={sugarConfig}
       goalValue={goal}
       className={cn("w-full", className)}
+      setGoals={setGoals}
     />
   );
 }
@@ -146,11 +157,13 @@ function BasicCard({
   data,
   config,
   goalValue,
+  setGoals,
 }: {
   className?: string;
   data: Data[];
   config: ChartConfig;
   goalValue: number;
+  setGoals: Dispatch<SetStateAction<Goals | null>>;
 }) {
   const [tempGoal, setTempGoal] = useState(goalValue);
   const user = useUserContext();
@@ -159,13 +172,25 @@ function BasicCard({
     setTempGoal(tempGoal + adjustment);
   }
   const submit = () => {
-    axiosInstance.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-      { nutrient: data[0].nutrient, value: tempGoal },
-      {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      }
-    );
+    axiosInstance
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
+        { nutrient: data[0].nutrient, value: tempGoal },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then(() => {
+        setGoals((prevG) => {
+          if (!prevG) return null;
+          return {
+            ...prevG,
+            calorie: {
+              value: tempGoal,
+            },
+          };
+        });
+      });
   };
   const nutrientCaps =
     data[0].nutrient[0].toUpperCase() + data[0].nutrient.slice(1);
