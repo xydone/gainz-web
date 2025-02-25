@@ -15,7 +15,6 @@ import {
 } from "recharts";
 
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { DayData } from "./nutrient-distribution";
 import { Minus, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,134 +35,20 @@ interface Data {
   fill: string;
 }
 
-const caloriesConfig = {
-  value: {
-    label: "Value",
-  },
-  calories: {
-    label: "Calories",
-    color: "var(--destructive)",
-  },
-} satisfies ChartConfig;
-const proteinConfig = {
-  value: {
-    label: "Value",
-  },
-  calories: {
-    label: "Protein",
-    color: "var(--destructive)",
-  },
-} satisfies ChartConfig;
-const sugarConfig = {
-  value: {
-    label: "Value",
-  },
-  calories: {
-    label: "Sugar",
-    color: "var(--destructive)",
-  },
-} satisfies ChartConfig;
-export function CalorieGoal({
-  className,
-  todayData,
-  goals,
-  setGoals,
-}: {
-  className?: string;
-  todayData: DayData;
-  goals: Goals;
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
-}) {
-  if (!todayData.calories || !goals.calorie) return;
-  const caloriesData = [
-    {
-      nutrient: "calories",
-      value: todayData.calories,
-      fill: "var(--color-calories)",
-    },
-  ];
-  const goal = goals.calorie.value;
-  return (
-    <BasicCard
-      data={caloriesData}
-      config={caloriesConfig}
-      goalValue={goal}
-      className={cn("w-full", className)}
-      setGoals={setGoals}
-    />
-  );
-}
-export function ProteinGoal({
-  className,
-  todayData,
-  goal,
-  setGoals,
-}: {
-  className?: string;
-  todayData: DayData;
-  goal: number;
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
-}) {
-  if (!todayData.calories) return;
-  const proteinData = [
-    {
-      nutrient: "protein",
-      value: 40,
-      fill: "var(--color-calories)",
-    },
-  ];
-  return (
-    <BasicCard
-      data={proteinData}
-      config={proteinConfig}
-      goalValue={goal}
-      className={cn("w-full", className)}
-      setGoals={setGoals}
-    />
-  );
-}
-export function SugarGoal({
-  className,
-  todayData,
-  goal,
-  setGoals,
-}: {
-  className?: string;
-  todayData: DayData;
-  goal: number;
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
-}) {
-  if (!todayData.calories) return;
-  const sugarData = [
-    {
-      nutrient: "sugar",
-      value: 100,
-      fill: "var(--color-calories)",
-    },
-  ];
-  return (
-    <BasicCard
-      data={sugarData}
-      config={sugarConfig}
-      goalValue={goal}
-      className={cn("w-full", className)}
-      setGoals={setGoals}
-    />
-  );
-}
-
-function BasicCard({
+export function BasicCard({
   className,
   data,
   config,
   goalValue,
   setGoals,
+  overflow,
 }: {
   className?: string;
   data: Data[];
   config: ChartConfig;
   goalValue: number;
   setGoals: Dispatch<SetStateAction<Goals | null>>;
+  overflow?: boolean;
 }) {
   const [tempGoal, setTempGoal] = useState(goalValue);
   const user = useUserContext();
@@ -185,7 +70,7 @@ function BasicCard({
           if (!prevG) return null;
           return {
             ...prevG,
-            calorie: {
+            [data[0].nutrient]: {
               value: tempGoal,
             },
           };
@@ -266,7 +151,12 @@ function BasicCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <BasicChart data={data} config={config} goalValue={goalValue} />
+        <BasicChart
+          data={data}
+          config={config}
+          goalValue={goalValue}
+          overflow={overflow}
+        />
       </CardContent>
     </Card>
   );
@@ -276,11 +166,15 @@ function BasicChart({
   data,
   config,
   goalValue,
+  overflow,
 }: {
   data: Data[];
   config: ChartConfig;
   goalValue: number;
+  overflow?: boolean;
 }) {
+  const angle = (data[0].value / goalValue) * 360;
+  console.log({ angle });
   return (
     <ChartContainer
       config={config}
@@ -288,7 +182,9 @@ function BasicChart({
     >
       <RadialBarChart
         data={data}
-        startAngle={(data[0].value / goalValue) * 360}
+        startAngle={
+          overflow ? (data[0].value / goalValue) * 360 : angle < 360 ? angle : 0
+        }
         innerRadius={80}
         outerRadius={140}
       >

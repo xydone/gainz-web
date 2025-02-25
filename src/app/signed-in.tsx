@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import NutrientDistribution, { DayData } from "./nutrient-distribution";
-import { CalorieGoal, ProteinGoal, SugarGoal } from "./goals";
+import { ChartConfig } from "@/components/ui/chart";
+import { BasicCard } from "./goals";
 import Weight from "./weight";
 import QuickAdd from "./quick-add";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
+import { AxiosError } from "axios";
+import { format, subDays } from "date-fns";
 interface Goal {
   value: number;
 }
@@ -13,8 +16,38 @@ export interface Goals {
 
   sugar: Goal | null;
 
-  calorie: Goal | null;
+  calories: Goal | null;
 }
+
+const configs = {
+  calories: {
+    value: {
+      label: "Value",
+    },
+    calories: {
+      label: "Calories",
+      color: "var(--destructive)",
+    },
+  } satisfies ChartConfig,
+  protein: {
+    value: {
+      label: "Value",
+    },
+    calories: {
+      label: "Protein",
+      color: "var(--destructive)",
+    },
+  } satisfies ChartConfig,
+  sugar: {
+    value: {
+      label: "Value",
+    },
+    calories: {
+      label: "Sugar",
+      color: "var(--destructive)",
+    },
+  } satisfies ChartConfig,
+};
 
 interface Response {
   id: number;
@@ -27,6 +60,13 @@ export default function SignedIn() {
     calories: null,
     summary: null,
   });
+
+  const [yesterdayData, setYesterdayData] = useState<DayData>({
+    nutrients: null,
+    calories: null,
+    summary: null,
+  });
+
   const [goals, setGoals] = useState<Goals | null>(null);
   const user = useUserContext();
   useEffect(() => {
@@ -50,43 +90,120 @@ export default function SignedIn() {
         setGoals({
           protein: createGoal(protein),
           sugar: createGoal(sugar),
-          calorie: createGoal(calorie),
+          calories: createGoal(calorie),
         });
       });
-  }, [user.accessToken]);
+    if (!user.accessToken) return;
+    function fetchNutrients({
+      day,
+      setter,
+    }: {
+      day: string;
+      setter: Dispatch<SetStateAction<DayData>>;
+    }) {
+      axiosInstance
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then((response) => {
+          setter({
+            summary: {
+              calories: Math.round(response.data.calories),
+              protein: Math.round(response.data.protein),
+              carbs: Math.round(response.data.carbs),
+              fat: Math.round(response.data.fat),
+              sugar: Math.round(response.data.sugar),
+            },
+            nutrients: [
+              {
+                nutrient: "Protein",
+                intake: Math.round(response.data.protein),
+                fill: "var(--color-protein)",
+              },
+              {
+                nutrient: "Carbs",
+                intake: Math.round(response.data.carbs),
+                fill: "var(--color-carbs)",
+              },
+              {
+                nutrient: "Fat",
+                intake: Math.round(response.data.fat),
+                fill: "var(--color-fat)",
+              },
+            ],
 
+            calories: Math.round(response.data.calories),
+          });
+        })
+        .catch((error: AxiosError) => {
+          if (error.status !== 404) {
+            console.log(error);
+          }
+        });
+    }
+    const date = new Date(2024, 11, 20);
+    const today = format(date, "yyyy-MM-dd");
+    const yesterday = format(subDays(date, 1), "yyyy-MM-dd");
+    fetchNutrients({
+      day: today,
+      setter: setTodayData,
+    });
+    fetchNutrients({
+      day: yesterday,
+      setter: setYesterdayData,
+    });
+  }, [user.accessToken]);
+  if (!todayData.nutrients) return;
+  const nutrientCards = [
+    {
+      nutrient: "calories",
+      fill: "var(--color-calories)",
+    },
+    {
+      nutrient: "protein",
+      fill: "var(--color-protein)",
+    },
+    {
+      nutrient: "sugar",
+      fill: "var(--color-sugar)",
+    },
+  ];
   return (
-    //TODO: known issue in which setting the value in the goal element doesn't update the charts
     <div className="mx-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {goals && (
-          <CalorieGoal
-            className=""
-            todayData={todayData}
-            goals={goals}
-            setGoals={setGoals}
-          />
-        )}
-        {goals && goals.protein && (
-          <ProteinGoal
-            className=""
-            todayData={todayData}
-            goal={goals.protein.value}
-            setGoals={setGoals}
-          />
-        )}
-        {goals && goals.sugar && (
-          <SugarGoal
-            className=""
-            todayData={todayData}
-            goal={goals.sugar.value}
-            setGoals={setGoals}
-          />
+        {nutrientCards.map(
+          (card, i) =>
+            goals &&
+            todayData &&
+            //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+            todayData.summary[card.nutrient] && (
+              <BasicCard
+                key={i}
+                className=""
+                data={[
+                  {
+                    nutrient: card.nutrient,
+                    //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+                    value: todayData.summary[card.nutrient],
+                    fill: "var(--color-calories)",
+                  },
+                ]}
+                //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+                config={configs[card.nutrient]}
+                //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+                goalValue={goals[card.nutrient].value}
+                setGoals={setGoals}
+                overflow={card.nutrient == "calories" ? false : true}
+              />
+            )
         )}
         <NutrientDistribution
           className=""
           todayData={todayData}
-          setTodayData={setTodayData}
+          yesterdayData={yesterdayData}
         />
         <QuickAdd />
         <Weight className="" />

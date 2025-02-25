@@ -15,11 +15,6 @@ import {
 import { Label, Legend, Pie, PieChart } from "recharts";
 import { cn } from "@/lib/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { useUserContext } from "./context";
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
-import { axiosInstance } from "@/lib/api";
-import { format, subDays } from "date-fns";
-import { AxiosError } from "axios";
 
 export const chartConfig = {
   intake: {
@@ -50,6 +45,7 @@ interface Nutrient {
 }
 
 interface Summary {
+  calories: number;
   protein: number;
   fat: number;
   carbs: number;
@@ -59,7 +55,7 @@ interface Summary {
 interface NutrientDistributionProps {
   className?: string;
   todayData: DayData;
-  setTodayData: Dispatch<SetStateAction<DayData>>;
+  yesterdayData: DayData;
 }
 
 export interface DayData {
@@ -71,80 +67,8 @@ export interface DayData {
 export default function NutrientDistribution({
   className,
   todayData,
-  setTodayData,
+  yesterdayData,
 }: NutrientDistributionProps) {
-  const user = useUserContext();
-
-  const [yesterdayData, setYesterdayData] = useState<DayData>({
-    nutrients: null,
-    calories: null,
-    summary: null,
-  });
-
-  useEffect(() => {
-    if (!user.accessToken) return;
-    function fetchNutrients({
-      day,
-      setter,
-    }: {
-      day: string;
-      setter: Dispatch<SetStateAction<DayData>>;
-    }) {
-      axiosInstance
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`,
-          {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          }
-        )
-        .then((response) => {
-          setter({
-            summary: {
-              protein: Math.round(response.data.protein),
-              carbs: Math.round(response.data.carbs),
-              fat: Math.round(response.data.fat),
-              sugar: Math.round(response.data.sugar),
-            },
-            nutrients: [
-              {
-                nutrient: "Protein",
-                intake: Math.round(response.data.protein),
-                fill: "var(--color-protein)",
-              },
-              {
-                nutrient: "Carbs",
-                intake: Math.round(response.data.carbs),
-                fill: "var(--color-carbs)",
-              },
-              {
-                nutrient: "Fat",
-                intake: Math.round(response.data.fat),
-                fill: "var(--color-fat)",
-              },
-            ],
-
-            calories: Math.round(response.data.calories),
-          });
-        })
-        .catch((error: AxiosError) => {
-          if (error.status !== 404) {
-            console.log(error);
-          }
-        });
-    }
-    const date = new Date(2024, 11, 20);
-    const today = format(date, "yyyy-MM-dd");
-    const yesterday = format(subDays(date, 1), "yyyy-MM-dd");
-    fetchNutrients({
-      day: today,
-      setter: setTodayData,
-    });
-    fetchNutrients({
-      day: yesterday,
-      setter: setYesterdayData,
-    });
-  }, [user.accessToken]);
-
   if (!todayData.nutrients || !todayData.calories)
     return <EmptyResponse className={cn("", className)} />;
   return (
