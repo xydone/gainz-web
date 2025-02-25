@@ -3,7 +3,7 @@ import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { Button } from "@/components/ui/button";
 import { subDays, format } from "date-fns";
 import { useState } from "react";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { DataTable } from "@/components/ui/datatable";
 import { columns, Entry } from "./columns";
 import { DateRange } from "react-day-picker";

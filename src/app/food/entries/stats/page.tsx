@@ -1,5 +1,5 @@
 "use client";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { subDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import NoResponse from "./NoResponse";
-import { MacronutrientMap } from "../types";
+import { MacronutrientMap } from "../../../types";
 
 interface MacronutrientDataPoint {
   macronutrient: string;

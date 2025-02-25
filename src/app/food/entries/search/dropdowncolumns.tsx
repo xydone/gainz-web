@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Nutrients } from "../types";
+import { Nutrients } from "../../types";
 export type Food = {
   food_name: string;
   brand_name: string;

@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/dialog";
 
 import { cn } from "@/lib/utils";
-import Search from "./search/page";
+import Search from "./food/entries/search/page";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Create from "./add-food/page";
-import AddExercise from "./add-exercise/page";
+import Create from "./food/add/page";
+import AddExercise from "./exercise/add/page";
 
 export default function QuickAdd({ className }: { className?: string }) {
   return (

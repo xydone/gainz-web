@@ -27,56 +27,54 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface Category {
-  id: number;
-  name: string;
-  description?: string;
-}
-
 export const FormSchema = z.object({
-  name: z.string().nonempty(),
-  description: z.string().optional(),
-  base_amount: z.coerce.number().min(1),
-  base_unit: z.string().nonempty(),
-  category_id: z.coerce.number(),
+  amount: z.coerce.number().min(1),
+  unit: z.string().nonempty(),
+  multiplier: z.coerce.number().min(1),
+  exercise_id: z.coerce.number(),
 });
 
-export default function Exercise({
-  className,
-  categoryUpdate,
-}: {
-  className?: string;
-  categoryUpdate: number;
-}) {
+interface Response {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export default function Unit({ className }: { className?: string }) {
   const user = useUserContext();
 
   const [isAPIOkay, setApiOkay] = useState<boolean | null>(null);
+  const [exercises, setExercises] = useState<Response[] | null>(null);
 
-  const [categories, setCategories] = useState<Category[] | null>(null);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
+
   useEffect(() => {
     if (user.isSignedIn) {
       axiosInstance
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/exercise/category`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`)
         .then((response) => {
-          setCategories(response.data);
+          setExercises(response.data);
         });
     }
-  }, [user.accessToken, user.isSignedIn, categoryUpdate]);
+  }, [user.isSignedIn]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axiosInstance
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`, { data })
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`,
+        { ...data },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
       .then(() => {
         setApiOkay(true);
       });
@@ -84,21 +82,19 @@ export default function Exercise({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
-        <Card className="mt-5 flex flex-col">
+        <Card className="flex flex-col">
           <CardHeader>
-            <CardTitle>{`Exercise`}</CardTitle>
-            <CardDescription>
-              Create a new exercise without making a new category. The base unit
-              is automatically created.
-            </CardDescription>
+            <CardTitle>{`Unit`}</CardTitle>
+            <CardDescription>Create a new data unit.</CardDescription>
+            <CardDescription>(e.g. grams, mililiters)</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
             <FormField
               control={form.control}
-              name={"name"}
+              name={"amount"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Amount</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -109,24 +105,10 @@ export default function Exercise({
             />
             <FormField
               control={form.control}
-              name={"description"}
+              name={"unit"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input onChange={field.onChange} placeholder="Optional" />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={"base_amount"}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Base Amount</FormLabel>
+                  <FormLabel>Unit</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -137,10 +119,10 @@ export default function Exercise({
             />
             <FormField
               control={form.control}
-              name={"base_unit"}
+              name={"multiplier"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Unit</FormLabel>
+                  <FormLabel>Multiplier</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -151,19 +133,19 @@ export default function Exercise({
             />
             <FormField
               control={form.control}
-              name={"category_id"}
+              name={"exercise_id"}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <Select onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Select an exercise" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories &&
-                        categories.map((element) => (
+                      {exercises &&
+                        exercises.map((element) => (
                           <SelectItem value={`${element.id}`} key={element.id}>
                             {element.name}
                           </SelectItem>

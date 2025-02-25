@@ -19,7 +19,7 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { useState, Dispatch, SetStateAction } from "react";

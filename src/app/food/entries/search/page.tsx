@@ -1,6 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
 import Labels from "./labels";
 import Macronutrients from "./macronutrients";

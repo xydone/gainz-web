@@ -27,54 +27,56 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-export const FormSchema = z.object({
-  amount: z.coerce.number().min(1),
-  unit: z.string().nonempty(),
-  multiplier: z.coerce.number().min(1),
-  exercise_id: z.coerce.number(),
-});
-
-interface Response {
+interface Category {
   id: number;
   name: string;
-  description: string;
+  description?: string;
 }
 
-export default function Unit({ className }: { className?: string }) {
+export const FormSchema = z.object({
+  name: z.string().nonempty(),
+  description: z.string().optional(),
+  base_amount: z.coerce.number().min(1),
+  base_unit: z.string().nonempty(),
+  category_id: z.coerce.number(),
+});
+
+export default function Exercise({
+  className,
+  categoryUpdate,
+}: {
+  className?: string;
+  categoryUpdate: number;
+}) {
   const user = useUserContext();
 
   const [isAPIOkay, setApiOkay] = useState<boolean | null>(null);
-  const [exercises, setExercises] = useState<Response[] | null>(null);
 
+  const [categories, setCategories] = useState<Category[] | null>(null);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
-
   useEffect(() => {
     if (user.isSignedIn) {
       axiosInstance
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`)
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/exercise/category`, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        })
         .then((response) => {
-          setExercises(response.data);
+          setCategories(response.data);
         });
     }
-  }, [user.isSignedIn]);
+  }, [user.accessToken, user.isSignedIn, categoryUpdate]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axiosInstance
-      .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`,
-        { ...data },
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`, { data })
       .then(() => {
         setApiOkay(true);
       });
@@ -82,19 +84,21 @@ export default function Unit({ className }: { className?: string }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
-        <Card className="flex flex-col">
+        <Card className="mt-5 flex flex-col">
           <CardHeader>
-            <CardTitle>{`Unit`}</CardTitle>
-            <CardDescription>Create a new data unit.</CardDescription>
-            <CardDescription>(e.g. grams, mililiters)</CardDescription>
+            <CardTitle>{`Exercise`}</CardTitle>
+            <CardDescription>
+              Create a new exercise without making a new category. The base unit
+              is automatically created.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
             <FormField
               control={form.control}
-              name={"amount"}
+              name={"name"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -105,10 +109,24 @@ export default function Unit({ className }: { className?: string }) {
             />
             <FormField
               control={form.control}
-              name={"unit"}
+              name={"description"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unit</FormLabel>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input onChange={field.onChange} placeholder="Optional" />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"base_amount"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Base Amount</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -119,10 +137,10 @@ export default function Unit({ className }: { className?: string }) {
             />
             <FormField
               control={form.control}
-              name={"multiplier"}
+              name={"base_unit"}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Multiplier</FormLabel>
+                  <FormLabel>Base Unit</FormLabel>
                   <FormControl>
                     <Input onChange={field.onChange} />
                   </FormControl>
@@ -133,19 +151,19 @@ export default function Unit({ className }: { className?: string }) {
             />
             <FormField
               control={form.control}
-              name={"exercise_id"}
+              name={"category_id"}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <Select onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an exercise" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {exercises &&
-                        exercises.map((element) => (
+                      {categories &&
+                        categories.map((element) => (
                           <SelectItem value={`${element.id}`} key={element.id}>
                             {element.name}
                           </SelectItem>

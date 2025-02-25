@@ -13,22 +13,22 @@ export const navLinksConfig: NavLinksConfig = {
     {
       title: "Create",
       popover: [
-        { title: "Create Food", href: "/add-food" },
-        { title: "Create Exercise", href: "/add-exercise" },
+        { title: "Create Food", href: "/food/add" },
+        { title: "Create Exercise", href: "/exercise/add" },
       ],
     },
     {
       title: "Log",
       popover: [
-        { title: "Log Food", href: "/search" },
-        { title: "Log Exercise", href: "/exercise" },
+        { title: "Log Food", href: "/food/entries/search" },
+        { title: "Log Exercise", href: "/exercise/search" },
       ],
     },
     {
       title: "View",
       popover: [
-        { title: "View Raw Food Entry Data", href: "/entries" },
-        { title: "View Food Entry Statistics", href: "/stats" },
+        { title: "View Raw Food Entry Data", href: "/food/entries" },
+        { title: "View Food Entry Statistics", href: "/food/entries/stats" },
       ],
     },
   ],

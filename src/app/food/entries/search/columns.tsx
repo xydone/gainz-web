@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import CustomDialog from "./CustomDialog";
-import { Nutrients } from "../types";
+import { Nutrients } from "../../types";
 
 export type Food = {
   id: number;

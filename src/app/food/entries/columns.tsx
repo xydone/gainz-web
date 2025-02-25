@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ArrowUpDown } from "lucide-react";
 
-import { dropdownColumns } from "../search/dropdowncolumns";
+import { dropdownColumns } from "./search/dropdowncolumns";
 import TableDialog from "@/components/ui/TableDialog";
 import { Nutrients } from "../types";
 

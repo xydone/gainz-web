@@ -29,7 +29,7 @@ import { Food } from "./columns";
 import { DataTable } from "@/components/ui/datatable";
 import { dropdownColumns } from "./dropdowncolumns";
 import { axiosInstance } from "@/lib/api";
-import { useUserContext } from "../context";
+import { useUserContext } from "@/app/context";
 import { Input } from "@/components/ui/input";
 import TableDialog from "@/components/ui/TableDialog";
 
