@@ -35,3 +35,12 @@ export function useUserContext() {
   });
   return at;
 }
+
+export function handleSignOut(user: User) {
+  user.setAccessToken(null);
+  user.setRefreshToken(null);
+  user.setIsSignedIn(false);
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("displayName");
+}

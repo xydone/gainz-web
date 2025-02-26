@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useUserContext } from "@/app/context";
+import { handleSignOut, useUserContext } from "@/app/context";
 import { Input } from "./input";
 import { z } from "zod";
 
@@ -125,12 +125,7 @@ export function SignInForm({
 export function ProfileMenu() {
   const user = useUserContext();
   const signOut = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("displayName");
-    user.setAccessToken(null);
-    user.setIsSignedIn(false);
-    user.setDisplayName(null);
+    handleSignOut(user);
   };
   return (
     <div className="flex flex-col gap-3">

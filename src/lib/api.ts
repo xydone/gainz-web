@@ -1,4 +1,4 @@
-import { useUserContext } from "@/app/context";
+import { handleSignOut, useUserContext } from "@/app/context";
 import axios from "axios";
 import { useEffect } from "react";
 
@@ -32,10 +32,7 @@ function AxiosInterceptor() {
                 originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
               })
               .catch(() => {
-                user.setAccessToken(null);
-                user.setRefreshToken(null);
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
+                handleSignOut(user);
               });
 
             return axiosInstance(originalRequest);
