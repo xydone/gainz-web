@@ -126,6 +126,9 @@ export function ProfileMenu() {
   const user = useUserContext();
   const signOut = () => {
     handleSignOut(user);
+    axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+      refresh_token: user.refreshToken,
+    });
   };
   return (
     <div className="flex flex-col gap-3">
