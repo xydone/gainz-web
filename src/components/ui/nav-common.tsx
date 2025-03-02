@@ -10,12 +10,21 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { handleSignOut, useUserContext } from "@/app/context";
+import { handleSignOut, User, useUserContext } from "@/app/context";
 import { Input } from "./input";
 import { z } from "zod";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
+import { Goal, LogOut, Settings } from "lucide-react";
 
 import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "./button";
+import { cn } from "@/lib/utils";
 
 export const FormSchema = z.object({
   username: z.string().nonempty(),
@@ -122,8 +131,13 @@ export function SignInForm({
   );
 }
 
-export function ProfileMenu() {
-  const user = useUserContext();
+export function ProfileMenu({
+  className,
+  user,
+}: {
+  className?: string;
+  user: User;
+}) {
   const signOut = () => {
     handleSignOut(user);
     axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
@@ -131,11 +145,24 @@ export function ProfileMenu() {
     });
   };
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-center">Hello, {user.displayName}!</p>
-      <Button variant="outline" className="place-self-center" onClick={signOut}>
-        Sign out
-      </Button>
-    </div>
+    <DropdownMenuContent className={cn("sm:max-w-[425px]", className)}>
+      <DropdownMenuLabel className="max-w-52 truncate overflow-hidden whitespace-nowrap">
+        {user.displayName}
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem>
+        <Goal />
+        Goals
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <Settings />
+        Settings
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onClick={signOut}>
+        <LogOut />
+        Log out
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 }

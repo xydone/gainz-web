@@ -174,7 +174,6 @@ function BasicChart({
   overflow?: boolean;
 }) {
   const angle = (data[0].value / goalValue) * 360;
-  console.log({ angle });
   return (
     <ChartContainer
       config={config}

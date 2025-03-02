@@ -13,7 +13,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { ChevronDown, Menu, Moon, Sun, User } from "lucide-react";
+import { ChevronDown, LogIn, Menu, Moon, Sun, User } from "lucide-react";
+
 import { Button } from "./button";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -22,7 +23,14 @@ import { Separator } from "./separator";
 import { navLinksConfig } from "@/config/nav-links";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useUserContext } from "@/app/context";
-import { ProfileMenu, SignInForm } from "./nav-common";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { Dialog, DialogContent, DialogTitle } from "./dialog";
+import { SignInForm, ProfileMenu } from "./nav-common";
 export default function MobileNav({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -87,17 +95,20 @@ export default function MobileNav({ className }: { className?: string }) {
           <Moon />
         </Button>
       )}
-
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerTrigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline">
             <User />
           </Button>
-        </DrawerTrigger>
-        <DrawerContent>
-          <MenuManager setOpen={setOpen} />
-        </DrawerContent>
-      </Drawer>
+        </DropdownMenuTrigger>
+        <MenuManager setOpen={setOpen} />
+      </DropdownMenu>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>Log In</DialogTitle>
+          <SignInForm setOpen={setOpen} />
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 }
@@ -108,17 +119,13 @@ function MenuManager({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const user = useUserContext();
-  if (user.isSignedIn)
-    return (
-      <div className="mx-5">
-        <DrawerTitle className="mb-3">Profile</DrawerTitle>
-        <ProfileMenu />
-      </div>
-    );
+  if (user.isSignedIn) return <ProfileMenu className="mx-5" user={user} />;
   return (
-    <div className="mx-5">
-      <DrawerTitle className="mb-3">Sign-in</DrawerTitle>
-      <SignInForm setOpen={setOpen} />
-    </div>
+    <DropdownMenuContent className="mx-5">
+      <DropdownMenuItem onClick={() => setOpen(true)}>
+        <LogIn />
+        Log in
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 }

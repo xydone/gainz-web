@@ -27,10 +27,14 @@ export function useUserContext() {
     );
   }
   useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
+    const storedAccessToken = localStorage.getItem("accessToken");
+    const storedRefreshToken = localStorage.getItem("refreshToken");
     const storedName = localStorage.getItem("displayName");
-    at.setAccessToken(storedToken);
-    if (storedToken !== null) at.setIsSignedIn(true);
+    at.setAccessToken(storedAccessToken);
+    at.setRefreshToken(storedRefreshToken);
+    if (storedAccessToken !== null || storedRefreshToken !== null) {
+      at.setIsSignedIn(true);
+    }
     at.setDisplayName(storedName);
   });
   return at;

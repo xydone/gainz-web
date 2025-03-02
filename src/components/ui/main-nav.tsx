@@ -1,8 +1,15 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { User, ChevronDown, Sun, Moon } from "lucide-react";
+import { User, ChevronDown, Sun, Moon, LogIn } from "lucide-react";
 import { useTheme } from "next-themes";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import Link from "next/link";
 import {
@@ -14,15 +21,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { navLinksConfig } from "@/config/nav-links";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./dialog";
-import { SignInForm, ProfileMenu } from "./nav-common";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
+import { ProfileMenu, SignInForm } from "./nav-common";
 import { useUserContext } from "@/app/context";
 
 export default function MainNav({ className }: { className?: string }) {
@@ -30,7 +30,6 @@ export default function MainNav({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => setMounted(true), []);
-
   return (
     <nav className={cn("hidden md:flex flex-row gap-5", className)}>
       {navLinksConfig.nav.map((item, index) => {
@@ -73,13 +72,22 @@ export default function MainNav({ className }: { className?: string }) {
           </Button>
         )}
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline">
               <User />
             </Button>
-          </DialogTrigger>
+          </DropdownMenuTrigger>
           <MenuManager setOpen={setOpen} />
+        </DropdownMenu>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Sign-in</DialogTitle>
+            </DialogHeader>
+            <SignInForm setOpen={setOpen} />
+          </DialogContent>
         </Dialog>
       </div>
     </nav>
@@ -92,24 +100,14 @@ function MenuManager({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const user = useUserContext();
-  if (user.isSignedIn)
-    return (
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Profile Menu</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here.
-          </DialogDescription>
-        </DialogHeader>
-        <ProfileMenu />
-      </DialogContent>
-    );
+
+  if (user.isSignedIn) return <ProfileMenu user={user} />;
   return (
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Sign-in</DialogTitle>
-      </DialogHeader>
-      <SignInForm setOpen={setOpen} />
-    </DialogContent>
+    <DropdownMenuContent>
+      <DropdownMenuItem onClick={() => setOpen(true)}>
+        <LogIn />
+        Log in
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 }
