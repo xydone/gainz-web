@@ -3,13 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import CustomDialog from "./CustomDialog";
-import { Nutrients } from "../../types";
+import { Nutrients } from "@/app/types";
 
 export type Food = {
   id: number;
   food_name: string;
   brand_name: string;
-  macronutrients: Nutrients;
+  nutrients: Nutrients;
   servings: [
     {
       id: number;
@@ -26,12 +26,12 @@ const roundDown = (num: number | undefined, decimals: number = 0): number => {
   return Math.floor(num * factor) / factor;
 };
 
-const createRoundedCell = <T extends keyof Food["macronutrients"]>(
+const createRoundedCell = <T extends keyof Food["nutrients"]>(
   accessorKey: T,
   decimals: number = 0
 ): ColumnDef<Food>["cell"] => {
   return ({ row }) => {
-    const originalValue = row.original.macronutrients[accessorKey];
+    const originalValue = row.original.nutrients[accessorKey];
     const roundedValue = roundDown(originalValue, decimals);
     return isNaN(roundedValue) ? "-" : roundedValue.toFixed(decimals);
   };

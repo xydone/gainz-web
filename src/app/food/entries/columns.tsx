@@ -5,15 +5,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ArrowUpDown } from "lucide-react";
 
-import { dropdownColumns } from "./search/dropdowncolumns";
-import TableDialog from "@/components/ui/TableDialog";
-import { Nutrients } from "../types";
+import { Nutrients } from "@/app/types";
 
 export type Entry = {
   created_at: number;
   food_name: string;
   brand_name: string;
-  macronutrients: Nutrients;
+  nutrients: Nutrients;
 };
 
 const formatDateFromTimestamp = (timestamp: number | undefined): string => {
@@ -34,12 +32,12 @@ const roundDown = (num: number | undefined, decimals: number = 0): number => {
   return Math.floor(num * factor) / factor;
 };
 
-const createRoundedCell = <T extends keyof Entry["macronutrients"]>(
+const createRoundedCell = <T extends keyof Entry["nutrients"]>(
   accessorKey: T,
   decimals: number = 0
 ): ColumnDef<Entry>["cell"] => {
   return ({ row }) => {
-    const originalValue = row.original.macronutrients[accessorKey];
+    const originalValue = row.original.nutrients[accessorKey];
     const roundedValue = roundDown(originalValue, decimals);
     return isNaN(roundedValue) ? "-" : roundedValue.toFixed(decimals);
   };
@@ -97,12 +95,5 @@ export const columns: ColumnDef<Entry>[] = [
     accessorKey: "macronutrients.protein",
     header: "Protein",
     cell: createRoundedCell("protein", 1),
-  },
-
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      return <TableDialog columns={dropdownColumns} data={[row.original]} />;
-    },
   },
 ];

@@ -46,6 +46,7 @@ export default function DialogMenu({ food }: DialogProps) {
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const [isAddOpen, setAddOpen] = useState(false);
   const [isResponseOkay, setResponseOkay] = useState<boolean | null>(null);
+  const [foodData, setFoodData] = useState(food);
   const user = useUserContext();
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -55,12 +56,28 @@ export default function DialogMenu({ food }: DialogProps) {
     resolver: zodResolver(FormSchema),
   });
 
+  const handleAddToEntries = async () => {
+    console.log("Suffice");
+    const response = await axiosInstance.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/food/${foodData.id}`,
+      {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      }
+    );
+
+    setFoodData((prevState) => ({
+      ...prevState,
+      servings: response.data.servings,
+    }));
+    console.log(foodData);
+  };
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axiosInstance
       .post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry`,
         {
-          food_id: food.id,
+          food_id: foodData.id,
           meal_category: data.meal,
           amount: data.amount,
           serving_id: data.serving,
@@ -82,12 +99,13 @@ export default function DialogMenu({ food }: DialogProps) {
     <div>
       <TableDialog
         columns={dropdownColumns}
-        data={[food]}
+        data={[foodData]}
         dialogs={[
           {
             isOpen: isAddOpen,
             setOpen: handleAddOpen,
             title: "Add to entries",
+            onClick: handleAddToEntries,
           },
         ]}
       />
@@ -95,14 +113,14 @@ export default function DialogMenu({ food }: DialogProps) {
         <DialogContent className="max-w-6xl">
           <DialogHeader>
             <DialogTitle>View details</DialogTitle>
-            <DataTable columns={dropdownColumns} data={[food]} />
+            <DataTable columns={dropdownColumns} data={[foodData]} />
           </DialogHeader>
         </DialogContent>
       </Dialog>
       <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>
-            <DialogTitle>Add {food.food_name} to entries</DialogTitle>
+            <DialogTitle>Add {foodData.food_name} to entries</DialogTitle>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -162,7 +180,7 @@ export default function DialogMenu({ food }: DialogProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-background">
-                            {food.servings.map((serving) => (
+                            {foodData.servings.map((serving) => (
                               <SelectItem
                                 key={serving.id}
                                 value={`${serving.id}`}

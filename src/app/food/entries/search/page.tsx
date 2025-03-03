@@ -2,15 +2,25 @@
 import { Input } from "@/components/ui/input";
 import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/datatable";
 import { columns, Food } from "./columns";
 
 export default function Search() {
   const [searchParam, setSearchParam] = useState<string | null>(null);
-  const [APIResponse, setAPIResponse] = useState<Food[] | null>(null);
+  const [searchResponse, setSearchResponse] = useState<Food[] | null>(null);
+  const [recentResponse, setRecentResponse] = useState<Food[] | null>(null);
   const user = useUserContext();
+  useEffect(() => {
+    axiosInstance
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/user/entry/recent?limit=30`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        setRecentResponse(response.data);
+      });
+  }, [user.accessToken]);
 
   const searchFood = () => {
     axiosInstance
@@ -18,7 +28,7 @@ export default function Search() {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((response) => {
-        setAPIResponse(response.data);
+        setSearchResponse(response.data);
       });
   };
   return (
@@ -41,8 +51,14 @@ export default function Search() {
       >
         Search
       </Button>
-      {APIResponse && (
-        <DataTable columns={columns} data={APIResponse} paginated={true} />
+      {searchResponse && (
+        <DataTable columns={columns} data={searchResponse} paginated={true} />
+      )}
+      {!searchResponse && recentResponse && (
+        <div className="grid place-items-center">
+          <h1>Recently added:</h1>
+          <DataTable columns={columns} data={recentResponse} paginated={true} />
+        </div>
       )}
     </div>
   );

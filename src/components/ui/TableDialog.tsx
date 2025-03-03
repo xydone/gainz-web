@@ -23,6 +23,7 @@ interface IDialog {
   isOpen: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   title: string;
+  onClick: () => Promise<void>;
 }
 
 interface DropdownMenuListProps {
@@ -90,7 +91,13 @@ const DropdownMenuList: React.FC<DropdownMenuListProps> = ({ dialogs }) => {
     <div>
       <DropdownMenuSeparator />
       {dialogs.map((dia, index) => (
-        <DropdownMenuItem key={index} onClick={() => dia.setOpen(true)}>
+        <DropdownMenuItem
+          key={index}
+          onClick={async () => {
+            await dia.onClick();
+            dia.setOpen(true);
+          }}
+        >
           {dia.title} {/* Display the title as the menu item label */}
         </DropdownMenuItem>
       ))}

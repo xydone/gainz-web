@@ -50,12 +50,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full grid justify-center place-items-center">
-      <h1 className="mt-5 block sm:hidden text-foreground-muted">
+      <h1 className="mt-5 block sm:hidden text-muted">
         psst. swipe to see more →
       </h1>
       <div
         className={cn(
-          "rounded-md border w-full overflow-x-auto mt-0 sm:mt-10",
+          "rounded-md border w-full overflow-x-auto mt-3",
           tableDivStyles
         )}
       >
