@@ -25,6 +25,7 @@ import { Goal, LogOut, Settings } from "lucide-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export const FormSchema = z.object({
   username: z.string().nonempty(),
@@ -154,9 +155,11 @@ export function ProfileMenu({
         <Goal />
         Goals
       </DropdownMenuItem>
-      <DropdownMenuItem>
-        <Settings />
-        Settings
+      <DropdownMenuItem asChild>
+        <Link className="inherit" href="/settings">
+          <Settings />
+          Settings
+        </Link>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem onClick={signOut}>

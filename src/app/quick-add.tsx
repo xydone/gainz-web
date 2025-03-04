@@ -21,6 +21,7 @@ import Search from "./food/entries/search/page";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Create from "./food/add/page";
 import AddExercise from "./exercise/add/page";
+import MeasurementLog from "./measurement/log/page";
 
 export default function QuickAdd({ className }: { className?: string }) {
   return (
@@ -34,6 +35,7 @@ export default function QuickAdd({ className }: { className?: string }) {
         <AddFoodMenu />
         <LogExerciseMenu />
         <AddExerciseMenu />
+        <AddMeasurementMenu />
       </CardContent>
     </Card>
   );
@@ -114,6 +116,26 @@ function AddExerciseMenu() {
           </DialogHeader>
         </VisuallyHidden>
         <AddExercise innerDivClassName="lg:w-full" />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddMeasurementMenu() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full">
+          Add measurement
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-5xl max-h-[90%]">
+        <VisuallyHidden>
+          <DialogHeader>
+            <DialogTitle>Add measurement</DialogTitle>
+          </DialogHeader>
+        </VisuallyHidden>
+        <MeasurementLog />
       </DialogContent>
     </Dialog>
   );

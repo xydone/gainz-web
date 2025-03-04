@@ -22,6 +22,7 @@ export const navLinksConfig: NavLinksConfig = {
       popover: [
         { title: "Log Food", href: "/food/entries/search" },
         { title: "Log Exercise", href: "/exercise/search" },
+        { title: "Log Measurement", href: "/measurement/log" },
       ],
     },
     {
