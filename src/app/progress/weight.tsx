@@ -16,11 +16,12 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
-import { format, subMonths } from "date-fns";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/api";
-import { useUserContext } from "./context";
+import { useUserContext } from "@/app/context";
 import { AxiosResponse } from "axios";
+import { GoalsResponse } from "../signed-in";
 
 interface Response {
   created_at: number;
@@ -31,9 +32,13 @@ const chartConfig = {
     label: "Weight",
     color: "var(--protein)",
   },
+  goal: {
+    label: "Goal",
+    color: "var(--goal)",
+  },
 } satisfies ChartConfig;
 
-function processData(data: Response[]) {
+function processData(data: Response[], goalValue: number | null) {
   if (!data || data.length === 0) {
     return [];
   }
@@ -54,12 +59,14 @@ function processData(data: Response[]) {
       processedData.push({
         created_at: currentDateString,
         value: Math.round(data[dataIndex].value * 10) / 10,
+        goal: goalValue,
       });
       dataIndex++;
     } else {
       processedData.push({
         created_at: currentDateString,
         value: null,
+        goal: goalValue,
       });
     }
 
@@ -69,39 +76,56 @@ function processData(data: Response[]) {
   return processedData;
 }
 
-export default function Weight({ className }: { className?: string }) {
+export default function Weight({
+  className,
+  startDate,
+  endDate,
+}: {
+  className?: string;
+  startDate: string;
+  endDate: string;
+}) {
   const user = useUserContext();
   const [data, setData] = useState<Response[] | null>(null);
+  const [goal, setGoal] = useState<number | null>(null);
   useEffect(() => {
-    const today = new Date();
-    const start = format(subMonths(today, 3), "yyyy-MM-dd");
-    const end = format(today, "yyyy-MM-dd");
     axiosInstance
       .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement?type=weight&start=${start}&end=${end}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement?type=weight&start=${startDate}&end=${endDate}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
       )
       .then((response: AxiosResponse) => {
         setData(response.data);
       });
-  }, [user.accessToken]);
+    axiosInstance
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/user/goals`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response: AxiosResponse) => {
+        const data = response.data as GoalsResponse[];
+        const weight = data.find((entry) => entry.target === "weight");
+        if (!weight) return;
+        setGoal(weight.value);
+      });
+  }, [endDate, startDate, user.accessToken]);
   if (!data) return;
-
-  const processedData = processData(data);
+  const processedData = processData(data, goal);
   return (
     <Card className={cn("", className)}>
       <CardHeader>
         <CardTitle>Weight</CardTitle>
-        <CardDescription>Weight in the past 3 months</CardDescription>
+        <CardDescription>{`${format(startDate, "dd MMMM yyyy")} - ${format(
+          endDate,
+          "dd MMMM yyyy"
+        )}`}</CardDescription>
       </CardHeader>
-      <CardContent className="w-full">
-        <ChartContainer config={chartConfig} className="max-h-64 w-full">
+      <CardContent>
+        <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
             data={processedData}
             margin={{
-              left: 12,
-              right: 12,
+              left: 18,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -128,6 +152,16 @@ export default function Weight({ className }: { className?: string }) {
               strokeWidth={2}
               dot={false}
               connectNulls={true}
+              isAnimationActive={false}
+            />
+            <Line
+              dataKey="goal"
+              type="monotone"
+              stroke="var(--color-goal)"
+              strokeWidth={2}
+              dot={false}
+              connectNulls={true}
+              isAnimationActive={false}
             />
           </LineChart>
         </ChartContainer>

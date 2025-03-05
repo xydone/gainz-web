@@ -61,6 +61,7 @@ export default {
           carbs: "var(--carbs)",
           fat: "var(--fat)",
         },
+        goal: "var(--goal)",
       },
       borderRadius: {
         lg: "var(--radius)",

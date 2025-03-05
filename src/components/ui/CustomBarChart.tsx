@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 type MacronutrientDataPoint = {
   macronutrient: string;
@@ -31,16 +32,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 export default function CustomBarChart({
+  className,
   chartData,
   date,
 }: {
+  className?: string;
   chartData: MacronutrientDataPoint[];
   date: IDate | undefined;
 }) {
   if (date == undefined || date.from == undefined || date.to == undefined)
     return;
   return (
-    <Card className="lg:w-[40%] w-[95%]">
+    <Card className={cn("", className)}>
       <CardHeader>
         <CardTitle>Nutrient Intake Chart</CardTitle>
         <CardDescription>{`${format(date.from, "dd MMMM yyyy")} - ${format(

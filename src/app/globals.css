@@ -28,6 +28,7 @@
     --protein: hsl(359, 47%, 71%);
     --carbs: hsl(52, 46%, 31%);
     --fat: hsl(77, 47%, 57%);
+    --goal: hsla(135, 100%, 27%, 0.3);
     --chart-empty: hsl(0, 0%, 50%);
     --radius: 0.5rem;
   }
@@ -56,6 +57,7 @@
     --protein: hsl(0, 38%, 72%);
     --carbs: hsl(0, 57%, 32%);
     --fat: hsl(0, 75%, 54%);
+    --goal: hsla(135, 100%, 27%, 0.3);
     --chart-empty: hsl(0, 0%, 50%);
     --radius: 0.5rem;
   }

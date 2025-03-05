@@ -35,7 +35,7 @@ interface Data {
   fill: string;
 }
 
-export function BasicCard({
+export function GoalsCard({
   className,
   data,
   config,

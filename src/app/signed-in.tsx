@@ -1,13 +1,19 @@
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import NutrientDistribution, { DayData } from "./nutrient-distribution";
 import { ChartConfig } from "@/components/ui/chart";
-import { BasicCard } from "./goals";
-import Weight from "./weight";
+import { GoalsCard } from "./goals";
 import QuickAdd from "./quick-add";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { AxiosError } from "axios";
-import { format, subDays } from "date-fns";
+import { format, subDays, subMonths } from "date-fns";
+import Weight from "./progress/weight";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 interface Goal {
   value: number;
 }
@@ -49,9 +55,9 @@ const configs = {
   } satisfies ChartConfig,
 };
 
-interface Response {
+export interface GoalsResponse {
   id: number;
-  nutrient: string;
+  target: string;
   value: number;
 }
 export default function SignedIn() {
@@ -66,7 +72,10 @@ export default function SignedIn() {
     calories: null,
     summary: null,
   });
-
+  const date = new Date();
+  const today = format(date, "yyyy-MM-dd");
+  const yesterday = format(subDays(date, 1), "yyyy-MM-dd");
+  const weightStartDate = format(subMonths(date, 3), "yyyy-MM-dd");
   const [goals, setGoals] = useState<Goals | null>(null);
   const user = useUserContext();
   useEffect(() => {
@@ -75,11 +84,11 @@ export default function SignedIn() {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((response) => {
-        const data = response.data as Response[];
-        const protein = data.find((entry) => entry.nutrient === "protein");
-        const sugar = data.find((entry) => entry.nutrient === "sugar");
-        const calorie = data.find((entry) => entry.nutrient === "calories");
-        const createGoal = (entry: Response | undefined): Goal | null => {
+        const data = response.data as GoalsResponse[];
+        const protein = data.find((entry) => entry.target === "protein");
+        const sugar = data.find((entry) => entry.target === "sugar");
+        const calorie = data.find((entry) => entry.target === "calories");
+        const createGoal = (entry: GoalsResponse | undefined): Goal | null => {
           if (entry) {
             return {
               value: entry.value,
@@ -144,9 +153,6 @@ export default function SignedIn() {
           }
         });
     }
-    const date = new Date(2024, 11, 20);
-    const today = format(date, "yyyy-MM-dd");
-    const yesterday = format(subDays(date, 1), "yyyy-MM-dd");
     fetchNutrients({
       day: today,
       setter: setTodayData,
@@ -155,8 +161,8 @@ export default function SignedIn() {
       day: yesterday,
       setter: setYesterdayData,
     });
-  }, [user.accessToken]);
-  if (!todayData.nutrients) return;
+  }, [today, user.accessToken, yesterday]);
+  // if (!todayData.nutrients) return;
   const nutrientCards = [
     {
       nutrient: "calories",
@@ -174,40 +180,62 @@ export default function SignedIn() {
   return (
     <div className="mx-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {nutrientCards.map(
-          (card, i) =>
-            goals &&
-            todayData &&
-            //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-            todayData.summary[card.nutrient] && (
-              <BasicCard
-                key={i}
-                className=""
-                data={[
-                  {
-                    nutrient: card.nutrient,
-                    //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-                    value: todayData.summary[card.nutrient],
-                    fill: "var(--color-calories)",
-                  },
-                ]}
-                //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-                config={configs[card.nutrient]}
-                //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-                goalValue={goals[card.nutrient].value}
-                setGoals={setGoals}
-                overflow={card.nutrient == "calories" ? false : true}
-              />
-            )
-        )}
+        <NutrientCards />
         <NutrientDistribution
           className=""
           todayData={todayData}
           yesterdayData={yesterdayData}
         />
         <QuickAdd />
-        <Weight className="" />
+        <Weight
+          className=""
+          startDate={weightStartDate}
+          endDate={format(date, "yyyy-MM-dd")}
+        />
       </div>
     </div>
   );
+
+  function NutrientCards() {
+    return nutrientCards.map((card, i) => {
+      if (!todayData.summary) {
+        return (
+          <Card key={i}>
+            <CardHeader>
+              <CardTitle>No {card.nutrient}!</CardTitle>
+              <CardDescription>
+                {`You haven't entered any food yet. To get progress on your
+                ${card.nutrient} goals for the day, log food and check again!`}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        );
+      }
+      return (
+        goals &&
+        todayData.summary &&
+        //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+        todayData.summary[card.nutrient] && (
+          <GoalsCard
+            key={i}
+            className=""
+            data={[
+              {
+                nutrient: card.nutrient,
+                //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+                value: todayData.summary[card.nutrient],
+                fill: "var(--color-calories)",
+              },
+            ]}
+            //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+            config={configs[card.nutrient]}
+            //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+            goalValue={goals[card.nutrient].value}
+            setGoals={setGoals}
+            overflow={card.nutrient == "calories" ? false : true}
+          />
+        )
+      );
+    });
+  }
 }
