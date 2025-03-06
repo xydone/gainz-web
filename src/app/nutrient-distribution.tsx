@@ -56,6 +56,7 @@ interface NutrientDistributionProps {
   className?: string;
   todayData: DayData;
   yesterdayData: DayData;
+  size: number;
 }
 
 export interface DayData {
@@ -67,22 +68,23 @@ export interface DayData {
 export default function NutrientDistribution({
   className,
   todayData,
+  size,
   yesterdayData,
 }: NutrientDistributionProps) {
   if (!todayData.nutrients || !todayData.calories)
     return <EmptyResponse className={cn("", className)} />;
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn("flex flex-col", className)}>
       <CardHeader className="pb-0">
         <CardTitle>Nutrients</CardTitle>
         <CardDescription className="">
           {"Today's nutrient distribution"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0 mt-6 w-full">
+      <CardContent className="">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[200px]"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart margin={{}}>
             <ChartTooltip
@@ -93,8 +95,8 @@ export default function NutrientDistribution({
               data={todayData.nutrients}
               dataKey="intake"
               nameKey="nutrient"
-              innerRadius={50}
-              outerRadius={70}
+              innerRadius={size - 30}
+              outerRadius={size}
               strokeWidth={5}
               labelLine={false}
               label={({ payload, ...props }) => {
@@ -151,7 +153,7 @@ export default function NutrientDistribution({
         yesterdayData.nutrients &&
         todayData.summary &&
         yesterdayData.summary && (
-          <CardFooter className="mt-5 flex-col gap-2 text-sm text-center">
+          <CardFooter className="flex-col gap-2 text-sm text-center">
             <div className="flex flex-col lg:flex-row items-center  font-medium leading-none">
               That is {Math.abs(todayData.calories - yesterdayData.calories)}{" "}
               {todayData.calories - yesterdayData.calories > 0
@@ -223,7 +225,7 @@ function EmptyResponse({ className }: { className?: string }) {
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[200px]"
         >
           <PieChart>
             <Pie

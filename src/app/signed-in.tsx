@@ -1,19 +1,14 @@
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import NutrientDistribution, { DayData } from "./nutrient-distribution";
 import { ChartConfig } from "@/components/ui/chart";
-import { GoalsCard } from "./goals";
+import { GoalsCard, NoDataCard, NoGoalsCard } from "./goals";
 import QuickAdd from "./quick-add";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { AxiosError } from "axios";
 import { format, subDays, subMonths } from "date-fns";
 import Weight from "./progress/weight";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 interface Goal {
   value: number;
 }
@@ -178,21 +173,20 @@ export default function SignedIn() {
     },
   ];
   return (
-    <div className="mx-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <NutrientCards />
-        <NutrientDistribution
-          className=""
-          todayData={todayData}
-          yesterdayData={yesterdayData}
-        />
-        <QuickAdd />
-        <Weight
-          className=""
-          startDate={weightStartDate}
-          endDate={format(date, "yyyy-MM-dd")}
-        />
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <NutrientCards />
+      <NutrientDistribution
+        className=""
+        todayData={todayData}
+        yesterdayData={yesterdayData}
+        size={90}
+      />
+      <QuickAdd />
+      <Weight
+        className=""
+        startDate={weightStartDate}
+        endDate={format(date, "yyyy-MM-dd")}
+      />
     </div>
   );
 
@@ -200,15 +194,23 @@ export default function SignedIn() {
     return nutrientCards.map((card, i) => {
       if (!todayData.summary) {
         return (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle>No {card.nutrient}!</CardTitle>
-              <CardDescription>
-                {`You haven't entered any food yet. To get progress on your
-                ${card.nutrient} goals for the day, log food and check again!`}
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <NoDataCard
+            key={i}
+            nutrient={card.nutrient}
+            setGoals={setGoals}
+            card={card}
+          />
+        );
+      }
+      //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+      if (!goals || !goals[card.nutrient]) {
+        return (
+          <NoGoalsCard
+            key={i}
+            nutrient={card.nutrient}
+            setGoals={setGoals}
+            card={card}
+          />
         );
       }
       return (

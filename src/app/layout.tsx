@@ -19,7 +19,7 @@ export default function RootLayout({
         <Providers>
           <MainNav className="mb-5 mt-3 mx-5" />
           <MobileNav className="mb-5 mt-3 mx-5" />
-          {children}
+          <div className="mx-5">{children}</div>
         </Providers>
       </body>
     </html>

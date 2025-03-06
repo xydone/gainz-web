@@ -22,6 +22,7 @@ import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import { AxiosResponse } from "axios";
 import { GoalsResponse } from "../signed-in";
+import NoResponse from "./NoResponse";
 
 interface Response {
   created_at: number;
@@ -126,7 +127,14 @@ export default function Weight({
         setGoal(weight.value);
       });
   }, [endDate, startDate, user.accessToken]);
-  if (!data) return;
+  if (!data || !data.length) {
+    return (
+      <NoResponse
+        title="No weight measurements found"
+        description="No weight measurements found in the given range"
+      />
+    );
+  }
   const processedData = processData(data, goal);
   return (
     <Card className={cn("", className)}>
