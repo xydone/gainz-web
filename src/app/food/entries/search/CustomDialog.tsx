@@ -57,7 +57,6 @@ export default function DialogMenu({ food }: DialogProps) {
   });
 
   const handleAddToEntries = async () => {
-    console.log("Suffice");
     const response = await axiosInstance.get(
       `${process.env.NEXT_PUBLIC_API_URL}/food/${foodData.id}`,
       {
@@ -69,7 +68,6 @@ export default function DialogMenu({ food }: DialogProps) {
       ...prevState,
       servings: response.data.servings,
     }));
-    console.log(foodData);
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {

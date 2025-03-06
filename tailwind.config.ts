@@ -61,6 +61,10 @@ export default {
           carbs: "var(--carbs)",
           fat: "var(--fat)",
         },
+        weight: {
+          scale: "var(--weight-scale)",
+          estimated: "var(--weight-estimated)",
+        },
         goal: "var(--goal)",
       },
       borderRadius: {

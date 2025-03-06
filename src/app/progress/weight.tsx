@@ -15,7 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { cn } from "@/lib/utils";
+import { cn, ewma, lerp } from "@/lib/utils";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/api";
@@ -28,10 +28,19 @@ interface Response {
   value: number;
 }
 const chartConfig = {
-  value: {
-    label: "Weight",
-    color: "var(--protein)",
+  scale: {
+    label: "Scale Weight",
+    color: "var(--weight-scale)",
   },
+  estimated: {
+    label: "Estimated Weight",
+    color: "var(--weight-estimated)",
+  },
+  interpolated: {
+    label: "Interpolated Weight",
+    color: "var(--weight-scale)",
+  },
+
   goal: {
     label: "Goal",
     color: "var(--goal)",
@@ -44,33 +53,42 @@ function processData(data: Response[], goalValue: number | null) {
   }
 
   const processedData = [];
+  const scale = [];
+  const dateStrings = [];
   const currentDate = new Date(data[0].created_at / 1000);
   const endDate = new Date(data[data.length - 1].created_at / 1000);
-
-  let dataIndex = 0;
-
+  let i = 0;
   while (currentDate <= endDate) {
-    const currentDateString = format(currentDate, "yyyy-MM-dd"); // Format to 'YYYY-MM-DD'
-    const dataDate = format(
-      new Date(data[dataIndex].created_at / 1000),
-      "yyyy-MM-dd"
-    );
-    if (dataIndex < data.length && dataDate === currentDateString) {
-      processedData.push({
-        created_at: currentDateString,
-        value: Math.round(data[dataIndex].value * 10) / 10,
-        goal: goalValue,
-      });
-      dataIndex++;
+    const currentDateString = format(currentDate, "yyyy-MM-dd");
+    dateStrings.push(currentDateString);
+    const dataDate = format(new Date(data[i].created_at / 1000), "yyyy-MM-dd");
+    if (i < data.length && dataDate === currentDateString) {
+      scale.push(Math.round(data[i].value * 10) / 10);
+      i++;
     } else {
-      processedData.push({
-        created_at: currentDateString,
-        value: null,
-        goal: goalValue,
-      });
+      scale.push(null);
     }
 
     currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  const interpolatedData = lerp(scale);
+  const cleanInterpolatedData = scale.map((value, index) => {
+    if (value == null) {
+      return interpolatedData[index];
+    }
+    return null;
+  });
+  const emwaData = ewma(interpolatedData, 0.5);
+  for (let idx = 0; idx < dateStrings.length; idx++) {
+    const obj = {
+      created_at: dateStrings[idx],
+      scale: scale[idx],
+      interpolated: cleanInterpolatedData[idx],
+      estimated: emwaData[idx],
+      goal: goalValue,
+    };
+    processedData.push(obj);
   }
 
   return processedData;
@@ -146,12 +164,33 @@ export default function Weight({
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
 
             <Line
-              dataKey="value"
+              dataKey="scale"
               type="monotone"
-              stroke="var(--color-value)"
+              stroke="var(--color-scale)"
               strokeWidth={2}
               dot={false}
-              connectNulls={true}
+              isAnimationActive={false}
+            />
+            <Line
+              dataKey="interpolated"
+              type="monotone"
+              stroke="var(--color-interpolated)"
+              strokeWidth={0}
+              dot={{
+                stroke: "var(--color-interpolated)",
+                fill: "var(--color-interpolated)",
+                strokeWidth: 2,
+                r: 0.5,
+              }}
+              isAnimationActive={false}
+            />
+
+            <Line
+              dataKey="estimated"
+              type="monotone"
+              stroke="var(--color-estimated)"
+              strokeWidth={2}
+              dot={false}
               isAnimationActive={false}
             />
             <Line

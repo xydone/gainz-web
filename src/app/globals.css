@@ -29,6 +29,8 @@
     --carbs: hsl(52, 46%, 31%);
     --fat: hsl(77, 47%, 57%);
     --goal: hsla(135, 100%, 27%, 0.3);
+    --weight-scale: hsla(260, 66%, 56%, 0.568);
+    --weight-estimated: hsl(259, 73%, 74%);
     --chart-empty: hsl(0, 0%, 50%);
     --radius: 0.5rem;
   }
@@ -58,6 +60,8 @@
     --carbs: hsl(0, 57%, 32%);
     --fat: hsl(0, 75%, 54%);
     --goal: hsla(135, 100%, 27%, 0.3);
+    --weight-scale: hsla(260, 66%, 56%, 0.568);
+    --weight-estimated: hsla(259, 73%, 74%, 0.9);
     --chart-empty: hsl(0, 0%, 50%);
     --radius: 0.5rem;
   }
