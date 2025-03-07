@@ -157,7 +157,6 @@ export default function SignedIn() {
       setter: setYesterdayData,
     });
   }, [today, user.accessToken, yesterday]);
-  // if (!todayData.nutrients) return;
   const nutrientCards = [
     {
       nutrient: "calories",

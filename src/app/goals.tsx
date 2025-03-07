@@ -306,8 +306,11 @@ export function NoDataCard({
           />
         </CardTitle>
         <CardDescription>
-          {`You haven't entered any goals for ${card.nutrient} yet. To get progress on your
-        ${card.nutrient} goals for the day, add a goal and check again!`}
+          {`You haven't entered any data for ${card.nutrient} yet.`}
+        </CardDescription>
+        <CardDescription>
+          {`To get progress on your
+        ${card.nutrient} goals for the day, log food and check again!`}
         </CardDescription>
       </CardHeader>
     </Card>
