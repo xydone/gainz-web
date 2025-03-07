@@ -96,7 +96,8 @@ export default function SignedIn() {
           sugar: createGoal(sugar),
           calories: createGoal(calorie),
         });
-      });
+      })
+      .catch(() => {});
     if (!user.accessToken) return;
     function fetchNutrients({
       day,
@@ -143,7 +144,7 @@ export default function SignedIn() {
           });
         })
         .catch((error: AxiosError) => {
-          if (error.status !== 404) {
+          if (error.status !== 404 && error.status !== 401) {
             console.log(error);
           }
         });

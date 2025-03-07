@@ -1,20 +1,33 @@
 import { handleSignOut, useUserContext } from "@/app/context";
-import axios from "axios";
-import { useEffect } from "react";
+import axios, { AxiosError } from "axios";
+import { useEffect, useRef } from "react";
 
 const axiosInstance = axios.create({});
 
 function AxiosInterceptor() {
   const user = useUserContext();
+  const isRefreshingRef = useRef(false);
 
   useEffect(() => {
+    axiosInstance.interceptors.request.use((request) => {
+      if (request?.headers.Authorization == "Bearer null") {
+        handleSignOut(user);
+        return Promise.reject(
+          new Error(`The request to ${request.url} has sent a null auth token`)
+        );
+      }
+      return request;
+    });
     const interceptor = axiosInstance.interceptors.response.use(
-      (response) => response,
-      async (error) => {
+      async (response) => response,
+      async (error: AxiosError) => {
         const originalRequest = error.config;
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
+        if (
+          error.response?.status === 401 &&
+          originalRequest &&
+          !isRefreshingRef.current
+        ) {
+          isRefreshingRef.current = true;
           try {
             let refreshToken = user.refreshToken;
             if (user.refreshToken == null) {
@@ -33,11 +46,13 @@ function AxiosInterceptor() {
               })
               .catch(() => {
                 handleSignOut(user);
+              })
+              .finally(() => {
+                isRefreshingRef.current = false;
               });
 
             return axiosInstance(originalRequest);
           } catch (refreshError) {
-            console.error("Refresh token error:", refreshError);
             return Promise.reject(refreshError);
           }
         }

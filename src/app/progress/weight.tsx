@@ -115,7 +115,8 @@ export default function Weight({
       )
       .then((response: AxiosResponse) => {
         setData(response.data);
-      });
+      })
+      .catch(() => {});
     axiosInstance
       .get(`${process.env.NEXT_PUBLIC_API_URL}/user/goals`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -125,7 +126,8 @@ export default function Weight({
         const weight = data.find((entry) => entry.target === "weight");
         if (!weight) return;
         setGoal(weight.value);
-      });
+      })
+      .catch(() => {});
   }, [endDate, startDate, user.accessToken]);
   if (!data || !data.length) {
     return (
