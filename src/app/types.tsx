@@ -20,6 +20,31 @@ export type Nutrients = {
   vitamin_d: number;
   sugar_alcohols: number;
 };
+export type GoalTypes = {
+  weight: number;
+} & Nutrients;
+export const NutrientKeys: (keyof Nutrients)[] = [
+  "calories",
+  "fat",
+  "sat_fat",
+  "polyunsat_fat",
+  "monounsat_fat",
+  "trans_fat",
+  "cholesterol",
+  "sodium",
+  "potassium",
+  "carbs",
+  "fiber",
+  "sugar",
+  "protein",
+  "vitamin_a",
+  "vitamin_c",
+  "calcium",
+  "iron",
+  "added_sugars",
+  "vitamin_d",
+  "sugar_alcohols",
+];
 
 export const MacronutrientMap: { [key: string]: string } = {
   calories: "Calories",

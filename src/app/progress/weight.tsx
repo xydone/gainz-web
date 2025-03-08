@@ -21,8 +21,8 @@ import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import { AxiosResponse } from "axios";
-import { GoalsResponse } from "../signed-in";
 import NoResponse from "./NoResponse";
+import { GoalTypes } from "../types";
 
 interface Response {
   created_at: number;
@@ -41,14 +41,20 @@ const chartConfig = {
     label: "Interpolated Weight",
     color: "var(--weight-scale)",
   },
-
   goal: {
     label: "Goal",
     color: "var(--goal)",
   },
 } satisfies ChartConfig;
 
-function processData(data: Response[], goalValue: number | null) {
+interface Chart {
+  created_at: string;
+  scale: number | null;
+  estimated: number;
+  interpolated: number | null;
+  goal?: number;
+}
+function processData(data: Response[], goals: GoalTypes | null) {
   if (!data || data.length === 0) {
     return [];
   }
@@ -60,9 +66,12 @@ function processData(data: Response[], goalValue: number | null) {
   const endDate = new Date(data[data.length - 1].created_at / 1000);
   let i = 0;
   while (currentDate <= endDate) {
-    const currentDateString = format(currentDate, "yyyy-MM-dd");
+    const currentDateString = format(currentDate, "dd MMMM yyyy");
     dateStrings.push(currentDateString);
-    const dataDate = format(new Date(data[i].created_at / 1000), "yyyy-MM-dd");
+    const dataDate = format(
+      new Date(data[i].created_at / 1000),
+      "dd MMMM yyyy"
+    );
     if (i < data.length && dataDate === currentDateString) {
       scale.push(Math.round(data[i].value * 10) / 10);
       i++;
@@ -82,13 +91,13 @@ function processData(data: Response[], goalValue: number | null) {
   });
   const emwaData = ewma(interpolatedData, 0.5);
   for (let idx = 0; idx < dateStrings.length; idx++) {
-    const obj = {
+    const obj: Chart = {
       created_at: dateStrings[idx],
       scale: scale[idx],
       interpolated: cleanInterpolatedData[idx],
       estimated: emwaData[idx],
-      goal: goalValue,
     };
+    if (goals) obj.goal = goals.weight;
     processedData.push(obj);
   }
 
@@ -99,14 +108,16 @@ export default function Weight({
   className,
   startDate,
   endDate,
+  goals,
 }: {
   className?: string;
   startDate: string;
   endDate: string;
+  goals: GoalTypes | null;
 }) {
   const user = useUserContext();
   const [data, setData] = useState<Response[] | null>(null);
-  const [goal, setGoal] = useState<number | null>(null);
+
   useEffect(() => {
     axiosInstance
       .get(
@@ -115,17 +126,6 @@ export default function Weight({
       )
       .then((response: AxiosResponse) => {
         setData(response.data);
-      })
-      .catch(() => {});
-    axiosInstance
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/user/goals`, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      })
-      .then((response: AxiosResponse) => {
-        const data = response.data as GoalsResponse[];
-        const weight = data.find((entry) => entry.target === "weight");
-        if (!weight) return;
-        setGoal(weight.value);
       })
       .catch(() => {});
   }, [endDate, startDate, user.accessToken]);
@@ -137,7 +137,7 @@ export default function Weight({
       />
     );
   }
-  const processedData = processData(data, goal);
+  const processedData = processData(data, goals);
   return (
     <Card className={cn("", className)}>
       <CardHeader>
@@ -168,7 +168,7 @@ export default function Weight({
               axisLine={false}
               ticks={[data[0].created_at, data[data.length - 1].created_at]}
               tickFormatter={(value) => {
-                return format(new Date(value / 1000), "dd-MM");
+                return format(new Date(value / 1000), "dd MMMM yyyy");
               }}
             />
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />

@@ -70,7 +70,7 @@ export default function CustomBarChart({
               tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip content={<ChartTooltipContent hideIndicator />} />
-            <Bar dataKey="value" fill="var(--chart-1)" radius={4}>
+            <Bar dataKey="value" fill="var(--accent)" radius={4}>
               <LabelList
                 dataKey="value"
                 position="top"

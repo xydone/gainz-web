@@ -9,15 +9,6 @@ function AxiosInterceptor() {
   const isRefreshingRef = useRef(false);
 
   useEffect(() => {
-    axiosInstance.interceptors.request.use((request) => {
-      if (request?.headers.Authorization == "Bearer null") {
-        handleSignOut(user);
-        return Promise.reject(
-          new Error(`The request to ${request.url} has sent a null auth token`)
-        );
-      }
-      return request;
-    });
     const interceptor = axiosInstance.interceptors.response.use(
       async (response) => response,
       async (error: AxiosError) => {

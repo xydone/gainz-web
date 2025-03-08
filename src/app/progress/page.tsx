@@ -8,6 +8,10 @@ import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import EntriesProgress from "./entries";
 import Weight from "./weight";
+import GoalsPercentage from "./goals-percentage";
+import { axiosInstance } from "@/lib/api";
+import { GoalTypes } from "../types";
+import { AxiosError } from "axios";
 
 export interface DefinedDateRange {
   from: Date;
@@ -27,10 +31,27 @@ export default function Progress() {
   });
 
   const [submit, setSubmit] = useState<boolean>(false);
-  const { isSignedIn } = useUserContext();
+  const [goals, setGoals] = useState<GoalTypes | null>(null);
+  const [isResponseOkay, setResponseOkay] = useState<boolean>(false);
+
+  const user = useUserContext();
 
   const onClick = () => {
     if (!date || !date.from || !date.to) return;
+    axiosInstance
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/user/goals`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data as GoalTypes;
+        setGoals(data);
+        setResponseOkay(true);
+      })
+      .catch((error: AxiosError) => {
+        if (error.status == 404) {
+          setResponseOkay(true);
+        }
+      });
     setSubmit(true);
     setDisplayDate({ from: date.from, to: date.to });
   };
@@ -44,17 +65,23 @@ export default function Progress() {
         variant={"outline"}
         className={"mt-3"}
         onClick={onClick}
-        disabled={!isSignedIn}
+        disabled={!user.isSignedIn}
       >
         Submit
       </Button>
 
-      {submit && (
+      {submit && isResponseOkay && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full gap-4">
           <EntriesProgress date={displayDate} />
           <Weight
             startDate={format(displayDate.from, "yyyy-MM-dd")}
             endDate={format(displayDate.to, "yyyy-MM-dd")}
+            goals={goals}
+          />
+          <GoalsPercentage
+            startDate={format(displayDate.from, "yyyy-MM-dd")}
+            endDate={format(displayDate.to, "yyyy-MM-dd")}
+            goals={goals}
           />
         </div>
       )}
