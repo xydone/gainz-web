@@ -1,82 +1,92 @@
 "use client";
 import CustomBarChart from "@/components/ui/CustomBarChart";
-
 import NoResponse from "./NoResponse";
 import { useUserContext } from "../context";
 import { axiosInstance } from "@/lib/api";
 import { MacronutrientMap } from "@/app/types";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 interface MacronutrientDataPoint {
   macronutrient: string;
   value: number;
 }
+
 interface IDate {
   from: Date;
   to: Date;
 }
+
 export default function EntriesProgress({
   className,
   date,
 }: {
   className?: string;
-  date: DateRange;
+  date: IDate;
 }) {
   const user = useUserContext();
-  const [isResponseOkay, setResponseOkay] = useState<boolean | null>(null);
-  const [data, setData] = useState<MacronutrientDataPoint[] | null>(null);
-  const [displayDate, setDisplayDate] = useState<IDate | undefined>();
 
-  useEffect(() => {
-    if (!user.isSignedIn) return;
-
-    //annoying little thing we have to do because of errors
-    if (date == undefined || date.from == undefined || date.to == undefined)
+  const fetchData = async () => {
+    if (!date?.from || !date?.to) {
       throw new Error("Dates are not defined");
-    axiosInstance
-      .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?&start=${format(
-          date.from,
-          "yyyy-MM-dd"
-        )}&end=${format(date.to, "yyyy-MM-dd")}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      )
-      .then((response) => {
-        const transformed: MacronutrientDataPoint[] = [];
-        const keys = Object.keys(response.data);
-        for (const key of keys) {
-          if (date.from == undefined || date.to == undefined) return;
-          setDisplayDate({ from: date.from, to: date.to });
-          transformed.push({
-            macronutrient: MacronutrientMap[key],
-            value: Math.round(response.data[key]),
-          });
+    }
+
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats`,
+        {
+          params: {
+            start: format(date.from, "yyyy-MM-dd"),
+            end: format(date.to, "yyyy-MM-dd"),
+          },
+          headers: { Authorization: `Bearer ${user.accessToken}` },
         }
-        setData(transformed);
-        setResponseOkay(true);
-      })
-      .catch(() => {
-        setResponseOkay(false);
-        setData(null);
-      });
-  }, [date, user.accessToken]);
-  if (isResponseOkay == false)
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const { data, error } = useQuery({
+    queryKey: ["entries", date],
+    queryFn: fetchData,
+  });
+
+  if (error) {
     return (
       <NoResponse
         title="No entries found"
         description="No entries found in the given range"
       />
     );
+  }
+
+  const processedData = data ? processData() : [];
+
+  function processData() {
+    const transformed: MacronutrientDataPoint[] = [];
+
+    if (!date?.from || !date?.to) {
+      return [];
+    }
+
+    const keys = Object.keys(data);
+    for (const key of keys) {
+      transformed.push({
+        macronutrient: MacronutrientMap[key] || key,
+        value: Math.round(data[key]),
+      });
+    }
+    return transformed;
+  }
+
   return (
-    data && (
-      <CustomBarChart
-        className={cn("", className)}
-        chartData={data}
-        date={displayDate}
-      />
-    )
+    <CustomBarChart
+      className={cn("", className)}
+      chartData={processedData}
+      date={date}
+    />
   );
 }

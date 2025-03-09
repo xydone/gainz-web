@@ -17,12 +17,11 @@ import {
 } from "@/components/ui/chart";
 import { cn, ewma, lerp } from "@/lib/utils";
 import { format, parse } from "date-fns";
-import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
-import { AxiosResponse } from "axios";
 import NoResponse from "./NoResponse";
 import { GoalTypes } from "../types";
+import { useQuery } from "@tanstack/react-query";
 
 interface Response {
   created_at: number;
@@ -55,6 +54,7 @@ interface Chart {
   goal?: number;
 }
 function processData(data: Response[], goals: GoalTypes | null) {
+  console.log({ data });
   if (!data || data.length === 0) {
     return [];
   }
@@ -116,21 +116,24 @@ export default function Weight({
   goals: GoalTypes | null;
 }) {
   const user = useUserContext();
-  const [data, setData] = useState<Response[] | null>(null);
-
-  useEffect(() => {
-    if (!user.isSignedIn) return;
-    axiosInstance
-      .get(
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/measurement?type=weight&start=${startDate}&end=${endDate}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      )
-      .then((response: AxiosResponse) => {
-        setData(response.data);
-      })
-      .catch(() => {});
-  }, [endDate, startDate, user.accessToken, user.isSignedIn]);
-  if (!data || !data.length) {
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const { data, error } = useQuery({
+    queryKey: ["weight", startDate, endDate],
+    queryFn: fetchData,
+  });
+
+  if (error) {
     return (
       <NoResponse
         title="No weight measurements found"

@@ -14,13 +14,14 @@ import {
 import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { format, parse } from "date-fns";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { useUserContext } from "../context";
 import { GoalTypeMap, Nutrients } from "../types";
 import { AxiosResponse } from "axios";
 import NoResponse from "./NoResponse";
 import LineFilter from "./LineFilter";
+import { useQuery } from "@tanstack/react-query";
 
 interface Response {
   entry_date: number;
@@ -38,7 +39,6 @@ export default function GoalsPercentage({
   endDate: string;
   goals: Nutrients | null;
 }) {
-  const [data, setData] = useState<Response[] | null>(null);
   const [lines, setLines] = useState<string[]>([
     "calories",
     "protein",
@@ -47,16 +47,21 @@ export default function GoalsPercentage({
   ]);
   const user = useUserContext();
   const chartConfig = {} satisfies ChartConfig;
-  useEffect(() => {
-    if (!user.isSignedIn) return;
-    axiosInstance
-      .get(
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats/detailed?&start=${startDate}&end=${endDate}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      )
-      .then((response: AxiosResponse) => setData(response.data))
-      .catch(() => {});
-  }, [startDate, endDate, user.accessToken, user.isSignedIn]);
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+  const { data, error } = useQuery({
+    queryKey: ["goalsPercentage", startDate, endDate],
+    queryFn: fetchData,
+  });
 
   Object.keys(GoalTypeMap).forEach(
     (nutrient) =>
@@ -67,7 +72,7 @@ export default function GoalsPercentage({
       })
   );
   const allowedLines = Object.keys(GoalTypeMap);
-  if (!data) {
+  if (error) {
     return (
       <NoResponse
         title="No data"
@@ -141,7 +146,8 @@ export default function GoalsPercentage({
   );
 }
 
-function processData(data: Response[], goals: Nutrients) {
+function processData(data: Response[] | undefined, goals: Nutrients) {
+  if (!data) return [];
   const processedData: ({ entry_date: string } & Partial<Nutrients>)[] = [];
   data.map((element) => {
     const nutrients = {};
