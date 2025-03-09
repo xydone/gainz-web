@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { UserContext, User } from "./context";
 import { AxiosInterceptor } from "@/lib/api";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 export function Providers({
   children,
 }: Readonly<{
@@ -23,11 +24,16 @@ export function Providers({
     displayName,
     setDisplayName,
   };
+
+  const queryClient = new QueryClient();
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <UserContext.Provider value={user}>
-        <AxiosInterceptor />
-        {children}
+        <QueryClientProvider client={queryClient}>
+          <AxiosInterceptor />
+          {children}
+        </QueryClientProvider>
       </UserContext.Provider>
     </ThemeProvider>
   );
