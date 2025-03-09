@@ -31,9 +31,7 @@ export default function EntriesProgress({
   const [displayDate, setDisplayDate] = useState<IDate | undefined>();
 
   useEffect(() => {
-    if (user.accessToken === null) {
-      throw new Error("Access token is null!");
-    }
+    if (!user.isSignedIn) return;
 
     //annoying little thing we have to do because of errors
     if (date == undefined || date.from == undefined || date.to == undefined)

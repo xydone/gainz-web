@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/chart";
 import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { useUserContext } from "../context";
-import { MacronutrientMap, Nutrients } from "../types";
+import { GoalTypeMap, Nutrients } from "../types";
 import { AxiosResponse } from "axios";
+import NoResponse from "./NoResponse";
+import LineFilter from "./LineFilter";
 
 interface Response {
   entry_date: number;
@@ -37,38 +39,65 @@ export default function GoalsPercentage({
   goals: Nutrients | null;
 }) {
   const [data, setData] = useState<Response[] | null>(null);
+  const [lines, setLines] = useState<string[]>([
+    "calories",
+    "protein",
+    "weight",
+    "sugar",
+  ]);
   const user = useUserContext();
   const chartConfig = {} satisfies ChartConfig;
   useEffect(() => {
+    if (!user.isSignedIn) return;
     axiosInstance
       .get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats/detailed?&start=${startDate}&end=${endDate}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
       )
-      .then((response: AxiosResponse) => setData(response.data));
-  }, [startDate, endDate, user.accessToken]);
+      .then((response: AxiosResponse) => setData(response.data))
+      .catch(() => {});
+  }, [startDate, endDate, user.accessToken, user.isSignedIn]);
 
-  Object.keys(MacronutrientMap).forEach(
+  Object.keys(GoalTypeMap).forEach(
     (nutrient) =>
       //@ts-expect-error No index signature valid
       (chartConfig[nutrient] = {
-        label: MacronutrientMap[nutrient],
+        label: GoalTypeMap[nutrient],
         color: `var(--${nutrient})`,
       })
   );
-  const allowedLines = Object.keys(MacronutrientMap);
-  if (!data || !goals) {
-    return <h1>No data!</h1>;
+  const allowedLines = Object.keys(GoalTypeMap);
+  if (!data) {
+    return (
+      <NoResponse
+        title="No data"
+        description="No intake data found in the given range"
+      />
+    );
+  }
+  if (!goals) {
+    return (
+      <NoResponse
+        title="No goals data"
+        description="No goals data found for the given range"
+      />
+    );
   }
   const processedData = processData(data, goals);
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>Goals percentage</CardTitle>
         <CardDescription>{`${format(startDate, "dd MMMM yyyy")} - ${format(
           endDate,
           "dd MMMM yyyy"
         )}`}</CardDescription>
+        <LineFilter
+          maxLines={allowedLines}
+          lines={lines}
+          setLines={setLines}
+          map={GoalTypeMap}
+        />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -79,30 +108,32 @@ export default function GoalsPercentage({
               ticks={Array(5)
                 .fill(0)
                 .map((_, i) => i * 50)}
-              tickFormatter={(value) => Math.round(value).toString()}
+              tickFormatter={(value) => `${value}%`}
             />
             <XAxis
-              dataKey="entry_date"
-              tickLine={false}
-              axisLine={false}
-              ticks={[data[0].entry_date, data[data.length - 1].entry_date]}
+              dataKey={"entry_date"}
               tickFormatter={(value) => {
-                return format(new Date(value / 1000), "dd-MM");
+                const parsed = parse(value, "dd MMMM yyyy", new Date());
+                return format(parsed, "dd-MM");
               }}
             />
-            <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+            <ChartTooltip
+              cursor={true}
+              content={<ChartTooltipContent sort={true} />}
+            />
 
-            {allowedLines.map((line, i) => (
-              <Line
-                key={i}
-                dataKey={line}
-                stroke={`var(--color-${line})`}
-                type="monotone"
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-            ))}
+            {lines &&
+              lines.map((line, i) => (
+                <Line
+                  key={i}
+                  dataKey={line}
+                  stroke={`var(--color-${line})`}
+                  type="monotone"
+                  strokeWidth={2}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              ))}
           </LineChart>
         </ChartContainer>
       </CardContent>
@@ -118,7 +149,9 @@ function processData(data: Response[], goals: Nutrients) {
       //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
       if (goals[key]) {
         //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-        nutrients[key] = (element.nutrients[key] / goals[key]) * 100;
+        const value = (element.nutrients[key] / goals[key]) * 100;
+        //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
+        nutrients[key] = Math.round(value * 10) / 10;
       }
     });
     processedData.push({

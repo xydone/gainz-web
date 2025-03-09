@@ -16,7 +16,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn, ewma, lerp } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
@@ -119,6 +119,7 @@ export default function Weight({
   const [data, setData] = useState<Response[] | null>(null);
 
   useEffect(() => {
+    if (!user.isSignedIn) return;
     axiosInstance
       .get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/measurement?type=weight&start=${startDate}&end=${endDate}`,
@@ -128,7 +129,7 @@ export default function Weight({
         setData(response.data);
       })
       .catch(() => {});
-  }, [endDate, startDate, user.accessToken]);
+  }, [endDate, startDate, user.accessToken, user.isSignedIn]);
   if (!data || !data.length) {
     return (
       <NoResponse
@@ -163,12 +164,12 @@ export default function Weight({
               tickFormatter={(value) => Math.round(value).toString()}
             />
             <XAxis
-              dataKey="created_at"
+              dataKey={"created_at"}
               tickLine={false}
               axisLine={false}
-              ticks={[data[0].created_at, data[data.length - 1].created_at]}
               tickFormatter={(value) => {
-                return format(new Date(value / 1000), "dd MMMM yyyy");
+                const parsed = parse(value, "dd MMMM yyyy", new Date());
+                return format(parsed, "dd-MM");
               }}
             />
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />

@@ -111,6 +111,7 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: "line" | "dot" | "dashed";
       nameKey?: string;
       labelKey?: string;
+      sort?: boolean;
     }
 >(
   (
@@ -128,6 +129,7 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
+      sort,
     },
     ref
   ) => {
@@ -137,7 +139,9 @@ const ChartTooltipContent = React.forwardRef<
       if (hideLabel || !payload?.length) {
         return null;
       }
-
+      if (sort) {
+        payload.sort((a, b) => Number(b.value) - Number(a.value));
+      }
       const [item] = payload;
       const key = `${labelKey || item.dataKey || item.name || "value"}`;
       const itemConfig = getPayloadConfigFromPayload(config, item, key);
@@ -157,7 +161,6 @@ const ChartTooltipContent = React.forwardRef<
       if (!value) {
         return null;
       }
-
       return <div className={cn("font-medium", labelClassName)}>{value}</div>;
     }, [
       label,
@@ -174,7 +177,6 @@ const ChartTooltipContent = React.forwardRef<
     }
 
     const nestLabel = payload.length === 1 && indicator !== "dot";
-
     return (
       <div
         ref={ref}
@@ -193,8 +195,9 @@ const ChartTooltipContent = React.forwardRef<
             return (
               <div
                 key={item.dataKey}
+                //added margin to the right to make long text have some gap to the value
                 className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                  "flex w-full mr-3 flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
                   indicator === "dot" && "items-center"
                 )}
               >
