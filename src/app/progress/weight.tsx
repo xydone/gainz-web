@@ -20,7 +20,6 @@ import { format, parse } from "date-fns";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import NoResponse from "./NoResponse";
-import { GoalTypes } from "../types";
 import { useQuery } from "@tanstack/react-query";
 
 interface Response {
@@ -37,7 +36,7 @@ const chartConfig = {
     color: "var(--weight-estimated)",
   },
   interpolated: {
-    label: "Interpolated Weight",
+    label: "Scale Weight (Interpolated)",
     color: "var(--weight-scale)",
   },
   goal: {
@@ -53,8 +52,7 @@ interface Chart {
   interpolated: number | null;
   goal?: number;
 }
-function processData(data: Response[], goals: GoalTypes | null) {
-  console.log({ data });
+function processData(data: Response[]) {
   if (!data || data.length === 0) {
     return [];
   }
@@ -97,7 +95,6 @@ function processData(data: Response[], goals: GoalTypes | null) {
       interpolated: cleanInterpolatedData[idx],
       estimated: emwaData[idx],
     };
-    if (goals) obj.goal = goals.weight;
     processedData.push(obj);
   }
 
@@ -108,14 +105,13 @@ export default function Weight({
   className,
   startDate,
   endDate,
-  goals,
 }: {
   className?: string;
   startDate: string;
   endDate: string;
-  goals: GoalTypes | null;
 }) {
   const user = useUserContext();
+
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
@@ -141,7 +137,7 @@ export default function Weight({
       />
     );
   }
-  const processedData = processData(data, goals);
+  const processedData = processData(data);
   return (
     <Card className={cn("", className)}>
       <CardHeader>
@@ -164,7 +160,9 @@ export default function Weight({
             <YAxis
               domain={["dataMin - 5", "dataMax + 5"]}
               width={12}
-              tickFormatter={(value) => Math.round(value).toString()}
+              tickFormatter={(value) => {
+                return Math.round(value).toString();
+              }}
             />
             <XAxis
               dataKey={"created_at"}

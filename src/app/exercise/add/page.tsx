@@ -3,7 +3,6 @@
 import Exercise from "./exercise";
 import Unit from "./unit";
 import Category from "./category";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function AddExercise({
@@ -11,8 +10,6 @@ export default function AddExercise({
 }: {
   innerDivClassName?: string;
 }) {
-  //exists in order so we can refresh the api call in the exercise card whenever a new category is added individually
-  const [categoryUpdate, setCategoryUpdate] = useState(0);
   return (
     <div>
       <h1 className="text-xl text-center">Create new exercise</h1>
@@ -23,15 +20,11 @@ export default function AddExercise({
         )}
       >
         <div className="w-[90%] lg:w-2/3">
-          <Exercise categoryUpdate={categoryUpdate} />
+          <Exercise />
         </div>
         <div className="flex flex-col w-[90%] lg:w-2/3 justify-center gap-5 lg:flex-row">
           <Unit className="w-full" />
-          <Category
-            className="w-full"
-            categoryUpdate={categoryUpdate}
-            setCategoryUpdate={setCategoryUpdate}
-          />
+          <Category className="w-full" />
         </div>
       </div>
     </div>

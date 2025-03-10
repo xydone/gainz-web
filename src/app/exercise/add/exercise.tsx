@@ -30,8 +30,8 @@ import { z } from "zod";
 import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 interface Category {
   id: number;
@@ -47,43 +47,48 @@ export const FormSchema = z.object({
   category_id: z.coerce.number(),
 });
 
-export default function Exercise({
-  className,
-  categoryUpdate,
-}: {
-  className?: string;
-  categoryUpdate: number;
-}) {
+export default function Exercise({ className }: { className?: string }) {
   const user = useUserContext();
 
-  const [isAPIOkay, setApiOkay] = useState<boolean | null>(null);
-
-  const [categories, setCategories] = useState<Category[] | null>(null);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
-  useEffect(() => {
-    if (user.isSignedIn) {
-      axiosInstance
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/exercise/category`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
-        .then((response) => {
-          setCategories(response.data);
-        });
-    }
-  }, [user.accessToken, user.isSignedIn, categoryUpdate]);
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    axiosInstance
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`, { data })
-      .then(() => {
-        setApiOkay(true);
-      });
-  }
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const { data } = useQuery({
+    queryKey: ["getExerciseCategory"],
+    queryFn: fetchData,
+  });
+  const { mutate, error } = useMutation({
+    mutationFn: async (form: FormData) => {
+      try {
+        const response = await axiosInstance.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/exercise/`,
+          { ...form },
+          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+  });
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
+      {/* @ts-expect-error Weird form error */}
+      <form onSubmit={form.handleSubmit(mutate)} className={cn(className)}>
         <Card className="mt-5 flex flex-col">
           <CardHeader>
             <CardTitle>{`Exercise`}</CardTitle>
@@ -162,8 +167,8 @@ export default function Exercise({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories &&
-                        categories.map((element) => (
+                      {data &&
+                        data.map((element: Category) => (
                           <SelectItem value={`${element.id}`} key={element.id}>
                             {element.name}
                           </SelectItem>
@@ -183,7 +188,7 @@ export default function Exercise({
           >
             Submit
           </Button>
-          {isAPIOkay == false && (
+          {error && (
             <CardDescription className="self-center mb-3 text-destructive">
               Error! Please try again.
             </CardDescription>

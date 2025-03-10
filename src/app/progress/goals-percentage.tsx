@@ -17,8 +17,7 @@ import { format, parse } from "date-fns";
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { useUserContext } from "../context";
-import { GoalTypeMap, Nutrients } from "../types";
-import { AxiosResponse } from "axios";
+import { MacronutrientMap, Nutrients } from "../types";
 import NoResponse from "./NoResponse";
 import LineFilter from "./LineFilter";
 import { useQuery } from "@tanstack/react-query";
@@ -32,21 +31,34 @@ export default function GoalsPercentage({
   className,
   startDate,
   endDate,
-  goals,
 }: {
   className?: string;
   startDate: string;
   endDate: string;
-  goals: Nutrients | null;
 }) {
   const [lines, setLines] = useState<string[]>([
     "calories",
     "protein",
-    "weight",
     "sugar",
   ]);
   const user = useUserContext();
   const chartConfig = {} satisfies ChartConfig;
+  const fetchGoals = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+  const { data: goals, error: goalsError } = useQuery({
+    queryKey: ["goals"],
+    queryFn: fetchGoals,
+  });
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
@@ -58,20 +70,21 @@ export default function GoalsPercentage({
       throw error;
     }
   };
+
   const { data, error } = useQuery({
     queryKey: ["goalsPercentage", startDate, endDate],
     queryFn: fetchData,
   });
 
-  Object.keys(GoalTypeMap).forEach(
+  Object.keys(MacronutrientMap).forEach(
     (nutrient) =>
       //@ts-expect-error No index signature valid
       (chartConfig[nutrient] = {
-        label: GoalTypeMap[nutrient],
+        label: MacronutrientMap[nutrient],
         color: `var(--${nutrient})`,
       })
   );
-  const allowedLines = Object.keys(GoalTypeMap);
+  const allowedLines = Object.keys(MacronutrientMap);
   if (error) {
     return (
       <NoResponse
@@ -80,7 +93,7 @@ export default function GoalsPercentage({
       />
     );
   }
-  if (!goals) {
+  if (goalsError) {
     return (
       <NoResponse
         title="No goals data"
@@ -101,7 +114,7 @@ export default function GoalsPercentage({
           maxLines={allowedLines}
           lines={lines}
           setLines={setLines}
-          map={GoalTypeMap}
+          map={MacronutrientMap}
         />
       </CardHeader>
       <CardContent>
@@ -151,7 +164,7 @@ function processData(data: Response[] | undefined, goals: Nutrients) {
   const processedData: ({ entry_date: string } & Partial<Nutrients>)[] = [];
   data.map((element) => {
     const nutrients = {};
-    Object.keys(element.nutrients).forEach((key) => {
+    Object.keys(MacronutrientMap).forEach((key) => {
       //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
       if (goals[key]) {
         //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix

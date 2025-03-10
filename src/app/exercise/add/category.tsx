@@ -22,48 +22,41 @@ import { z } from "zod";
 import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
-import { useState, Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 
 export const FormSchema = z.object({
   name: z.string().nonempty(),
   description: z.string().optional(),
 });
 
-export default function Category({
-  className,
-  setCategoryUpdate,
-  categoryUpdate,
-}: {
-  className?: string;
-  setCategoryUpdate: Dispatch<SetStateAction<number>>;
-  categoryUpdate: number;
-}) {
+export default function Category({ className }: { className?: string }) {
   const user = useUserContext();
-
-  const [isAPIOkay, setApiOkay] = useState<boolean | null>(null);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    axiosInstance
-      .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
-        { ...data },
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
-      .then(() => {
-        setApiOkay(true);
-        setCategoryUpdate(categoryUpdate + 1);
-      });
-  }
+  const { mutate, error } = useMutation({
+    mutationFn: async (form: FormData) => {
+      try {
+        const response = await axiosInstance.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
+          { ...form },
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+  });
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
+      {/* @ts-expect-error Weird form error */}
+      <form onSubmit={form.handleSubmit(mutate)} className={cn(className)}>
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle>{`Category`}</CardTitle>
@@ -112,7 +105,7 @@ export default function Category({
           >
             Submit
           </Button>
-          {isAPIOkay == false && (
+          {error && (
             <CardDescription className="self-center mb-3 text-destructive">
               Error! Please try again.
             </CardDescription>

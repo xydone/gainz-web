@@ -25,7 +25,13 @@ export function Providers({
     setDisplayName,
   };
 
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
