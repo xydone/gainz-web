@@ -125,7 +125,7 @@ export default function Weight({
   };
 
   const { data, error } = useQuery({
-    queryKey: ["weight", startDate, endDate],
+    queryKey: ["weight", startDate, endDate, user.accessToken],
     queryFn: fetchData,
   });
 

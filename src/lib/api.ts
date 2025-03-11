@@ -23,7 +23,9 @@ function AxiosInterceptor() {
             let refreshToken = user.refreshToken;
             if (user.refreshToken == null) {
               refreshToken = localStorage.getItem("refreshToken");
-              if (refreshToken == null) throw new Error("No refresh token");
+              if (refreshToken == null) {
+                return handleSignOut(user);
+              }
               user.setRefreshToken(refreshToken);
             }
             await axios

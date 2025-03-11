@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,274 +11,240 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Label, Legend, Pie, PieChart } from "recharts";
+import { Label, Pie, PieChart } from "recharts";
 import { cn } from "@/lib/utils";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { axiosInstance } from "@/lib/api";
+import { useUserContext } from "./context";
+import { Skeleton } from "@/components/ui/skeleton";
+import { nutrientChart } from "./types";
 
-export const chartConfig = {
-  intake: {
-    label: "Intake",
-  },
-  protein: {
-    label: "Protein",
-    color: "var(--protein)",
-  },
-  carbs: {
-    label: "Carbs",
-    color: "var(--carbs)",
-  },
-  fat: {
-    label: "Fat",
-    color: "var(--fat)",
-  },
-  empty: {
-    label: "Empty",
-    color: "var(--chart-empty)",
-  },
-} satisfies ChartConfig;
-
-interface Nutrient {
-  nutrient: string;
-  intake: number;
-  fill: string;
-}
-
-interface Summary {
-  calories: number;
-  protein: number;
-  fat: number;
-  carbs: number;
-  sugar: number;
-}
-
-interface NutrientDistributionProps {
-  className?: string;
-  todayData: DayData;
-  yesterdayData: DayData;
-  size: number;
-}
-
-export interface DayData {
-  nutrients: Nutrient[] | null;
-  calories: number | null;
-  summary: Summary | null;
-}
+const chartConfig = nutrientChart satisfies ChartConfig;
 
 export default function NutrientDistribution({
   className,
-  todayData,
-  size,
-  yesterdayData,
-}: NutrientDistributionProps) {
-  const config = {
-    dataKey: "intake",
-    nameKey: "nutrient",
-    innerRadius: size - 30,
-    outerRadius: size,
-    strokeWidth: 5,
-    labelLine: false,
+}: {
+  className: string;
+}) {
+  const user = useUserContext();
+  const date = new Date();
+  const today = format(date, "yyyy-MM-dd");
+  const fetchEntry = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${today}&end=${today}`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   };
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["todayDaya", user.accessToken],
+    queryFn: fetchEntry,
+  });
+
+  if (isLoading) {
+    return <SkeletonCard className={className} />;
+  }
+  if (error) {
+    return <ErrorResponse className={className} />;
+  }
+  const chartData = [
+    {
+      nutrient: "Protein",
+      intake: Math.round(data.protein),
+      fill: "var(--color-protein)",
+    },
+    {
+      nutrient: "Carbs",
+      intake: Math.round(data.carbs),
+      fill: "var(--color-carbs)",
+    },
+    {
+      nutrient: "Fat",
+      intake: Math.round(data.fat),
+      fill: "var(--color-fat)",
+    },
+    {
+      nutrient: "Sugar",
+      intake: Math.round(data.sugar),
+      fill: "var(--color-sugar)",
+    },
+  ];
   return (
-    <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="pb-0">
-        <CardTitle>Nutrients</CardTitle>
-        <CardDescription>{"Today's nutrient distribution"}</CardDescription>
+    <Card className={cn("", className)}>
+      <CardHeader>
+        <CardTitle>Nutrient Distribution</CardTitle>
+        <CardDescription>Nutrient Distribution for today</CardDescription>
       </CardHeader>
-      {todayData.nutrients || todayData.calories ? (
-        <ValidResponse />
-      ) : (
-        <EmptyResponse />
-      )}
+      <CardContent>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="intake"
+              nameKey="nutrient"
+              innerRadius={80}
+              outerRadius={100}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {Math.round(data.calories).toLocaleString()}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          calories
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+        <CustomLegend />
+      </CardContent>
     </Card>
   );
-
-  function ValidResponse() {
-    if (!todayData.nutrients || !todayData.calories) return;
-    return (
-      <div>
-        <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[250px]"
-          >
-            <PieChart margin={{}}>
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Pie
-                data={todayData.nutrients}
-                {...config}
-                label={({ payload, ...props }) => {
-                  return (
-                    <text
-                      cx={props.cx}
-                      cy={props.cy}
-                      x={props.x}
-                      y={props.y}
-                      textAnchor={props.textAnchor}
-                      dominantBaseline={props.dominantBaseline}
-                      fill="var(--foreground)"
-                    >
-                      {payload.intake}
-                    </text>
-                  );
-                }}
-              >
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            className="fill-foreground text-3xl font-bold"
-                          >
-                            {todayData.calories}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
-                          >
-                            Calories
-                          </tspan>
-                        </text>
-                      );
-                    }
-                  }}
-                />
-              </Pie>
-              <Legend />
-            </PieChart>
-          </ChartContainer>
-        </CardContent>
-        {yesterdayData.calories &&
-          yesterdayData.nutrients &&
-          todayData.summary &&
-          yesterdayData.summary && (
-            <CardFooter className="flex-col gap-2 text-sm text-center">
-              <div className="flex flex-col lg:flex-row items-center  font-medium leading-none">
-                That is {Math.abs(todayData.calories - yesterdayData.calories)}{" "}
-                {todayData.calories - yesterdayData.calories > 0
-                  ? "more"
-                  : "less"}{" "}
-                calories than yesterday!{" "}
-                {todayData.calories - yesterdayData.calories > 0 ? (
-                  <TrendingUp />
-                ) : (
-                  <TrendingDown />
-                )}
-              </div>
-              <div className="flex flex-col lg:flex-row items-center gap-2 font-medium leading-none text-muted-foreground">
-                <CalorieDistributionDescription
-                  today={todayData.summary}
-                  yesterday={yesterdayData.summary}
-                  nutrient="protein"
-                />
-                <CalorieDistributionDescription
-                  today={todayData.summary}
-                  yesterday={yesterdayData.summary}
-                  nutrient="carbs"
-                />
-                <CalorieDistributionDescription
-                  today={todayData.summary}
-                  yesterday={yesterdayData.summary}
-                  nutrient="fat"
-                />
-                <CalorieDistributionDescription
-                  today={todayData.summary}
-                  yesterday={yesterdayData.summary}
-                  nutrient="sugar"
-                />
-              </div>
-            </CardFooter>
-          )}
-      </div>
-    );
-  }
-  function EmptyResponse() {
-    return (
-      <div>
-        <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[250px]"
-          >
-            <PieChart margin={{}}>
-              <Pie
-                data={[
-                  { nutrient: "empty", intake: 1, fill: "var(--color-empty)" },
-                ]}
-                {...config}
-              >
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            className="fill-foreground text-3xl font-bold"
-                          >
-                            0
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
-                          >
-                            Calories
-                          </tspan>
-                        </text>
-                      );
-                    }
-                  }}
-                />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col gap-2 text-sm">
-          <div className="flex items-center gap-2 font-medium leading-none text-center">
-            You have not entered any food yet.
-          </div>
-          <div className="leading-none text-muted-foreground text-center">
-            To get a breakdown on your caloric intake for the day, log food and
-            check again!
-          </div>
-        </CardFooter>
-      </div>
-    );
-  }
 }
-function CalorieDistributionDescription({
-  today,
-  yesterday,
-  nutrient,
-}: {
-  today: Summary;
-  yesterday: Summary;
-  nutrient: keyof Summary;
-}) {
-  const nutrientName = nutrient.charAt(0).toUpperCase() + nutrient.slice(1);
-  const difference = today[nutrient] - yesterday[nutrient];
+function SkeletonCard({ className }: { className: string }) {
   return (
-    <div className="flex flex-row items-center">
-      {nutrientName}: {Math.abs(difference)}
-      {difference > 0 ? <TrendingUp /> : <TrendingDown />}
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-6 w-32" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-4 w-48" />
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="mx-auto aspect-square max-h-[250px] flex items-center justify-center">
+          <Skeleton className="h-40 w-40 rounded-full" />
+        </div>
+        <div className="mt-4 flex justify-center gap-4">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ErrorResponse({ className }: { className: string }) {
+  return (
+    <Card className={cn("", className)}>
+      <CardHeader>
+        <CardTitle>Nutrient Distribution</CardTitle>
+        <CardDescription>Nutrient Distribution for today</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <Pie
+              data={[
+                {
+                  nutrient: "empty",
+                  intake: 100,
+                  fill: "var(--color-empty)",
+                },
+              ]}
+              dataKey="intake"
+              nameKey="nutrient"
+              innerRadius={80}
+              outerRadius={100}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          0
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          calories
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CustomLegend() {
+  return (
+    <div className="flex flex-row gap-4 justify-center">
+      {Object.keys(chartConfig).map((item, i) => {
+        //@ts-expect-error indexing
+        if (chartConfig[item].label === "empty") {
+          return;
+        }
+        return (
+          <div key={i} className="flex flex-row gap-2 place-items-center">
+            <div
+              className="h-2 w-2 shrink-0 rounded-[2px]"
+              style={{
+                //@ts-expect-error indexing
+                backgroundColor: chartConfig[item].color,
+              }}
+            />
+            {/* @ts-expect-error indexing */}
+            <span className="text-xs">{chartConfig[item].label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }

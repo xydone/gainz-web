@@ -74,3 +74,90 @@ export const GoalTypeMap: { [key: string]: string } = {
   weight: "Weight",
   ...MacronutrientMap,
 };
+
+export const nutrientChart = {
+  calories: {
+    label: "Calories",
+    color: "var(--calories)",
+  },
+  fat: {
+    label: "Fat",
+    color: "var(--fat)",
+  },
+  sat_fat: {
+    label: "Saturated Fat",
+    color: "var(--sat-fat)",
+  },
+  polyunsat_fat: {
+    label: "Polyunsaturated Fat",
+    color: "var(--polyunsat-fat)",
+  },
+  monounsat_fat: {
+    label: "Monounsaturated Fat",
+    color: "var(--monounsat-fat)",
+  },
+  trans_fat: {
+    label: "Trans Fat",
+    color: "var(--trans-fat)",
+  },
+  cholesterol: {
+    label: "Cholesterol",
+    color: "var(--cholesterol)",
+  },
+  sodium: {
+    label: "Sodium",
+    color: "var(--sodium)",
+  },
+  potassium: {
+    label: "Potassium",
+    color: "var(--potassium)",
+  },
+  carbs: {
+    label: "Carbohydrates",
+    color: "var(--carbs)",
+  },
+  fiber: {
+    label: "Fiber",
+    color: "var(--fiber)",
+  },
+  sugar: {
+    label: "Sugar",
+    color: "var(--sugar)",
+  },
+  protein: {
+    label: "Protein",
+    color: "var(--protein)",
+  },
+  vitamin_a: {
+    label: "Vitamin A",
+    color: "var(--vitamin-a)",
+  },
+  vitamin_c: {
+    label: "Vitamin C",
+    color: "var(--vitamin-c)",
+  },
+  calcium: {
+    label: "Calcium",
+    color: "var(--calcium)",
+  },
+  iron: {
+    label: "Iron",
+    color: "var(--iron)",
+  },
+  added_sugars: {
+    label: "Added Sugars",
+    color: "var(--added-sugars)",
+  },
+  vitamin_d: {
+    label: "Vitamin D",
+    color: "var(--vitamin-d)",
+  },
+  sugar_alcohols: {
+    label: "Sugar Alcohols",
+    color: "var(--sugar-alcohols)",
+  },
+  empty: {
+    label: "Sugar",
+    color: "var(--chart-empty)",
+  },
+};

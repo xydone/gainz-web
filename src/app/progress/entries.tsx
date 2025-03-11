@@ -50,7 +50,7 @@ export default function EntriesProgress({
   };
 
   const { data, error } = useQuery({
-    queryKey: ["entries", date],
+    queryKey: ["entries", date, user.accessToken],
     queryFn: fetchData,
   });
 

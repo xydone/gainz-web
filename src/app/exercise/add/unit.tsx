@@ -66,7 +66,7 @@ export default function Unit({ className }: { className?: string }) {
   };
 
   const { data: exercises } = useQuery({
-    queryKey: ["getExercises"],
+    queryKey: ["getExercises", user.accessToken],
     queryFn: fetchData,
   });
 

@@ -56,7 +56,7 @@ export default function GoalsPercentage({
     }
   };
   const { data: goals, error: goalsError } = useQuery({
-    queryKey: ["goals"],
+    queryKey: ["goals", user.accessToken],
     queryFn: fetchGoals,
   });
   const fetchData = async () => {
@@ -72,7 +72,7 @@ export default function GoalsPercentage({
   };
 
   const { data, error } = useQuery({
-    queryKey: ["goalsPercentage", startDate, endDate],
+    queryKey: ["goalsPercentage", startDate, endDate, user.accessToken],
     queryFn: fetchData,
   });
 

@@ -67,7 +67,7 @@ export default function Exercise({ className }: { className?: string }) {
   };
 
   const { data } = useQuery({
-    queryKey: ["getExerciseCategory"],
+    queryKey: ["getExerciseCategory", user.accessToken],
     queryFn: fetchData,
   });
   const { mutate, error } = useMutation({

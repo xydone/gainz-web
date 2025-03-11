@@ -27,7 +27,9 @@ import {
 import { useState, Dispatch, SetStateAction } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
-import { Goals } from "./signed-in";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { MacronutrientMap, nutrientChart } from "./types";
 
 interface Data {
   nutrient: string;
@@ -35,41 +37,83 @@ interface Data {
   fill: string;
 }
 
+const chartConfig = {
+  intake: {
+    label: "Intake",
+  },
+  ...nutrientChart,
+} satisfies ChartConfig;
+
 export function GoalsCard({
   className,
-  data,
-  config,
-  goalValue,
-  setGoals,
-  overflow,
+  goalName,
 }: {
   className?: string;
-  data: Data[];
-  config: ChartConfig;
-  goalValue: number;
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
-  overflow?: boolean;
+  goalName: string;
 }) {
-  const nutrientCaps =
-    data[0].nutrient[0].toUpperCase() + data[0].nutrient.slice(1);
+  const user = useUserContext();
+  const [goal, setGoal] = useState<number>(0);
+  const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
+  const overflow = false;
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+      setGoal(response.data[goalName]);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const { data: goalsData } = useQuery({
+    queryKey: ["goals", user.accessToken],
+    queryFn: fetchData,
+  });
+
+  const day = format(new Date(), "yyyy-MM-dd");
+  const fetchStats = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const { data: statsData } = useQuery({
+    queryKey: ["stats", user.accessToken],
+    queryFn: fetchStats,
+  });
+  if (goalsData == undefined)
+    return <NoDataCard nutrient={goalName} setGoals={setGoal} />;
+  if (statsData == undefined)
+    return <NoDataCard nutrient={goalName} setGoals={setGoal} />;
+  if (!goalsData[goalName])
+    return <NoGoalsCard nutrient={goalName} setGoals={setGoal} />;
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
           {`${nutrientCaps} goals`}
-          <CardDescription>Goal is {goalValue}</CardDescription>
+          <CardDescription>Goal is {goalsData[goalName]}</CardDescription>
           <EditGoalsButton
-            target={data[0].nutrient}
-            goalValue={goalValue}
-            setGoals={setGoals}
+            nutrient={goalName}
+            goalValue={goal}
+            setGoals={setGoal}
           />
         </CardTitle>
       </CardHeader>
       <CardContent>
         <BasicChart
-          data={data}
-          config={config}
-          goalValue={goalValue}
+          data={statsData}
+          goalName={goalName}
+          goalValue={goalsData}
           overflow={overflow}
         />
       </CardContent>
@@ -80,15 +124,14 @@ export function GoalsCard({
 function EditGoalsButton({
   goalValue,
   setGoals,
-  target,
+  nutrient,
 }: {
   goalValue: number;
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
-  target: string;
+  setGoals: Dispatch<SetStateAction<number>>;
+  nutrient: string;
 }) {
   const [tempGoal, setTempGoal] = useState(goalValue);
   const user = useUserContext();
-  const nutrientCaps = target[0].toUpperCase() + target.slice(1);
   function onClick(adjustment: number) {
     setTempGoal(tempGoal + adjustment);
   }
@@ -96,21 +139,13 @@ function EditGoalsButton({
     axiosInstance
       .post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-        { target: target, value: tempGoal },
+        { target: nutrient, value: tempGoal },
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }
       )
       .then(() => {
-        setGoals((prevG) => {
-          if (!prevG) return null;
-          return {
-            ...prevG,
-            [target]: {
-              value: tempGoal,
-            },
-          };
-        });
+        setGoals(tempGoal);
       });
   };
   return (
@@ -122,7 +157,9 @@ function EditGoalsButton({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit {target} goals</DialogTitle>
+          <DialogTitle>
+            Edit {MacronutrientMap[nutrient].toLowerCase()} goals
+          </DialogTitle>
         </DialogHeader>
         <div className="flex flex-row items-center gap-4">
           <Button
@@ -149,7 +186,7 @@ function EditGoalsButton({
               {tempGoal}
             </div>
             <div className="text-[0.70rem] uppercase text-muted-foreground">
-              {nutrientCaps}/day
+              {MacronutrientMap[nutrient]}/day
             </div>
           </div>
           <Button
@@ -179,37 +216,48 @@ function EditGoalsButton({
 
 function BasicChart({
   data,
-  config,
   goalValue,
+  goalName,
   overflow,
 }: {
   data: Data[];
-  config: ChartConfig;
   goalValue: number;
+  goalName: string;
   overflow?: boolean;
 }) {
-  const angle = (data[0].value / goalValue) * 360;
+  //@ts-expect-error indexing
+  const loggedForGoal = data[goalName];
+  //@ts-expect-error indexing
+  const goal = goalValue[goalName];
+  const angle = (loggedForGoal / goal) * 360;
+  const chartData = [
+    {
+      nutrient: goalName,
+      intake: loggedForGoal,
+      fill: `var(--color-${goalName})`,
+    },
+  ];
   return (
     <ChartContainer
-      config={config}
+      config={chartConfig}
       className="mx-auto aspect-square max-h-[250px]"
     >
       <RadialBarChart
-        data={data}
+        data={chartData}
         startAngle={
-          overflow ? (data[0].value / goalValue) * 360 : angle < 360 ? angle : 0
+          overflow ? (loggedForGoal / goalValue) * 360 : angle < 360 ? angle : 0
         }
-        innerRadius={80}
-        outerRadius={140}
+        innerRadius={90}
+        outerRadius={160}
       >
         <PolarGrid
           gridType="circle"
           radialLines={false}
           stroke="none"
-          className="first:fill-muted last:fill-background"
-          polarRadius={[86, 74]}
+          className="first:fill-chart-empty last:fill-background"
+          polarRadius={[100, 80]}
         />
-        <RadialBar dataKey="value" />
+        <RadialBar dataKey="intake" background />
         <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
           <Label
             content={({ viewBox }) => {
@@ -226,17 +274,16 @@ function BasicChart({
                       y={viewBox.cy}
                       className="fill-foreground text-4xl font-bold"
                     >
-                      {goalValue - data[0].value}
+                      {Math.round(goal - loggedForGoal)}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 24}
                       className="fill-muted-foreground"
                     >
-                      {`${
-                        data[0].nutrient[0].toUpperCase() +
-                        data[0].nutrient.slice(1)
-                      } ${data[0].value < goalValue ? "remain" : "over"}`}
+                      {`${goalName[0].toUpperCase() + goalName.slice(1)} ${
+                        loggedForGoal < goal ? "remain" : "over"
+                      }`}
                     </tspan>
                   </text>
                 );
@@ -251,32 +298,34 @@ function BasicChart({
 
 export function NoGoalsCard({
   className,
-  card,
-  setGoals,
   nutrient,
+  setGoals,
 }: {
   className?: string;
-  card: { nutrient: string; fill: string };
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
   nutrient: string;
+  setGoals: Dispatch<SetStateAction<number>>;
 }) {
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
-          No {card.nutrient} goals!
+          No {MacronutrientMap[nutrient].toLowerCase()} goals!
           <EditGoalsButton
             goalValue={0}
-            target={nutrient}
+            nutrient={nutrient}
             setGoals={setGoals}
           />
         </CardTitle>
         <CardDescription>
-          {`You haven't entered any goals for ${card.nutrient} yet.`}
+          {`You haven't entered any goals for ${MacronutrientMap[
+            nutrient
+          ].toLowerCase()} yet.`}
         </CardDescription>
         <CardDescription>
           {`To get progress on your
-        ${card.nutrient} goals for the day, add a goal and check again!`}
+        ${MacronutrientMap[
+          nutrient
+        ].toLowerCase()} goals for the day, add a goal and check again!`}
         </CardDescription>
       </CardHeader>
     </Card>
@@ -285,32 +334,34 @@ export function NoGoalsCard({
 
 export function NoDataCard({
   className,
-  card,
-  setGoals,
   nutrient,
+  setGoals,
 }: {
   className?: string;
-  card: { nutrient: string; fill: string };
-  setGoals: Dispatch<SetStateAction<Goals | null>>;
   nutrient: string;
+  setGoals: Dispatch<SetStateAction<number>>;
 }) {
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
-          No {card.nutrient} goals!
+          No {MacronutrientMap[nutrient].toLowerCase()} data!
           <EditGoalsButton
             goalValue={0}
-            target={nutrient}
+            nutrient={nutrient}
             setGoals={setGoals}
           />
         </CardTitle>
         <CardDescription>
-          {`You haven't entered any data for ${card.nutrient} yet.`}
+          {`You haven't entered any data for ${MacronutrientMap[
+            nutrient
+          ].toLowerCase()} yet.`}
         </CardDescription>
         <CardDescription>
           {`To get progress on your
-        ${card.nutrient} goals for the day, log food and check again!`}
+        ${MacronutrientMap[
+          nutrient
+        ].toLowerCase()} goals for the day, log food and check again!`}
         </CardDescription>
       </CardHeader>
     </Card>

@@ -25,7 +25,7 @@ export default function Search() {
   };
 
   const { data } = useQuery({
-    queryKey: ["getExercises"],
+    queryKey: ["getExercises", user.accessToken],
     queryFn: fetchData,
   });
 

@@ -12,8 +12,8 @@ export interface User {
   setAccessToken: Dispatch<SetStateAction<string | null>>;
   refreshToken: string | null;
   setRefreshToken: Dispatch<SetStateAction<string | null>>;
-  isSignedIn: boolean;
-  setIsSignedIn: Dispatch<SetStateAction<boolean>>;
+  isSignedIn: boolean | null;
+  setIsSignedIn: Dispatch<SetStateAction<boolean | null>>;
 }
 
 export const UserContext = createContext<User | undefined>(undefined);
