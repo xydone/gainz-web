@@ -43,8 +43,6 @@ function AxiosInterceptor() {
               .finally(() => {
                 isRefreshingRef.current = false;
               });
-
-            return axiosInstance(originalRequest);
           } catch (refreshError) {
             return Promise.reject(refreshError);
           }

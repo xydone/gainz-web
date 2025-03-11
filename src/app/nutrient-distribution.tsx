@@ -43,7 +43,7 @@ export default function NutrientDistribution({
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["todayDaya", user.accessToken],
+    queryKey: ["stats", user.accessToken],
     queryFn: fetchEntry,
   });
 
