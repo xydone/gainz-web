@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 
-import { format, subDays } from "date-fns";
+import { subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import EntriesProgress from "./entries";
 import Weight from "./weight";
@@ -54,13 +54,10 @@ export default function Progress() {
       {submit && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full gap-4">
           <EntriesProgress date={displayDate} />
-          <Weight
-            startDate={format(displayDate.from, "yyyy-MM-dd")}
-            endDate={format(displayDate.to, "yyyy-MM-dd")}
-          />
+          <Weight startDate={displayDate.from} endDate={displayDate.to} />
           <GoalsPercentage
-            startDate={format(displayDate.from, "yyyy-MM-dd")}
-            endDate={format(displayDate.to, "yyyy-MM-dd")}
+            startDate={displayDate.from}
+            endDate={displayDate.to}
           />
         </div>
       )}

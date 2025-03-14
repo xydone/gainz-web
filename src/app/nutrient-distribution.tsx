@@ -17,7 +17,6 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
-import { Skeleton } from "@/components/ui/skeleton";
 import { nutrientChart } from "./types";
 
 const chartConfig = nutrientChart satisfies ChartConfig;
@@ -47,9 +46,7 @@ export default function NutrientDistribution({
     queryFn: fetchEntry,
   });
 
-  if (isLoading) {
-    return <SkeletonCard className={className} />;
-  }
+  if (isLoading) return;
   if (error) {
     return <ErrorResponse className={className} />;
   }
@@ -131,30 +128,6 @@ export default function NutrientDistribution({
           </PieChart>
         </ChartContainer>
         <CustomLegend />
-      </CardContent>
-    </Card>
-  );
-}
-function SkeletonCard({ className }: { className: string }) {
-  return (
-    <Card className={cn(className)}>
-      <CardHeader>
-        <CardTitle>
-          <Skeleton className="h-6 w-32" />
-        </CardTitle>
-        <CardDescription>
-          <Skeleton className="h-4 w-48" />
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mx-auto aspect-square max-h-[250px] flex items-center justify-center">
-          <Skeleton className="h-40 w-40 rounded-full" />
-        </div>
-        <div className="mt-4 flex justify-center gap-4">
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-16" />
-        </div>
       </CardContent>
     </Card>
   );

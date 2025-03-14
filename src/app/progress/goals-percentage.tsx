@@ -21,6 +21,7 @@ import { MacronutrientMap, Nutrients } from "../types";
 import NoResponse from "./NoResponse";
 import LineFilter from "./LineFilter";
 import { useQuery } from "@tanstack/react-query";
+import { useGetDetailedStats } from "./progress.service";
 
 interface Response {
   entry_date: number;
@@ -33,8 +34,8 @@ export default function GoalsPercentage({
   endDate,
 }: {
   className?: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
 }) {
   const [lines, setLines] = useState<string[]>([
     "calories",
@@ -59,22 +60,13 @@ export default function GoalsPercentage({
     queryKey: ["goals", user.accessToken],
     queryFn: fetchGoals,
   });
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats/detailed?&start=${startDate}&end=${endDate}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
 
-  const { data, error } = useQuery({
-    queryKey: ["goalsPercentage", startDate, endDate, user.accessToken],
-    queryFn: fetchData,
+  const { data, isLoading, error } = useGetDetailedStats({
+    startDate,
+    endDate,
   });
+
+  if (isLoading) return;
 
   Object.keys(MacronutrientMap).forEach(
     (nutrient) =>

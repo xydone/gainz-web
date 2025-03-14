@@ -17,10 +17,8 @@ import {
 } from "@/components/ui/chart";
 import { cn, ewma, lerp } from "@/lib/utils";
 import { format, parse } from "date-fns";
-import { axiosInstance } from "@/lib/api";
-import { useUserContext } from "@/app/context";
 import NoResponse from "./NoResponse";
-import { useQuery } from "@tanstack/react-query";
+import { useGetWeight } from "./progress.service";
 
 interface Response {
   created_at: number;
@@ -107,28 +105,11 @@ export default function Weight({
   endDate,
 }: {
   className?: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
 }) {
-  const user = useUserContext();
-
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement?type=weight&start=${startDate}&end=${endDate}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data, error } = useQuery({
-    queryKey: ["weight", startDate, endDate, user.accessToken],
-    queryFn: fetchData,
-  });
-
+  const { data, isLoading, error } = useGetWeight({ startDate, endDate });
+  if (isLoading) return;
   if (error) {
     return (
       <NoResponse

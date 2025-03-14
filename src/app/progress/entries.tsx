@@ -1,12 +1,9 @@
 "use client";
 import CustomBarChart from "@/components/ui/CustomBarChart";
 import NoResponse from "./NoResponse";
-import { useUserContext } from "../context";
-import { axiosInstance } from "@/lib/api";
 import { MacronutrientMap } from "@/app/types";
-import { format } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { useGetEntryStats } from "./progress.service";
 
 interface MacronutrientDataPoint {
   macronutrient: string;
@@ -25,35 +22,11 @@ export default function EntriesProgress({
   className?: string;
   date: IDate;
 }) {
-  const user = useUserContext();
-
-  const fetchData = async () => {
-    if (!date?.from || !date?.to) {
-      throw new Error("Dates are not defined");
-    }
-
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats`,
-        {
-          params: {
-            start: format(date.from, "yyyy-MM-dd"),
-            end: format(date.to, "yyyy-MM-dd"),
-          },
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data, error } = useQuery({
-    queryKey: ["entries", date, user.accessToken],
-    queryFn: fetchData,
+  const { data, isLoading, error } = useGetEntryStats({
+    startDate: date.from,
+    endDate: date.to,
   });
-
+  if (isLoading) return;
   if (error) {
     return (
       <NoResponse
