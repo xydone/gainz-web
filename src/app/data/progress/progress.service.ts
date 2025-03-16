@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { useUserContext } from "../context";
+import { useUserContext } from "../../context";
 import { format } from "date-fns";
 
 export const useGetDetailedStats = ({
@@ -95,5 +95,25 @@ export const useGetWeight = ({
   return useQuery({
     queryKey: ["weight", startDate, endDate, user.accessToken],
     queryFn: fetchData,
+  });
+};
+
+export const useGetGoals = () => {
+  const user = useUserContext();
+  const fetchGoals = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+  return useQuery({
+    queryKey: ["goals", user.accessToken],
+    queryFn: fetchGoals,
   });
 };

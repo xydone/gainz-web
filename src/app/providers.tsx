@@ -5,6 +5,7 @@ import { useState } from "react";
 import { UserContext, User } from "./context";
 import { AxiosInterceptor } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 export function Providers({
   children,
 }: Readonly<{
@@ -14,6 +15,7 @@ export function Providers({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const user: User = {
     accessToken,
     setAccessToken,
@@ -23,8 +25,9 @@ export function Providers({
     setIsSignedIn,
     displayName,
     setDisplayName,
+    loading,
+    setLoading,
   };
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -40,6 +43,7 @@ export function Providers({
         <QueryClientProvider client={queryClient}>
           <AxiosInterceptor />
           {children}
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </UserContext.Provider>
     </ThemeProvider>

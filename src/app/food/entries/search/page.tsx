@@ -1,47 +1,18 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { useUserContext } from "@/app/context";
-import { axiosInstance } from "@/lib/api";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/datatable";
 import { columns } from "./columns";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useGetRecent, useSearchFood } from "./search.service";
 
 export default function Search() {
   const [searchParam, setSearchParam] = useState<string | null>(null);
   const user = useUserContext();
+  const { data } = useGetRecent();
 
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/recent?limit=30`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data } = useQuery({
-    queryKey: ["getExercises", user.accessToken],
-    queryFn: fetchData,
-  });
-
-  const { mutate, data: searchData } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await axiosInstance.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/food?search=${searchParam}`,
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
-        );
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-  });
+  const { data: searchData, refetch } = useSearchFood({ searchParam });
   return (
     <div className="flex flex-col justify-center items-center gap-4">
       <h1 className="text-xl">Search for food</h1>
@@ -57,8 +28,11 @@ export default function Search() {
         type="submit"
         variant={"outline"}
         className={"mt-3"}
-        // @ts-expect-error Weird form error
-        onClick={mutate}
+        onClick={() => {
+          if (searchParam) {
+            refetch();
+          }
+        }}
         disabled={!user.isSignedIn}
       >
         Search

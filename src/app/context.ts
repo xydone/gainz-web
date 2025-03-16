@@ -14,13 +14,14 @@ export interface User {
   setRefreshToken: Dispatch<SetStateAction<string | null>>;
   isSignedIn: boolean | null;
   setIsSignedIn: Dispatch<SetStateAction<boolean | null>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 export const UserContext = createContext<User | undefined>(undefined);
 
 export function useUserContext() {
   const at = useContext(UserContext);
-
   if (at === undefined) {
     throw new Error(
       "useAccessTokenContext must be used with a non-undefined AccessTokenContext"
@@ -36,6 +37,7 @@ export function useUserContext() {
       at.setIsSignedIn(true);
     }
     at.setDisplayName(storedName);
+    at.setLoading(false);
   });
   return at;
 }

@@ -23,7 +23,7 @@ interface IDialog {
   isOpen: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   title: string;
-  onClick: () => Promise<void>;
+  onClick: () => void;
 }
 
 interface DropdownMenuListProps {
@@ -37,13 +37,12 @@ export default function TableDialog({
 }: {
   columns: ColumnDef<any>[];
   data: any;
-  dialogs?: [IDialog];
+  dialogs?: IDialog[];
 }) {
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const handleDetailsOpen = () => {
     setDetailsOpen(true);
   };
-
   return (
     <>
       <div>

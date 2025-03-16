@@ -2,7 +2,7 @@ import NutrientDistribution from "./nutrient-distribution";
 import { GoalsCard } from "./goals";
 import QuickAdd from "./quick-add";
 import { subMonths } from "date-fns";
-import Weight from "./progress/weight";
+import Weight from "./data/progress/weight";
 import { useState } from "react";
 import { Nutrients } from "./types";
 

@@ -161,3 +161,10 @@ export const nutrientChart = {
     color: "var(--chart-empty)",
   },
 };
+
+export enum MealCateogies {
+  breakfast = "Breakfast",
+  lunch = "Lunch",
+  dinner = "Dinner",
+  misc = "Misc",
+}

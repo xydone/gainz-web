@@ -56,11 +56,11 @@ export const navLinksConfig: NavLinksConfig = {
       ],
     },
     {
-      title: "Progress",
+      title: "Data",
       popover: [
-        { title: "View Progress", href: "/progress" },
+        { title: "View Daily Intake", href: "/data/daily" },
+        { title: "View Progress", href: "/data/progress" },
         { title: "View Raw Food Entry Data", href: "/food/entries/raw" },
-        { title: "View Food Entry Statistics", href: "/food/entries/stats" },
       ],
     },
   ],

@@ -25,13 +25,13 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Food } from "./columns";
-import { DataTable } from "@/components/ui/datatable";
+import { Food } from "./BasicColumn";
 import { dropdownColumns } from "./dropdowncolumns";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import { Input } from "@/components/ui/input";
-import TableDialog from "@/components/ui/TableDialog";
+import TableDialog from "@/components/table/TableDialog";
+import { ViewDetails } from "./MenuCommon";
 
 interface DialogProps {
   food: Food;
@@ -42,11 +42,11 @@ const FormSchema = z.object({
   amount: z.coerce.number(),
   serving: z.coerce.number(),
 });
-export default function DialogMenu({ food }: DialogProps) {
-  const [isDetailsOpen, setDetailsOpen] = useState(false);
+export function AddDialog({ food }: DialogProps) {
   const [isAddOpen, setAddOpen] = useState(false);
   const [isResponseOkay, setResponseOkay] = useState<boolean | null>(null);
   const [foodData, setFoodData] = useState(food);
+  console.log({ foodData });
   const user = useUserContext();
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -107,14 +107,7 @@ export default function DialogMenu({ food }: DialogProps) {
           },
         ]}
       />
-      <Dialog open={isDetailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
-            <DialogTitle>View details</DialogTitle>
-            <DataTable columns={dropdownColumns} data={[foodData]} />
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <ViewDetails data={[foodData]} />
       <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>

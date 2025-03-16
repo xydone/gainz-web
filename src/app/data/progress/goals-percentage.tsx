@@ -11,17 +11,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { format, parse } from "date-fns";
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { useUserContext } from "../context";
-import { MacronutrientMap, Nutrients } from "../types";
+import { MacronutrientMap, Nutrients } from "../../types";
 import NoResponse from "./NoResponse";
 import LineFilter from "./LineFilter";
-import { useQuery } from "@tanstack/react-query";
-import { useGetDetailedStats } from "./progress.service";
+import { useGetDetailedStats, useGetGoals } from "./progress.service";
 
 interface Response {
   entry_date: number;
@@ -42,24 +39,9 @@ export default function GoalsPercentage({
     "protein",
     "sugar",
   ]);
-  const user = useUserContext();
   const chartConfig = {} satisfies ChartConfig;
-  const fetchGoals = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      );
 
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-  const { data: goals, error: goalsError } = useQuery({
-    queryKey: ["goals", user.accessToken],
-    queryFn: fetchGoals,
-  });
+  const { data: goals, error: goalsError } = useGetGoals();
 
   const { data, isLoading, error } = useGetDetailedStats({
     startDate,
