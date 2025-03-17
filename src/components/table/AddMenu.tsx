@@ -25,13 +25,16 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Food } from "./BasicColumn";
-import { dropdownColumns } from "./dropdowncolumns";
+import {
+  DetailedNutrients,
+  Food,
+  ImportantNutrients,
+  NameColumns,
+} from "./BasicColumn";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import { Input } from "@/components/ui/input";
 import TableDialog from "@/components/table/TableDialog";
-import { ViewDetails } from "./MenuCommon";
 
 interface DialogProps {
   food: Food;
@@ -46,7 +49,6 @@ export function AddDialog({ food }: DialogProps) {
   const [isAddOpen, setAddOpen] = useState(false);
   const [isResponseOkay, setResponseOkay] = useState<boolean | null>(null);
   const [foodData, setFoodData] = useState(food);
-  console.log({ foodData });
   const user = useUserContext();
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -93,10 +95,16 @@ export function AddDialog({ food }: DialogProps) {
       });
   }
 
+  const columns = [
+    ...NameColumns<Food>(),
+    ...ImportantNutrients<Food>(),
+    ...DetailedNutrients,
+  ];
+
   return (
     <div>
       <TableDialog
-        columns={dropdownColumns}
+        columns={columns}
         data={[foodData]}
         dialogs={[
           {
@@ -107,7 +115,6 @@ export function AddDialog({ food }: DialogProps) {
           },
         ]}
       />
-      <ViewDetails data={[foodData]} />
       <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>

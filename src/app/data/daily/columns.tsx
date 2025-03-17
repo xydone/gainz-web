@@ -1,7 +1,9 @@
 import {
   ManageItems,
-  BasicColumns,
   Entry,
+  FoodAmount,
+  NameColumns,
+  ImportantNutrients,
 } from "@/components/table/BasicColumn";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -13,7 +15,9 @@ export const Column = ({
   handleEdited: () => void;
 }): ColumnDef<Entry>[] => {
   return [
-    ...BasicColumns<Entry>(),
+    ...NameColumns<Entry>(),
+    FoodAmount,
+    ...ImportantNutrients<Entry>(),
     ManageItems({ handleDeleted, handleEdited }),
   ];
 };

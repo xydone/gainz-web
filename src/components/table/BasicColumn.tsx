@@ -64,7 +64,7 @@ const createRoundedCell = <T extends keyof Food["nutrients"]>(
   };
 };
 
-export const BasicColumns = <T,>(): ColumnDef<T>[] => {
+export const NameColumns = <T,>(): ColumnDef<T>[] => {
   return [
     {
       accessorKey: "food_name",
@@ -76,6 +76,11 @@ export const BasicColumns = <T,>(): ColumnDef<T>[] => {
       header: "Brand name",
       size: 100,
     },
+  ];
+};
+
+export const ImportantNutrients = <T,>(): ColumnDef<T>[] =>
+  [
     {
       accessorKey: "macronutrients.calories",
       header: "Calories",
@@ -101,7 +106,6 @@ export const BasicColumns = <T,>(): ColumnDef<T>[] => {
       size: 100,
     },
   ] as ColumnDef<T>[];
-};
 
 export const AddItems: ColumnDef<Food> = {
   id: "additems",
@@ -158,3 +162,96 @@ export const CreatedAt: ColumnDef<Entry> = {
   },
   size: 100,
 };
+
+export const FoodAmount: ColumnDef<Entry> = {
+  accessorKey: "amount",
+  header: "Amount",
+  cell: ({ row }) => {
+    return row.original.amount;
+  },
+  size: 100,
+};
+
+export const DetailedNutrients: ColumnDef<Food>[] = [
+  {
+    accessorKey: "macronutrients.sat_fat",
+    header: "Saturated Fat",
+    cell: createRoundedCell("sat_fat", 1),
+  },
+  {
+    accessorKey: "macronutrients.polyunsat_fat",
+    header: "Polyunsaturated Fat",
+    cell: createRoundedCell("polyunsat_fat", 1),
+  },
+  {
+    accessorKey: "macronutrients.monounsat_fat",
+    header: "Monounsaturated Fat",
+    cell: createRoundedCell("monounsat_fat", 1),
+  },
+  {
+    accessorKey: "macronutrients.trans_fat",
+    header: "Trans Fat",
+    cell: createRoundedCell("trans_fat", 1),
+  },
+  {
+    accessorKey: "macronutrients.cholesterol",
+    header: "Cholesterol",
+    cell: createRoundedCell("cholesterol", 0),
+  },
+  {
+    accessorKey: "macronutrients.sodium",
+    header: "Sodium",
+    cell: createRoundedCell("sodium", 0),
+  },
+  {
+    accessorKey: "macronutrients.potassium",
+    header: "Potassium",
+    cell: createRoundedCell("potassium", 0),
+  },
+
+  {
+    accessorKey: "macronutrients.fiber",
+    header: "Fiber",
+    cell: createRoundedCell("fiber", 1),
+  },
+  {
+    accessorKey: "macronutrients.sugar",
+    header: "Sugar",
+    cell: createRoundedCell("sugar", 1),
+  },
+  {
+    accessorKey: "macronutrients.vitamin_a",
+    header: "Vitamin A",
+    cell: createRoundedCell("vitamin_a", 0),
+  },
+  {
+    accessorKey: "macronutrients.vitamin_c",
+    header: "Vitamin C",
+    cell: createRoundedCell("vitamin_c", 0),
+  },
+  {
+    accessorKey: "macronutrients.calcium",
+    header: "Calcium",
+    cell: createRoundedCell("calcium", 0),
+  },
+  {
+    accessorKey: "macronutrients.iron",
+    header: "Iron",
+    cell: createRoundedCell("iron", 1),
+  },
+  {
+    accessorKey: "macronutrients.added_sugars",
+    header: "Added Sugars",
+    cell: createRoundedCell("added_sugars", 1),
+  },
+  {
+    accessorKey: "macronutrients.vitamin_d",
+    header: "Vitamin D",
+    cell: createRoundedCell("vitamin_d", 0),
+  },
+  {
+    accessorKey: "macronutrients.sugar_alcohols",
+    header: "Sugar Alcohols",
+    cell: createRoundedCell("sugar_alcohols", 1),
+  },
+];

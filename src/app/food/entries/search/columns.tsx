@@ -1,3 +1,12 @@
-import { AddItems, BasicColumns, Food } from "@/components/table/BasicColumn";
+import {
+  AddItems,
+  Food,
+  ImportantNutrients,
+  NameColumns,
+} from "@/components/table/BasicColumn";
 
-export const columns = [...BasicColumns<Food>(), AddItems];
+export const columns = [
+  ...NameColumns<Food>(),
+  ...ImportantNutrients<Food>(),
+  AddItems,
+];

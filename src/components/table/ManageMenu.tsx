@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Entry } from "./BasicColumn";
+import {
+  DetailedNutrients,
+  Entry,
+  ImportantNutrients,
+  NameColumns,
+} from "./BasicColumn";
 import { useEditEntry, useDeleteEntry, useGetFood } from "./table.service";
 import {
   Select,
@@ -19,7 +24,6 @@ import {
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import TableDialog from "./TableDialog";
-import { dropdownColumns } from "./dropdowncolumns";
 import { Button } from "../ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -73,7 +77,6 @@ export function ManageMenu({
     amount: formValues.amount,
     serving_id: formValues.serving,
     callback: () => {
-      console.log("is success");
       handleEdited();
       setEditOpen(false);
     },
@@ -83,11 +86,16 @@ export function ManageMenu({
     mutate();
   };
 
+  const columns = [
+    ...NameColumns<Entry>(),
+    ...ImportantNutrients<Entry>(),
+    ...DetailedNutrients,
+  ];
   return (
     <div>
       <div>
         <TableDialog
-          columns={dropdownColumns}
+          columns={columns}
           data={[entry]}
           dialogs={[
             {
