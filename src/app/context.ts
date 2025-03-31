@@ -35,6 +35,8 @@ export function useUserContext() {
     at.setRefreshToken(storedRefreshToken);
     if (storedAccessToken !== null || storedRefreshToken !== null) {
       at.setIsSignedIn(true);
+    } else {
+      at.setIsSignedIn(false);
     }
     at.setDisplayName(storedName);
     at.setLoading(false);
