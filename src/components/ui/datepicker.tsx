@@ -19,8 +19,8 @@ export function DatePicker({
   setDate,
   className,
 }: {
-  date: Date | undefined;
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  date: Date;
+  setDate: React.Dispatch<React.SetStateAction<Date>>;
   className?: string;
 }) {
   return (
@@ -42,7 +42,11 @@ export function DatePicker({
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={(day) => {
+              if (day) {
+                setDate(day);
+              }
+            }}
             initialFocus
           />
         </PopoverContent>

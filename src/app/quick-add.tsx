@@ -52,7 +52,7 @@ function LogFoodMenu() {
       <DialogContent className="max-w-5xl">
         <VisuallyHidden>
           <DialogHeader>
-            <DialogTitle>Search for food</DialogTitle>
+            <DialogTitle>Log food</DialogTitle>
           </DialogHeader>
         </VisuallyHidden>
         <Search />

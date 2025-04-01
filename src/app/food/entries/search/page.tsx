@@ -15,7 +15,7 @@ export default function Search() {
   const { data: searchData, refetch } = useSearchFood({ searchParam });
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <h1 className="text-xl">Search for food</h1>
+      <h1 className="text-xl">Log food</h1>
       <Input
         type="text"
         className="w-2/3 sm:w-1/3"

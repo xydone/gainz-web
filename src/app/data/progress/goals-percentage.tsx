@@ -21,7 +21,7 @@ import LineFilter from "./LineFilter";
 import { useGetDetailedStats, useGetGoals } from "./progress.service";
 
 interface Response {
-  entry_date: number;
+  created_at: number;
   nutrients: Nutrients;
 }
 
@@ -103,7 +103,7 @@ export default function GoalsPercentage({
               tickFormatter={(value) => `${value}%`}
             />
             <XAxis
-              dataKey={"entry_date"}
+              dataKey={"created_at"}
               tickFormatter={(value) => {
                 const parsed = parse(value, "dd MMMM yyyy", new Date());
                 return format(parsed, "dd-MM");
@@ -135,7 +135,7 @@ export default function GoalsPercentage({
 
 function processData(data: Response[] | undefined, goals: Nutrients) {
   if (!data) return [];
-  const processedData: ({ entry_date: string } & Partial<Nutrients>)[] = [];
+  const processedData: ({ created_at: string } & Partial<Nutrients>)[] = [];
   data.map((element) => {
     const nutrients = {};
     Object.keys(MacronutrientMap).forEach((key) => {
@@ -148,7 +148,7 @@ function processData(data: Response[] | undefined, goals: Nutrients) {
       }
     });
     processedData.push({
-      entry_date: format(new Date(element.entry_date / 1000), "dd MMMM yyyy"),
+      created_at: format(new Date(element.created_at / 1000), "dd MMMM yyyy"),
       ...nutrients,
     });
   });

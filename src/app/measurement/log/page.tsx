@@ -26,7 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, getUnixTime } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
@@ -43,10 +43,12 @@ export default function MeasurementLog() {
     resolver: zodResolver(FormSchema),
   });
   const user = useUserContext();
+
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    const timestamp = data.date ? getUnixTime(data.date) : null;
     axiosInstance.post(
       `${process.env.NEXT_PUBLIC_API_URL}/user/measurement`,
-      { ...data },
+      { ...data, date: timestamp },
       { headers: { Authorization: `Bearer ${user.accessToken}` } }
     );
   };
@@ -57,7 +59,7 @@ export default function MeasurementLog() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-2/3 flex-col gap-5"
+          className="flex w-2/3 sm:w-1/3 flex-col gap-5"
         >
           <FormField
             control={form.control}
@@ -100,7 +102,7 @@ export default function MeasurementLog() {
           <FormField
             control={form.control}
             name="date"
-            defaultValue={new Date()}
+            // defaultValue={new Date()}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Measurement date</FormLabel>
@@ -126,7 +128,7 @@ export default function MeasurementLog() {
                   <PopoverContent className="m-10" align="start">
                     <Calendar
                       mode="single"
-                      selected={field.value}
+                      selected={getUnixTime(field.value)}
                       onSelect={field.onChange}
                       disabled={(date) => date > new Date()}
                     />

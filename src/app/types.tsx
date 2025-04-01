@@ -168,3 +168,10 @@ export enum MealCateogies {
   dinner = "Dinner",
   misc = "Misc",
 }
+
+export type Servings = {
+  id: number;
+  amount: number;
+  unit: string;
+  multiplier: number;
+};

@@ -8,23 +8,17 @@ import { ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
 import { AddDialog } from "./AddMenu";
 import { ManageMenu } from "./ManageMenu";
-
+import { Servings } from "@/app/types";
 export type Food = {
   id: number;
   food_name: string;
   brand_name: string;
   nutrients: Nutrients;
-  servings: [
-    {
-      id: number;
-      amount: number;
-      unit: string;
-      multiplier: number;
-    }
-  ];
+  servings: Servings[];
 };
+
 export type Entry = {
-  entry_id: number;
+  id: number;
   food_id: number;
   serving_id: number;
   created_at: number;
@@ -107,10 +101,10 @@ export const ImportantNutrients = <T,>(): ColumnDef<T>[] =>
     },
   ] as ColumnDef<T>[];
 
-export const AddItems: ColumnDef<Food> = {
+export const AddItems: ColumnDef<Entry> = {
   id: "additems",
   cell: ({ row }) => {
-    return <AddDialog food={row.original} />;
+    return <AddDialog entry={row.original} />;
   },
   size: 50,
 };

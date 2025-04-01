@@ -25,6 +25,7 @@ export const useGetEntryDay = ({ date }: { date: Date }) => {
     queryKey: ["entryDay", dateString, user.accessToken],
     queryFn: fetchData,
     enabled: !user.loading,
+    staleTime: 10 * 1000, //10s
     placeholderData: lastFail ? undefined : keepPreviousData,
   });
 };

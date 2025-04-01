@@ -19,12 +19,13 @@ import { Minus, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, Dispatch, SetStateAction, useEffect } from "react";
+import { useState } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { useQuery } from "@tanstack/react-query";
@@ -52,7 +53,6 @@ export function GoalsCard({
   goalName: string;
 }) {
   const user = useUserContext();
-  const [goal, setGoal] = useState<number>(0);
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
   const overflow = false;
   const fetchData = async () => {
@@ -61,14 +61,13 @@ export function GoalsCard({
         `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
       );
-      setGoal(response.data[goalName]);
       return response.data;
     } catch (error) {
       throw error;
     }
   };
 
-  const { data: goalsData } = useQuery({
+  const { data: goalsData, isPending } = useQuery({
     queryKey: ["goals", user.accessToken],
     queryFn: fetchData,
   });
@@ -90,10 +89,16 @@ export function GoalsCard({
     queryKey: ["stats", user.accessToken],
     queryFn: fetchStats,
   });
-  if (goalsData == undefined || statsData == undefined)
-    return <NoDataCard nutrient={goalName} goal={goal} setGoals={setGoal} />;
-  if (!goalsData[goalName])
-    return <NoGoalsCard nutrient={goalName} setGoals={setGoal} />;
+  if (isPending) return;
+  //if no intake, but goal data exists
+  if (statsData == undefined && goalsData)
+    return <NoDataCard nutrient={goalName} goal={goalsData[goalName]} />;
+  //if no intake and no goals
+  if (goalsData == undefined)
+    return <NoDataCard nutrient={goalName} goal={0} />;
+  //if no goals, but intake exists
+  if (!goalsData[goalName]) return <NoGoalsCard nutrient={goalName} />;
+
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
@@ -102,8 +107,7 @@ export function GoalsCard({
           <CardDescription>Goal is {goalsData[goalName]}</CardDescription>
           <EditGoalsButton
             nutrient={goalName}
-            goalValue={goal}
-            setGoals={setGoal}
+            goalValue={goalsData[goalName]}
           />
         </CardTitle>
       </CardHeader>
@@ -121,32 +125,27 @@ export function GoalsCard({
 
 function EditGoalsButton({
   goalValue,
-  setGoals,
   nutrient,
 }: {
   goalValue: number;
-  setGoals: Dispatch<SetStateAction<number>>;
   nutrient: string;
 }) {
   const user = useUserContext();
-  const [tempGoal, setTempGoal] = useState(goalValue);
-  useEffect(() => {
-    setTempGoal(goalValue);
-  }, [goalValue]);
+  const [goals, setGoals] = useState<number>(goalValue);
   function onClick(adjustment: number) {
-    setGoals(goalValue + adjustment);
+    setGoals(goals + adjustment);
   }
   const submit = () => {
     axiosInstance
       .post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-        { target: nutrient, value: goalValue },
+        { target: nutrient, value: goals },
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }
       )
       .then(() => {
-        setGoals(goalValue);
+        setGoals(goals);
       });
   };
   return (
@@ -159,7 +158,7 @@ function EditGoalsButton({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            Edit {tempGoal} {MacronutrientMap[nutrient].toLowerCase()} goals
+            Edit {MacronutrientMap[nutrient].toLowerCase()} goals
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-row items-center gap-4">
@@ -168,7 +167,7 @@ function EditGoalsButton({
             size="icon"
             className="h-10 w-10 gap-0 shrink-0 rounded-full"
             onClick={() => onClick(-100)}
-            disabled={goalValue <= 0}
+            disabled={goals <= 0}
           >
             <Minus /> <Minus />
           </Button>
@@ -177,15 +176,13 @@ function EditGoalsButton({
             size="icon"
             className="h-10 w-10 shrink-0 rounded-full"
             onClick={() => onClick(-10)}
-            disabled={goalValue <= 0}
+            disabled={goals <= 0}
           >
             <Minus />
           </Button>
 
           <div className="flex-1 text-center">
-            <div className="text-7xl font-bold tracking-tighter">
-              {goalValue}
-            </div>
+            <div className="text-7xl font-bold tracking-tighter">{goals}</div>
             <div className="text-[0.70rem] uppercase text-muted-foreground">
               {MacronutrientMap[nutrient]}/day
             </div>
@@ -207,9 +204,11 @@ function EditGoalsButton({
             <Plus /> <Plus />
           </Button>
         </div>
-        <Button variant="outline" onClick={submit}>
-          Submit
-        </Button>
+        <DialogClose asChild>
+          <Button variant="outline" onClick={submit}>
+            Submit
+          </Button>
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );
@@ -300,22 +299,16 @@ function BasicChart({
 export function NoGoalsCard({
   className,
   nutrient,
-  setGoals,
 }: {
   className?: string;
   nutrient: string;
-  setGoals: Dispatch<SetStateAction<number>>;
 }) {
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
           No {MacronutrientMap[nutrient].toLowerCase()} goals!
-          <EditGoalsButton
-            goalValue={0}
-            nutrient={nutrient}
-            setGoals={setGoals}
-          />
+          <EditGoalsButton goalValue={0} nutrient={nutrient} />
         </CardTitle>
         <CardDescription>
           {`You haven't entered any goals for ${MacronutrientMap[
@@ -337,23 +330,17 @@ export function NoDataCard({
   className,
   nutrient,
   goal,
-  setGoals,
 }: {
   className?: string;
   nutrient: string;
   goal: number;
-  setGoals: Dispatch<SetStateAction<number>>;
 }) {
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
           No {MacronutrientMap[nutrient].toLowerCase()} data!
-          <EditGoalsButton
-            goalValue={goal}
-            nutrient={nutrient}
-            setGoals={setGoals}
-          />
+          <EditGoalsButton goalValue={goal} nutrient={nutrient} />
         </CardTitle>
         <CardDescription>
           {`You haven't entered any data for ${MacronutrientMap[

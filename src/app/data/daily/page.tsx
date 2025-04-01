@@ -7,7 +7,7 @@ import { DatePicker } from "@/components/ui/datepicker";
 import { Column } from "./columns";
 
 export default function Daily() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const { data, isPending, refetch, isError } = useGetEntryDay({
     date,
   });

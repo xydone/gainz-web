@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
   DetailedNutrients,
+  Entry,
   Food,
   ImportantNutrients,
   NameColumns,
@@ -35,9 +36,10 @@ import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
 import { Input } from "@/components/ui/input";
 import TableDialog from "@/components/table/TableDialog";
+import { Servings } from "@/app/types";
 
 interface DialogProps {
-  food: Food;
+  entry: Entry;
 }
 
 const FormSchema = z.object({
@@ -45,10 +47,10 @@ const FormSchema = z.object({
   amount: z.coerce.number(),
   serving: z.coerce.number(),
 });
-export function AddDialog({ food }: DialogProps) {
+export function AddDialog({ entry }: DialogProps) {
   const [isAddOpen, setAddOpen] = useState(false);
   const [isResponseOkay, setResponseOkay] = useState<boolean | null>(null);
-  const [foodData, setFoodData] = useState(food);
+  const [servings, setServings] = useState<Servings[] | undefined>(undefined);
   const user = useUserContext();
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -60,16 +62,13 @@ export function AddDialog({ food }: DialogProps) {
 
   const handleAddToEntries = async () => {
     const response = await axiosInstance.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/food/${foodData.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/food/${entry.food_id}`,
       {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       }
     );
 
-    setFoodData((prevState) => ({
-      ...prevState,
-      servings: response.data.servings,
-    }));
+    setServings(response.data.servings);
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -77,8 +76,8 @@ export function AddDialog({ food }: DialogProps) {
       .post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry`,
         {
-          food_id: foodData.id,
-          meal_category: data.meal,
+          food_id: entry.food_id,
+          category: data.meal,
           amount: data.amount,
           serving_id: data.serving,
         },
@@ -105,7 +104,7 @@ export function AddDialog({ food }: DialogProps) {
     <div>
       <TableDialog
         columns={columns}
-        data={[foodData]}
+        data={[servings]}
         dialogs={[
           {
             isOpen: isAddOpen,
@@ -118,7 +117,7 @@ export function AddDialog({ food }: DialogProps) {
       <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>
-            <DialogTitle>Add {foodData.food_name} to entries</DialogTitle>
+            <DialogTitle>Add {entry.food_name} to entries</DialogTitle>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -178,14 +177,15 @@ export function AddDialog({ food }: DialogProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-background">
-                            {foodData.servings.map((serving) => (
-                              <SelectItem
-                                key={serving.id}
-                                value={`${serving.id}`}
-                              >
-                                {serving.amount} {serving.unit}
-                              </SelectItem>
-                            ))}
+                            {servings &&
+                              servings.map((serving) => (
+                                <SelectItem
+                                  key={serving.id}
+                                  value={`${serving.id}`}
+                                >
+                                  {serving.amount} {serving.unit}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                       </FormItem>
