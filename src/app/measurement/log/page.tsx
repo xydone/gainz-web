@@ -25,8 +25,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format, getUnixTime } from "date-fns";
+import { cn, formatDateString } from "@/lib/utils";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
@@ -35,7 +35,7 @@ const FormSchema = z.object({
   value: z.coerce.number({
     message: "Must be a number and cannot be empty!",
   }),
-  date: z.date().optional(),
+  date: z.string().date().optional(),
 });
 
 export default function MeasurementLog() {
@@ -45,10 +45,9 @@ export default function MeasurementLog() {
   const user = useUserContext();
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    const timestamp = data.date ? getUnixTime(data.date) : null;
     axiosInstance.post(
       `${process.env.NEXT_PUBLIC_API_URL}/user/measurement`,
-      { ...data, date: timestamp },
+      { ...data },
       { headers: { Authorization: `Bearer ${user.accessToken}` } }
     );
   };
@@ -128,8 +127,10 @@ export default function MeasurementLog() {
                   <PopoverContent className="m-10" align="start">
                     <Calendar
                       mode="single"
-                      selected={getUnixTime(field.value)}
-                      onSelect={field.onChange}
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) =>
+                        field.onChange(date ? formatDateString(date) : null)
+                      }
                       disabled={(date) => date > new Date()}
                     />
                   </PopoverContent>

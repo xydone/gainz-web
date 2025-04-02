@@ -16,7 +16,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn, ewma, lerp } from "@/lib/utils";
-import { format, parse } from "date-fns";
+import { compareAsc, format, parse } from "date-fns";
 import NoResponse from "./NoResponse";
 import { useGetWeight } from "./progress.service";
 
@@ -50,7 +50,11 @@ interface Chart {
   interpolated: number | null;
   goal?: number;
 }
-function processData(data: Response[]) {
+
+type ResponseWithDate = { date: Date } & Response;
+
+function processData(data: ResponseWithDate[]) {
+  const dateMap = new Map();
   if (!data || data.length === 0) {
     return [];
   }
@@ -58,23 +62,36 @@ function processData(data: Response[]) {
   const processedData = [];
   const scale = [];
   const dateStrings = [];
-  const currentDate = new Date(data[0].created_at / 1000);
-  const endDate = new Date(data[data.length - 1].created_at / 1000);
-  let i = 0;
+  data.forEach((element, i) => {
+    const indexDate = new Date(element.created_at / 1000);
+    const shortDate = format(indexDate, "dd MMMM yyyy");
+    if (dateMap.has(shortDate)) {
+      const dateInsideMap = data[dateMap.get(shortDate)].created_at;
+      const result = compareAsc(new Date(dateInsideMap / 1000), indexDate);
+      // -1 - the data inside the map is before the one we are currently looking at
+      // 0 - equal
+      // 0 - the data we are currently looking at is before the one inside the map
+      if (result == -1 || result == 0) {
+        dateMap.set(shortDate, i);
+      }
+    } else {
+      element.date = indexDate;
+      dateMap.set(shortDate, i);
+    }
+  });
+  const currentDate = new Date([...dateMap.keys()][0]);
+  const endDate = new Date([...dateMap.keys()].pop());
   while (currentDate <= endDate) {
     const currentDateString = format(currentDate, "dd MMMM yyyy");
     dateStrings.push(currentDateString);
-    const dataDate = format(
-      new Date(data[i].created_at / 1000),
-      "dd MMMM yyyy"
-    );
-    if (i < data.length && dataDate === currentDateString) {
-      scale.push(Math.round(data[i].value * 10) / 10);
-      i++;
+
+    if (dateMap.has(currentDateString)) {
+      scale.push(
+        Math.round(data[dateMap.get(currentDateString)].value * 10) / 10
+      );
     } else {
       scale.push(null);
     }
-
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
