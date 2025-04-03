@@ -50,13 +50,11 @@ export function SignInForm({
         password: data.password,
       })
       .then((response) => {
-        const { access_token, refresh_token, display_name } = response.data;
+        const { access_token, refresh_token } = response.data;
 
         localStorage.setItem("accessToken", access_token);
         localStorage.setItem("refreshToken", refresh_token);
-        localStorage.setItem("displayName", display_name);
         setOpen(false);
-        user.setDisplayName(display_name);
         user.setAccessToken(access_token);
         user.setRefreshToken(refresh_token);
         user.setIsSignedIn(true);
@@ -148,7 +146,7 @@ export function ProfileMenu({
   return (
     <DropdownMenuContent className={cn("sm:max-w-[425px]", className)}>
       <DropdownMenuLabel className="max-w-52 truncate overflow-hidden whitespace-nowrap">
-        {user.displayName}
+        Profile
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuItem>

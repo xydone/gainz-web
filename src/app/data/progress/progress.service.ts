@@ -1,7 +1,8 @@
 import { axiosInstance } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { useUserContext } from "../../context";
+import { User, useUserContext } from "../../context";
 import { format } from "date-fns";
+import { z } from "zod";
 
 export const useGetDetailedStats = ({
   startDate,
@@ -116,4 +117,22 @@ export const useGetGoals = () => {
     queryKey: ["goals", user.accessToken],
     queryFn: fetchGoals,
   });
+};
+
+export const SetMeasurementSchema = z.object({
+  type: z.string().nonempty(),
+  value: z.coerce.number({
+    message: "Must be a number and cannot be empty!",
+  }),
+  date: z.string().date().optional(),
+});
+
+export type SetMeasurement = z.infer<typeof SetMeasurementSchema>;
+
+export const setMeasurement = (data: SetMeasurement, user: User) => {
+  return axiosInstance.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/user/measurement`,
+    { ...data },
+    { headers: { Authorization: `Bearer ${user.accessToken}` } }
+  );
 };

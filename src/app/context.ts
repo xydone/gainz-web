@@ -6,8 +6,6 @@ import {
   useEffect,
 } from "react";
 export interface User {
-  displayName: string | null;
-  setDisplayName: Dispatch<SetStateAction<string | null>>;
   accessToken: string | null;
   setAccessToken: Dispatch<SetStateAction<string | null>>;
   refreshToken: string | null;
@@ -30,7 +28,6 @@ export function useUserContext() {
   useEffect(() => {
     const storedAccessToken = localStorage.getItem("accessToken");
     const storedRefreshToken = localStorage.getItem("refreshToken");
-    const storedName = localStorage.getItem("displayName");
     at.setAccessToken(storedAccessToken);
     at.setRefreshToken(storedRefreshToken);
     if (storedAccessToken !== null || storedRefreshToken !== null) {
@@ -38,7 +35,6 @@ export function useUserContext() {
     } else {
       at.setIsSignedIn(false);
     }
-    at.setDisplayName(storedName);
     at.setLoading(false);
   });
   return at;
@@ -50,5 +46,4 @@ export function handleSignOut(user: User) {
   user.setIsSignedIn(false);
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
-  localStorage.removeItem("displayName");
 }

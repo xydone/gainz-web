@@ -28,28 +28,20 @@ import {
 import { cn, formatDateString } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "@/app/context";
-const FormSchema = z.object({
-  type: z.string().nonempty(),
-  value: z.coerce.number({
-    message: "Must be a number and cannot be empty!",
-  }),
-  date: z.string().date().optional(),
-});
+import {
+  setMeasurement,
+  SetMeasurementSchema,
+} from "@/app/data/progress/progress.service";
 
 export default function MeasurementLog() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof SetMeasurementSchema>>({
+    resolver: zodResolver(SetMeasurementSchema),
   });
   const user = useUserContext();
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    axiosInstance.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/measurement`,
-      { ...data },
-      { headers: { Authorization: `Bearer ${user.accessToken}` } }
-    );
+  const onSubmit = (data: z.infer<typeof SetMeasurementSchema>) => {
+    setMeasurement(data, user);
   };
   return (
     <div className="flex flex-col justify-center items-center gap-4">

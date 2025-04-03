@@ -63,3 +63,16 @@ export function formatDateString(dateString: string | Date): string {
   // Generate yyyy-mm-dd date string
   return year + "-" + month + "-" + day;
 }
+
+export function imperialToMetric(
+  feet: number,
+  inches: number
+): { meters: number; centimeters: number } {
+  const meters = feet * 0.3048 + inches * 0.0254;
+  const centimeters = meters * 100;
+
+  return {
+    meters: parseFloat(meters.toFixed(2)), // Round to 2 decimal places
+    centimeters: parseFloat(centimeters.toFixed(2)),
+  };
+}
