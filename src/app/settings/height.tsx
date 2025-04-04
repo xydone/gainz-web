@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +12,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, imperialToMetric } from "@/lib/utils";
+import { centimetersToImperial, cn, imperialToMetric } from "@/lib/utils";
 import {
   SetMeasurement,
   setMeasurement,
+  useGetMeasurement,
 } from "../data/progress/progress.service";
 import { useUserContext } from "../context";
 import { z } from "zod";
+import { Measurements } from "../types";
 
 const heightSchema = z.object({
   metric: z.string().regex(/^\d+(\.\d+)?$/, "Must be a valid number"),
@@ -26,18 +28,36 @@ const heightSchema = z.object({
   imperialInches: z.string().regex(/^\d+$/, "Inches must be a whole number"),
 });
 
-export default function HeightWeight() {
+export default function Height() {
   const user = useUserContext();
+  const { data, isPending } = useGetMeasurement(Measurements.height);
   const [unit, setUnit] = useState<"metric" | "imperial">("metric");
   const [height, setHeight] = useState("");
+  const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
+
+  useEffect(() => {
+    if (isPending || !data) return;
+    setHeight(data.value.toString());
+    const { feet, inches } = centimetersToImperial(data.value);
+    setHeightFeet(feet.toString());
+    setHeightInches(inches.toString());
+  }, [data, isPending]);
 
   const handleUnitChange = (value: "metric" | "imperial") => {
     setUnit(value);
-    setHeight("");
-    setHeightInches("");
+    if (value == "metric") {
+      const metricHeight = imperialToMetric(
+        Number(heightFeet),
+        Number(heightInches)
+      );
+      setHeight(metricHeight.centimeters.toString());
+    } else {
+      const { feet, inches } = centimetersToImperial(Number(height));
+      setHeightFeet(feet.toString());
+      setHeightInches(inches.toString());
+    }
   };
-
   const submit = () => {
     let metricHeight = Number(height);
     if (unit === "metric") {
@@ -100,8 +120,8 @@ export default function HeightWeight() {
                 id="height-feet"
                 type="number"
                 placeholder="Feet"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
+                value={heightFeet}
+                onChange={(e) => setHeightFeet(e.target.value)}
                 min="0"
                 max="8"
               />

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { User, useUserContext } from "../../context";
 import { format } from "date-fns";
 import { z } from "zod";
+import { Measurements } from "@/app/types";
 
 export const useGetDetailedStats = ({
   startDate,
@@ -135,4 +136,25 @@ export const setMeasurement = (data: SetMeasurement, user: User) => {
     { ...data },
     { headers: { Authorization: `Bearer ${user.accessToken}` } }
   );
+};
+
+export const useGetMeasurement = (type: Measurements) => {
+  const user = useUserContext();
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement/recent?type=${type}`,
+        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return useQuery({
+    queryKey: ["measurements", type, user.accessToken],
+    enabled: !user.loading,
+    queryFn: fetchData,
+  });
 };

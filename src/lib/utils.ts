@@ -76,3 +76,18 @@ export function imperialToMetric(
     centimeters: parseFloat(centimeters.toFixed(2)),
   };
 }
+
+export function centimetersToImperial(centimeters: number): {
+  feet: number;
+  inches: number;
+} {
+  const totalMeters = centimeters / 100;
+  const totalInches = totalMeters / 0.0254;
+  const feet = Math.floor(totalInches / 12);
+  const inches = parseFloat((totalInches % 12).toFixed(2));
+
+  return {
+    feet: feet,
+    inches: inches,
+  };
+}

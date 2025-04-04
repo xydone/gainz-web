@@ -136,7 +136,6 @@ export default function Weight({
     );
   }
   const processedData = processData(data);
-  console.log({ processedData });
   return (
     <Card className={cn("", className)}>
       <CardHeader>

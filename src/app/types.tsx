@@ -175,3 +175,11 @@ export type Servings = {
   unit: string;
   multiplier: number;
 };
+
+export enum Measurements {
+  weight = "weight",
+  waist = "waist",
+  hips = "hips",
+  neck = "neck",
+  height = "height",
+}
