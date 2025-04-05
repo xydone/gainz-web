@@ -29,9 +29,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
-import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useGetCategory, postExercise } from "./add-exercise.service";
 
 interface Category {
   id: number;
@@ -54,41 +53,15 @@ export default function Exercise({ className }: { className?: string }) {
     resolver: zodResolver(FormSchema),
   });
 
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
+  const { data } = useGetCategory();
 
-  const { data } = useQuery({
-    queryKey: ["getExerciseCategory", user.accessToken],
-    queryFn: fetchData,
-  });
-  const { mutate, error } = useMutation({
-    mutationFn: async (form: FormData) => {
-      try {
-        const response = await axiosInstance.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/exercise/`,
-          { ...form },
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
-        );
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-  });
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    postExercise(data, user);
+  };
 
   return (
     <Form {...form}>
-      {/* @ts-expect-error Weird form error */}
-      <form onSubmit={form.handleSubmit(mutate)} className={cn(className)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
         <Card className="mt-5 flex flex-col">
           <CardHeader>
             <CardTitle>{`Exercise`}</CardTitle>
@@ -188,11 +161,11 @@ export default function Exercise({ className }: { className?: string }) {
           >
             Submit
           </Button>
-          {error && (
+          {/* {error && (
             <CardDescription className="self-center mb-3 text-destructive">
               Error! Please try again.
             </CardDescription>
-          )}
+          )} */}
         </Card>
       </form>
     </Form>

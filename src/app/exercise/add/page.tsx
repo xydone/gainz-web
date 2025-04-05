@@ -4,12 +4,18 @@ import Exercise from "./exercise";
 import Unit from "./unit";
 import Category from "./category";
 import { cn } from "@/lib/utils";
+import { redirect } from "next/navigation";
+import { useUserContext } from "@/app/context";
+import Loading from "@/app/loading";
 
 export default function AddExercise({
   innerDivClassName,
 }: {
   innerDivClassName?: string;
 }) {
+  const user = useUserContext();
+  if (user.loading) return <Loading />;
+  if (!user.isSignedIn) return redirect("/");
   return (
     <div>
       <h1 className="text-xl text-center">Create new exercise</h1>

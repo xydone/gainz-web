@@ -67,6 +67,7 @@ export default function Unit({ className }: { className?: string }) {
 
   const { data: exercises } = useQuery({
     queryKey: ["getExercises", user.accessToken],
+    enabled: !user.loading,
     queryFn: fetchData,
   });
 
@@ -92,7 +93,7 @@ export default function Unit({ className }: { className?: string }) {
           <CardHeader>
             <CardTitle>{`Unit`}</CardTitle>
             <CardDescription>Create a new data unit.</CardDescription>
-            <CardDescription>(e.g. grams, mililiters)</CardDescription>
+            <CardDescription>(e.g. kilograms, steps, miles)</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
             <FormField
