@@ -39,6 +39,7 @@ export function Providers({
       <UserContext.Provider value={user}>
         <QueryClientProvider client={queryClient}>
           <AxiosInterceptor />
+          <link rel="icon" href="/favicon/favicon-16x16.svg" />
           {children}
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
