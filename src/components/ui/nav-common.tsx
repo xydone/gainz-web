@@ -9,7 +9,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { handleSignOut, User, useUserContext } from "@/app/context";
 import { Input } from "./input";
 import { z } from "zod";
@@ -32,6 +32,12 @@ export const FormSchema = z.object({
   password: z.string().nonempty(),
 });
 
+export enum SignInStatus {
+  successful,
+  rejected,
+  serverError,
+}
+
 export function SignInForm({
   setOpen,
 }: {
@@ -42,7 +48,9 @@ export function SignInForm({
     resolver: zodResolver(FormSchema),
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isFailedSignIn, setFailedSignIn] = useState(false);
+  const [signInStatus, setSignInStatus] = useState<SignInStatus | undefined>(
+    undefined
+  );
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
@@ -59,8 +67,12 @@ export function SignInForm({
         user.setRefreshToken(refresh_token);
         user.setIsSignedIn(true);
       })
-      .catch((error) => {
-        setFailedSignIn(true);
+      .catch((error: AxiosError) => {
+        if (error.status == 401) {
+          setSignInStatus(SignInStatus.rejected);
+        } else {
+          setSignInStatus(SignInStatus.serverError);
+        }
         console.error(error);
       });
   }
@@ -120,15 +132,25 @@ export function SignInForm({
         >
           Submit
         </Button>
-        {isFailedSignIn && (
-          <p className="text-destructive text-center">
+        {signInStatus === SignInStatus.rejected && (
+          <ErrorMessage>
             Sign in failed! Check your credentials and try again.
-          </p>
+          </ErrorMessage>
+        )}
+
+        {signInStatus === SignInStatus.serverError && (
+          <ErrorMessage>
+            A server error occurred while signing in. Please try again later!
+          </ErrorMessage>
         )}
       </form>
     </Form>
   );
 }
+
+const ErrorMessage = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-destructive text-center">{children}</p>
+);
 
 export function ProfileMenu({
   className,

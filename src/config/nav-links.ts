@@ -16,6 +16,7 @@ export const navLinksConfig: NavLinksConfig = {
         { title: "Log Meal", href: "/food/entries/search" },
         { title: "Log Exercise", href: "/exercise/search" },
         { title: "Log Measurement", href: "/measurement/log" },
+        { title: "Log Workout", href: "/workout/log" },
       ],
     },
     {
@@ -23,6 +24,7 @@ export const navLinksConfig: NavLinksConfig = {
       popover: [
         { title: "Create Food", href: "/food/add" },
         { title: "Create Exercise", href: "/exercise/add" },
+        { title: "Create Workout", href: "/workout/add" },
       ],
     },
     {
