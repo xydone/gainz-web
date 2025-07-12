@@ -56,8 +56,7 @@ export default function Unit({ className }: { className?: string }) {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/`
       );
       return response.data;
     } catch (error) {
@@ -76,8 +75,7 @@ export default function Unit({ className }: { className?: string }) {
       try {
         const response = await axiosInstance.post(
           `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`,
-          { ...form },
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+          { ...form }
         );
         return response.data;
       } catch (error) {

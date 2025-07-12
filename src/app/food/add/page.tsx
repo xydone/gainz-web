@@ -63,12 +63,12 @@ export default function Create() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const { brand_name, food_name, food_grams, ...macronutrients } = data;
+    const { brand_name, food_name, food_grams, ...nutrients } = data;
     axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/food`, {
       brand_name,
       food_name,
       food_grams,
-      macronutrients: macronutrients,
+      nutrients: nutrients,
     });
   }
 

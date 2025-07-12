@@ -58,8 +58,7 @@ export function GoalsCard({
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`
       );
       return response.data;
     } catch (error) {
@@ -76,8 +75,7 @@ export function GoalsCard({
   const fetchStats = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`
       );
       return response.data;
     } catch (error) {

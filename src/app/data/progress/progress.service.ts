@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { User, useUserContext } from "../../context";
+import { useUserContext } from "../../context";
 import { format } from "date-fns";
 import { z } from "zod";
 import { Measurements } from "@/app/types";
@@ -21,8 +21,7 @@ export const useGetDetailedStats = ({
         }/user/entry/stats/detailed?&start=${format(
           startDate,
           "yyyy-MM-dd"
-        )}&end=${format(endDate, "yyyy-MM-dd")}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        )}&end=${format(endDate, "yyyy-MM-dd")}`
       );
       return response.data;
     } catch (error) {
@@ -85,8 +84,7 @@ export const useGetWeight = ({
         }/user/measurement?type=weight&start=${format(
           startDate,
           "yyyy-MM-dd"
-        )}&end=${format(endDate, "yyyy-MM-dd")}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        )}&end=${format(endDate, "yyyy-MM-dd")}`
       );
       return response.data;
     } catch (error) {
@@ -105,8 +103,7 @@ export const useGetGoals = () => {
   const fetchGoals = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`
       );
 
       return response.data;
@@ -130,11 +127,10 @@ export const SetMeasurementSchema = z.object({
 
 export type SetMeasurement = z.infer<typeof SetMeasurementSchema>;
 
-export const setMeasurement = (data: SetMeasurement, user: User) => {
+export const setMeasurement = (data: SetMeasurement) => {
   return axiosInstance.post(
     `${process.env.NEXT_PUBLIC_API_URL}/user/measurement`,
-    { ...data },
-    { headers: { Authorization: `Bearer ${user.accessToken}` } }
+    { ...data }
   );
 };
 
@@ -143,8 +139,7 @@ export const useGetMeasurement = (type: Measurements) => {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement/recent?type=${type}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/measurement/recent?type=${type}`
       );
       return response.data;
     } catch (error) {

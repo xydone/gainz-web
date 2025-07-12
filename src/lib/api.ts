@@ -9,7 +9,19 @@ function AxiosInterceptor() {
   const isRefreshingRef = useRef(false);
 
   useEffect(() => {
-    const interceptor = axiosInstance.interceptors.response.use(
+    const requestInterceptor = axiosInstance.interceptors.request.use(
+      (config) => {
+        if (user.accessToken) {
+          config.headers.Authorization = `Bearer ${user.accessToken}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    const responseInterceptor = axiosInstance.interceptors.response.use(
       async (response) => response,
       async (error: AxiosError) => {
         const originalRequest = error.config;
@@ -53,7 +65,8 @@ function AxiosInterceptor() {
     );
 
     return () => {
-      axiosInstance.interceptors.response.eject(interceptor);
+      axiosInstance.interceptors.response.eject(requestInterceptor);
+      axiosInstance.interceptors.response.eject(responseInterceptor);
     };
   }, [user]);
 

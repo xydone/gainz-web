@@ -32,8 +32,7 @@ export default function NutrientDistribution({
   const fetchEntry = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${today}&end=${today}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${today}&end=${today}`
       );
       return response.data;
     } catch (error) {

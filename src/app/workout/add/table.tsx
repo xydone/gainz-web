@@ -52,8 +52,7 @@ export function EditableTable({
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/`
       );
       return response.data;
     } catch (error) {

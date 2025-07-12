@@ -1,4 +1,4 @@
-import { User, useUserContext } from "@/app/context";
+import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -9,8 +9,7 @@ export function useGetCategory() {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/category`
       );
       return response.data;
     } catch (error) {
@@ -25,10 +24,8 @@ export function useGetCategory() {
   });
 }
 
-export const postExercise = (data: z.infer<typeof FormSchema>, user: User) => {
-  return axiosInstance.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/exercise/`,
-    { ...data },
-    { headers: { Authorization: `Bearer ${user.accessToken}` } }
-  );
+export const postExercise = (data: z.infer<typeof FormSchema>) => {
+  return axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/exercise/`, {
+    ...data,
+  });
 };

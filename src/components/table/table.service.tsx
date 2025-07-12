@@ -1,13 +1,12 @@
 import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 export const useGetFood = ({ id }: { id: number }) => {
   const user = useUserContext();
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/food/${id}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/food/${id}`
       );
       return response.data;
     } catch (error) {
@@ -21,25 +20,6 @@ export const useGetFood = ({ id }: { id: number }) => {
   });
 };
 
-// export const useDeleteEntry = ({ id }: { id: number }) => {
-//   const user = useUserContext();
-//   const fetchData = async () => {
-//     try {
-//       const response = await axiosInstance.delete(
-//         `${process.env.NEXT_PUBLIC_API_URL}/user/entry/${id}`,
-//         { headers: { Authorization: `Bearer ${user.accessToken}` } }
-//       );
-//       return response.data;
-//     } catch (error) {
-//       throw error;
-//     }
-//   };
-//   return useQuery({
-//     queryKey: ["deleteEntry", user.accessToken],
-//     queryFn: fetchData,
-//     enabled: false,
-//   });
-// };
 export const useDeleteEntry = ({
   id,
   callback,
@@ -47,14 +27,11 @@ export const useDeleteEntry = ({
   id: number;
   callback: () => void;
 }) => {
-  const user = useUserContext();
-
   return useMutation({
     mutationFn: async () => {
       try {
         const response = await axiosInstance.delete(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/entry/${id}`,
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+          `${process.env.NEXT_PUBLIC_API_URL}/user/entry/${id}`
         );
         return response.data;
       } catch (error) {
@@ -78,8 +55,6 @@ export const useEditEntry = ({
   serving_id: number;
   callback: () => void;
 }) => {
-  const user = useUserContext();
-
   return useMutation({
     mutationFn: async () => {
       try {
@@ -89,8 +64,7 @@ export const useEditEntry = ({
             meal_category: category,
             amount: amount,
             serving_id,
-          },
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+          }
         );
         return response.data;
       } catch (error) {

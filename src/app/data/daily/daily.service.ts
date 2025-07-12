@@ -11,8 +11,7 @@ export const useGetEntryDay = ({ date }: { date: Date }) => {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry?&start=${dateString}&end=${dateString}`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/user/entry?&start=${dateString}&end=${dateString}`
       );
       setLastFail(false);
       return response.data;

@@ -41,8 +41,7 @@ export default function Workout({ className }: { className?: string }) {
       try {
         const response = await axiosInstance.post(
           `${process.env.NEXT_PUBLIC_API_URL}/workout`,
-          { ...form },
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+          { ...form }
         );
         return response.data;
       } catch (error) {

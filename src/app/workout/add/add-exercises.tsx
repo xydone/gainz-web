@@ -59,8 +59,7 @@ export default function AddExercises({ className }: { className?: string }) {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/workout/`,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+        `${process.env.NEXT_PUBLIC_API_URL}/workout/`
       );
       return response.data;
     } catch (error) {
@@ -80,8 +79,7 @@ export default function AddExercises({ className }: { className?: string }) {
         const { workout_id, exercises } = form;
         const response = await axiosInstance.post(
           `${process.env.NEXT_PUBLIC_API_URL}/workout/${workout_id}/exercises`,
-          exercises,
-          { headers: { Authorization: `Bearer ${user.accessToken}` } }
+          exercises
         );
         return response.data;
       } catch (error) {
