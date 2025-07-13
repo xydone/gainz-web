@@ -77,9 +77,7 @@ export function EditableTable({
     const updatedItems = items.map((item) => {
       if (item.id === id) {
         const updatedItem = { ...item, [fieldKey]: value };
-        console.log(fieldKey);
         if (fieldKey === "sets") {
-          console.log({ updatedItem });
           updatedItem.sets = parseInt(value as string, 10) || 0;
         } else if (fieldKey === "reps") {
           updatedItem.reps = parseInt(value as string, 10) || 0;

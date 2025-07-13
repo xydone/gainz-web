@@ -99,12 +99,11 @@ export function AddDialog({ entry }: DialogProps) {
     ...ImportantNutrients<Food>(),
     ...DetailedNutrients,
   ];
-
   return (
     <div>
       <TableDialog
         columns={columns}
-        data={[servings]}
+        data={[entry]}
         dialogs={[
           {
             isOpen: isAddOpen,
