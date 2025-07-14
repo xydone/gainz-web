@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const FormSchema = z.object({
   name: z.string().nonempty(),
@@ -43,8 +44,11 @@ export default function Workout({ className }: { className?: string }) {
           `${process.env.NEXT_PUBLIC_API_URL}/workout`,
           { ...form }
         );
+        toast.success("Workout created successfully!");
+
         return response.data;
       } catch (error) {
+        toast.error("Failed to create workout. Please try again.");
         throw error;
       }
     },

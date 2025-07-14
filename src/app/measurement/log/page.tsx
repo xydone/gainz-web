@@ -28,20 +28,24 @@ import {
 import { cn, formatDateString } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useUserContext } from "@/app/context";
 import {
   setMeasurement,
   SetMeasurementSchema,
 } from "@/app/data/progress/progress.service";
+import { toast } from "sonner";
 
 export default function MeasurementLog() {
   const form = useForm<z.infer<typeof SetMeasurementSchema>>({
     resolver: zodResolver(SetMeasurementSchema),
   });
-  const user = useUserContext();
 
-  const onSubmit = (data: z.infer<typeof SetMeasurementSchema>) => {
-    setMeasurement(data, user);
+  const onSubmit = async (data: z.infer<typeof SetMeasurementSchema>) => {
+    try {
+      await setMeasurement(data);
+      toast.success("Measurement created successfully!");
+    } catch {
+      toast.error("Failed to create measurement. Please try again.");
+    }
   };
   return (
     <div className="flex flex-col justify-center items-center gap-4">

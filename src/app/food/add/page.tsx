@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { toast } from "sonner";
 
 import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
@@ -62,14 +63,20 @@ export default function Create() {
     resolver: zodResolver(FormSchema),
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     const { brand_name, food_name, food_grams, ...nutrients } = data;
-    axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/food`, {
-      brand_name,
-      food_name,
-      food_grams,
-      nutrients: nutrients,
-    });
+    try {
+      await axiosInstance.post(`${process.env.NEXT_PUBLIC_API_URL}/food`, {
+        brand_name,
+        food_name,
+        food_grams,
+        nutrients: nutrients,
+      });
+
+      toast.success("Food created successfully!");
+    } catch {
+      toast.error("Failed to create food. Please try again.");
+    }
   }
 
   return (

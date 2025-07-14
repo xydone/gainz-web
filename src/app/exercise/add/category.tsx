@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const FormSchema = z.object({
   name: z.string().nonempty(),
@@ -47,9 +48,11 @@ export default function Category({ className }: { className?: string }) {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }
         );
+        toast.success("Category created successfully!");
+
         return response.data;
-      } catch (error) {
-        throw error;
+      } catch {
+        toast.error("Failed to create category. Please try again.");
       }
     },
   });

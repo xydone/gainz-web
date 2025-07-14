@@ -32,6 +32,7 @@ import { useForm } from "react-hook-form";
 import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const FormSchema = z.object({
   amount: z.coerce.number().min(1),
@@ -77,9 +78,11 @@ export default function Unit({ className }: { className?: string }) {
           `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`,
           { ...form }
         );
+        toast.success("Unit created successfully!");
+
         return response.data;
-      } catch (error) {
-        throw error;
+      } catch {
+        toast.error("Failed to create unit. Please try again.");
       }
     },
   });

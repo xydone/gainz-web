@@ -18,9 +18,10 @@ import {
   setMeasurement,
   useGetMeasurement,
 } from "../data/progress/progress.service";
-import { useUserContext } from "../context";
+
 import { z } from "zod";
 import { Measurements } from "../types";
+import { toast } from "sonner";
 
 const heightSchema = z.object({
   metric: z.string().regex(/^\d+(\.\d+)?$/, "Must be a valid number"),
@@ -29,7 +30,6 @@ const heightSchema = z.object({
 });
 
 export default function Height() {
-  const user = useUserContext();
   const { data, isPending } = useGetMeasurement(Measurements.height);
   const [unit, setUnit] = useState<"metric" | "imperial">("metric");
   const [height, setHeight] = useState("");
@@ -58,7 +58,7 @@ export default function Height() {
       setHeightInches(inches.toString());
     }
   };
-  const submit = () => {
+  const submit = async () => {
     let metricHeight = Number(height);
     if (unit === "metric") {
       heightSchema.parse({
@@ -78,7 +78,12 @@ export default function Height() {
       metricHeight = converted.meters * 100; // Convert meters to cm
     }
     const data: SetMeasurement = { type: "height", value: metricHeight };
-    setMeasurement(data, user);
+    try {
+      await setMeasurement(data);
+      toast.success("Height changed successfully!");
+    } catch {
+      toast.error("Failed to change height. Please try again.");
+    }
   };
   return (
     <Card className={cn("relative")}>

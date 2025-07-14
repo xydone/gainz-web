@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -61,6 +62,7 @@ export default function AddExercises({ className }: { className?: string }) {
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_API_URL}/workout/`
       );
+
       return response.data;
     } catch (error) {
       throw error;
@@ -77,13 +79,16 @@ export default function AddExercises({ className }: { className?: string }) {
     mutationFn: async (form: z.infer<typeof AddExerciseSchema>) => {
       try {
         const { workout_id, exercises } = form;
+
         const response = await axiosInstance.post(
           `${process.env.NEXT_PUBLIC_API_URL}/workout/${workout_id}/exercises`,
           exercises
         );
+        toast.success("Exercises added successfully!");
+
         return response.data;
-      } catch (error) {
-        throw error;
+      } catch {
+        toast.error("Failed to add exercises. Please try again.");
       }
     },
   });

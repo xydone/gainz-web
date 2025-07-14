@@ -31,6 +31,7 @@ import { useUserContext } from "@/app/context";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { useGetCategory, postExercise } from "./add-exercise.service";
+import { toast } from "sonner";
 
 interface Category {
   id: number;
@@ -55,8 +56,13 @@ export default function Exercise({ className }: { className?: string }) {
 
   const { data } = useGetCategory();
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    postExercise(data, user);
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    try {
+      await postExercise(data);
+      toast.success("Exercise created successfully!");
+    } catch {
+      toast.error("Failed to create exercise. Please try again.");
+    }
   };
 
   return (
