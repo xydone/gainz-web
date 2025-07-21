@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { cn, ewma, lerp } from "@/lib/utils";
 import { compareAsc, format, parse } from "date-fns";
-import NoResponse from "./NoResponse";
+import NoResponse from "../../../components/ui/NoResponseCard";
 import { useGetWeight } from "./progress.service";
 
 interface Response {

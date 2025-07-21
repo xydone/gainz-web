@@ -16,7 +16,7 @@ import { format, parse } from "date-fns";
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { MacronutrientMap, Nutrients } from "../../types";
-import NoResponse from "./NoResponse";
+import NoResponse from "../../../components/ui/NoResponseCard";
 import LineFilter from "./LineFilter";
 import { useGetDetailedStats, useGetGoals } from "./progress.service";
 

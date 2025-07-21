@@ -1,6 +1,6 @@
 "use client";
 import CustomBarChart from "@/components/ui/CustomBarChart";
-import NoResponse from "./NoResponse";
+import NoResponse from "../../../components/ui/NoResponseCard";
 import { MacronutrientMap } from "@/app/types";
 import { cn } from "@/lib/utils";
 import { useGetEntryStats } from "./progress.service";

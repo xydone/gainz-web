@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
+        background: "hsl(var(--background))",
         foreground: "var(--foreground)",
         text: {
           DEFAULT: "var(--text-color)",

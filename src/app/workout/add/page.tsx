@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import Card from "./add-exercises";
 import Workout from "./create-workout";
 
-export default function Settings() {
+export default function AddWorkout() {
   const user = useUserContext();
 
   if (user.loading) return <Loading />;
