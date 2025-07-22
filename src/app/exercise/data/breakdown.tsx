@@ -3,7 +3,7 @@
 import { FrontBody } from "@/components/ui/body";
 
 import { DataTable } from "@/components/ui/datatable";
-import { columns } from "./columns";
+import { Columns } from "./columns";
 import {
   ExerciseEntry,
   ExerciseRangeResponse,
@@ -36,13 +36,13 @@ export default function ExerciseBreakdown({
       setFrontBody(countAndScaleCategories(data, frontBodyParts));
     }
   }, [data]);
-  // TODO: allow for deleting and editing exercise entries
   const handleDeleted = () => {
     refetch();
   };
   const handleEdited = () => {
     refetch();
   };
+
   if (isPending) return;
   if (isError) {
     return (
@@ -52,6 +52,7 @@ export default function ExerciseBreakdown({
       />
     );
   }
+
   const createTransparentColor = (percent: number) =>
     `color-mix(in srgb, var(--protein) ${percent}%, transparent)`;
   return (
@@ -79,7 +80,10 @@ export default function ExerciseBreakdown({
           traps: createTransparentColor(frontBody.traps),
         }}
       />
-      <DataTable<ExerciseEntry, unknown> columns={columns} data={data} />
+      <DataTable<ExerciseEntry, unknown>
+        columns={Columns({ handleDeleted, handleEdited })}
+        data={data}
+      />
     </div>
   );
 }
@@ -95,7 +99,7 @@ function countAndScaleCategories<T extends readonly string[]>(
   const counts = entries.reduce((acc: Record<MuscleGroup, number>, entry) => {
     const category = entry.category_name.toLowerCase() as MuscleGroup;
     if (bodySide.includes(category)) {
-      acc[category]++;
+      acc[category] += entry.value;
     }
     return acc;
   }, initialCounts);

@@ -112,6 +112,7 @@ export function AddDialog({ entry }: DialogProps) {
             onClick: handleAddToEntries,
           },
         ]}
+        hasExpandDetails
       />
       <Dialog open={isAddOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-xl w-5/6">

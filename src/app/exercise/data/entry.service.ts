@@ -1,6 +1,6 @@
 import { useUserContext } from "@/app/context";
 import { axiosInstance } from "@/lib/api";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, keepPreviousData, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -48,10 +48,103 @@ export const useGetExerciseRange = ({
     }
   };
   return useQuery({
-    queryKey: ["exerciseRange", startDate, endDate, user.accessToken],
+    queryKey: ["exerciseRange", start, end, user.accessToken],
     queryFn: fetchData,
     enabled: !user.loading,
     staleTime: 10 * 1000, //10s
     placeholderData: lastFail ? undefined : keepPreviousData,
+  });
+};
+
+export interface ExerciseUnit {
+  id: number;
+  created_at: number;
+  created_by: number;
+  amount: number;
+  unit: string;
+  multiplier: number;
+}
+
+export type ExerciseUnitResponse = ExerciseUnit[];
+
+export const useGetExerciseUnits = () => {
+  const user = useUserContext();
+  const [lastFail, setLastFail] = useState<boolean>(false);
+  const fetchData = async (): Promise<ExerciseUnitResponse> => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`
+      );
+      setLastFail(false);
+      return response.data;
+    } catch (error) {
+      setLastFail(true);
+      throw error;
+    }
+  };
+  return useQuery({
+    queryKey: ["exerciseUnits", user.accessToken],
+    queryFn: fetchData,
+    enabled: !user.loading,
+    staleTime: 10 * 1000, //10s
+    placeholderData: lastFail ? undefined : keepPreviousData,
+  });
+};
+
+export const useEditExerciseEntry = ({
+  entry_id,
+  exercise_id,
+  value,
+  unit_id,
+  notes,
+  callback,
+}: {
+  entry_id: number;
+  exercise_id: number;
+  value: number;
+  unit_id: number;
+  notes: string | null;
+  callback: () => void;
+}) => {
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await axiosInstance.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/exercise/entry/${entry_id}`,
+          {
+            exercise_id,
+            value,
+            unit_id,
+            notes,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    onSuccess: callback,
+  });
+};
+
+export const useDeleteExerciseEntry = ({
+  id,
+  callback,
+}: {
+  id: number;
+  callback: () => void;
+}) => {
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await axiosInstance.delete(
+          `${process.env.NEXT_PUBLIC_API_URL}/exercise/entry/${id}`
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    onSuccess: callback,
   });
 };

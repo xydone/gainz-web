@@ -29,9 +29,16 @@ export default function ExerciseData() {
   });
 
   const onClick = () => {
-    if (!date || !date.from || !date.to) return;
+    if (!date) return;
+
+    // if either is null we take it as a 1 day range
+    const from = date.from ?? date.to;
+    const to = date.to ?? date.from;
+
+    // if both are null return
+    if (!from || !to) return;
     setSubmit(true);
-    setDisplayDate({ from: date.from, to: date.to });
+    setDisplayDate({ from, to });
   };
 
   if (user.loading) return <Loading />;
@@ -39,7 +46,7 @@ export default function ExerciseData() {
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <h1 className="text-xl">View Exercise Info</h1>
+      <h1 className="text-xl">View Exercise Data</h1>
       <DatePickerWithRange className={""} date={date} setDate={setDate} />
       <Button
         id="date"

@@ -113,6 +113,7 @@ export function ManageMenu({
               onClick: () => {},
             },
           ]}
+          hasExpandDetails
         />
       </div>
       {isEditOpen && <EditDialog />}

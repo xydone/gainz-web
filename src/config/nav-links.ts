@@ -32,7 +32,7 @@ export const navLinksConfig: NavLinksConfig = {
       popover: [
         { title: "View Daily Intake", href: "/data/daily" },
         { title: "View Progress", href: "/data/progress" },
-        { title: "View Exercise Info", href: "/exercise/data" },
+        { title: "View Exercise Data", href: "/exercise/data" },
         { title: "View Raw Food Entry Data", href: "/food/entries/raw" },
       ],
     },

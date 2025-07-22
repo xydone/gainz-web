@@ -34,10 +34,12 @@ export default function TableDialog({
   columns,
   data,
   dialogs,
+  hasExpandDetails = false,
 }: {
   columns: ColumnDef<any>[];
   data: any;
   dialogs?: IDialog[];
+  hasExpandDetails?: boolean;
 }) {
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const handleDetailsOpen = () => {
@@ -53,23 +55,27 @@ export default function TableDialog({
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-background">
+          <DropdownMenuContent align="end" className="bg-popover">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleDetailsOpen}>
-              Expand details
-            </DropdownMenuItem>
+            {hasExpandDetails && (
+              <DropdownMenuItem onClick={handleDetailsOpen}>
+                Expand details
+              </DropdownMenuItem>
+            )}
             {dialogs !== undefined && <DropdownMenuList dialogs={dialogs} />}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Dialog open={isDetailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
-            <DialogTitle>View details</DialogTitle>
-            <DataTable columns={columns} data={data} />
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      {hasExpandDetails && (
+        <Dialog open={isDetailsOpen} onOpenChange={setDetailsOpen}>
+          <DialogContent className="max-w-6xl">
+            <DialogHeader>
+              <DialogTitle>View details</DialogTitle>
+              <DataTable columns={columns} data={data} />
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
       {dialogs !== undefined &&
         dialogs.map((dia) => {
           <Dialog open={dia.isOpen} onOpenChange={dia.setOpen}>
