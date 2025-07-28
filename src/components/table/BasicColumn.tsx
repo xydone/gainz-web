@@ -21,10 +21,10 @@ export type Entry = {
   id: number;
   food_id: number;
   serving_id: number;
+  user_id: number;
+  food: Food;
   created_at: number;
   category: MealCateogies;
-  food_name: string;
-  brand_name: string;
   amount: number;
   nutrients: Nutrients;
 };
@@ -50,9 +50,9 @@ const roundDown = (num: number | undefined, decimals: number = 0): number => {
 const createRoundedCell = <T extends keyof Food["nutrients"]>(
   accessorKey: T,
   decimals: number = 0
-): ColumnDef<Food>["cell"] => {
+): ColumnDef<Entry>["cell"] => {
   return ({ row }) => {
-    const originalValue = row.original.nutrients[accessorKey];
+    const originalValue = row.original.food.nutrients[accessorKey];
     const roundedValue = roundDown(originalValue, decimals);
     return isNaN(roundedValue) ? "-" : roundedValue.toFixed(decimals);
   };
@@ -61,12 +61,12 @@ const createRoundedCell = <T extends keyof Food["nutrients"]>(
 export const NameColumns = <T,>(): ColumnDef<T>[] => {
   return [
     {
-      accessorKey: "food_name",
+      accessorKey: "food.food_name",
       header: "Food name",
       size: 100,
     },
     {
-      accessorKey: "brand_name",
+      accessorKey: "food.brand_name",
       header: "Brand name",
       size: 100,
     },
@@ -166,7 +166,7 @@ export const FoodAmount: ColumnDef<Entry> = {
   size: 100,
 };
 
-export const DetailedNutrients: ColumnDef<Food>[] = [
+export const DetailedNutrients: ColumnDef<Entry>[] = [
   {
     accessorKey: "macronutrients.sat_fat",
     header: "Saturated Fat",
