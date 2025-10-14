@@ -20,7 +20,7 @@ export type Food = {
 export type Entry = {
   id: number;
   food_id: number;
-  serving_id: number;
+  serving_id: number; 
   user_id: number;
   food: Food;
   created_at: number;

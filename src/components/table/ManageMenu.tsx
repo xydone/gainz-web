@@ -44,7 +44,7 @@ export function ManageMenu({
   const user = useUserContext();
   // const { refetch: deleteRefetch } = useDeleteEntry({ id: entry.entry_id });
   const { mutate: deleteMutate } = useDeleteEntry({
-    id: entry.entry_id,
+    id: entry.id,
     callback: () => {
       setDeleteOpen(false);
       handleDeleted();
@@ -72,7 +72,7 @@ export function ManageMenu({
 
   const formValues = form.watch();
   const { mutate } = useEditEntry({
-    id: entry.entry_id,
+    id: entry.id,
     category: formValues.meal,
     amount: formValues.amount,
     serving_id: formValues.serving,
@@ -127,7 +127,7 @@ export function ManageMenu({
       <Dialog open={isEditOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>
-            <DialogTitle>Edit your entry for {entry.food_name}</DialogTitle>
+            <DialogTitle>Edit your entry for {entry.food.food_name}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -228,7 +228,7 @@ export function ManageMenu({
       <Dialog open={isDeleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="max-w-xl w-5/6">
           <DialogHeader>
-            <DialogTitle>Delete your entry for {entry.food_name}</DialogTitle>
+            <DialogTitle>Delete your entry for {entry.food.food_name}</DialogTitle>
           </DialogHeader>
           <Button
             variant="destructive"
