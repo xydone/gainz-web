@@ -33,9 +33,9 @@ export default function SignedIn() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {goalCards.map((card, i) => {
-        return <GoalsCard key={i} goalName={card} />;
+        return <GoalsCard key={i} goalName={card} date={date} />;
       })}
-      <NutrientDistribution className="" />
+      <NutrientDistribution className="" date={date} />
       <QuickAdd />
       <Weight className="" startDate={weightStartDate} endDate={date} />
     </div>

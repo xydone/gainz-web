@@ -48,9 +48,11 @@ const chartConfig = {
 export function GoalsCard({
   className,
   goalName,
+  date,
 }: {
   className?: string;
   goalName: string;
+  date: Date;
 }) {
   const user = useUserContext();
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
@@ -71,7 +73,7 @@ export function GoalsCard({
     queryFn: fetchData,
   });
 
-  const day = format(new Date(), "yyyy-MM-dd");
+  const day = format(date, "yyyy-MM-dd");
   const fetchStats = async () => {
     try {
       const response = await axiosInstance.get(
@@ -84,7 +86,7 @@ export function GoalsCard({
   };
 
   const { data: statsData } = useQuery({
-    queryKey: ["stats", user.accessToken],
+    queryKey: ["stats", user.accessToken, date],
     queryFn: fetchStats,
   });
   if (isPending) return;

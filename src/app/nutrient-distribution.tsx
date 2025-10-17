@@ -23,11 +23,12 @@ const chartConfig = nutrientChart satisfies ChartConfig;
 
 export default function NutrientDistribution({
   className,
+  date,
 }: {
   className: string;
+  date: Date;
 }) {
   const user = useUserContext();
-  const date = new Date();
   const today = format(date, "yyyy-MM-dd");
   const fetchEntry = async () => {
     try {
@@ -41,7 +42,7 @@ export default function NutrientDistribution({
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["stats", user.accessToken],
+    queryKey: ["stats", user.accessToken, date],
     queryFn: fetchEntry,
   });
 
