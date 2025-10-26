@@ -31,6 +31,7 @@ import { useUserContext } from "./context";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MacronutrientMap, nutrientChart } from "./types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Data {
   nutrient: string;
@@ -60,7 +61,7 @@ export function GoalsCard({
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals/active`
       );
       return response.data;
     } catch (error) {
@@ -89,7 +90,9 @@ export function GoalsCard({
     queryKey: ["stats", user.accessToken, date],
     queryFn: fetchStats,
   });
-  if (isPending) return;
+  if (isPending) {
+    return <Loading />;
+  }
   //if no intake, but goal data exists
   if (statsData == undefined && goalsData)
     return <NoDataCard nutrient={goalName} goal={goalsData[goalName]} />;
@@ -354,6 +357,25 @@ export function NoDataCard({
         ].toLowerCase()} goals for the day, log food and check again!`}
         </CardDescription>
       </CardHeader>
+    </Card>
+  );
+}
+
+export function Loading() {
+  return (
+    <Card className="relative">
+      <CardHeader>
+        <CardTitle className="flex flex-col gap-2">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-20 mt-1" />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 w-full relative mt-2">
+          <Skeleton className="h-full w-full" />
+        </div>
+      </CardContent>
     </Card>
   );
 }

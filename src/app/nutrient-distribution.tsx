@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { nutrientChart } from "./types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const chartConfig = nutrientChart satisfies ChartConfig;
 
@@ -46,7 +47,9 @@ export default function NutrientDistribution({
     queryFn: fetchEntry,
   });
 
-  if (isLoading) return;
+  if (isLoading) {
+    return <NutrientGoalsCardSkeleton />;
+  }
   if (error) {
     return <ErrorResponse className={className} />;
   }
@@ -219,5 +222,34 @@ function CustomLegend() {
         );
       })}
     </div>
+  );
+}
+
+export function NutrientGoalsCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-5 w-40" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-4 w-60 mt-1" />
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="mx-auto aspect-square max-h-[250px] relative">
+          <Skeleton className="h-full w-full rounded-full" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <Skeleton className="h-8 w-16 mb-1" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+        <div className="mt-4 flex justify-center gap-2">
+          <Skeleton className="h-4 w-12 rounded" />
+          <Skeleton className="h-4 w-12 rounded" />
+          <Skeleton className="h-4 w-12 rounded" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

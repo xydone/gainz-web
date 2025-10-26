@@ -19,6 +19,7 @@ import { cn, ewma, lerp } from "@/lib/utils";
 import { compareAsc, format, parse } from "date-fns";
 import NoResponse from "../../../components/ui/NoResponseCard";
 import { useGetWeight } from "./progress.service";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Response {
   created_at: number;
@@ -126,7 +127,9 @@ export default function Weight({
   endDate: Date;
 }) {
   const { data, isLoading, error } = useGetWeight({ startDate, endDate });
-  if (isLoading) return;
+  if (isLoading) {
+    return <WeightCardSkeleton />;
+  }
   if (error) {
     return (
       <NoResponse
@@ -214,6 +217,26 @@ export default function Weight({
             />
           </LineChart>
         </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function WeightCardSkeleton({ className }: { className?: string }) {
+  return (
+    <Card className={cn("", className)}>
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-5 w-24" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-4 w-40 mt-1" />
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 w-full relative">
+          <Skeleton className="h-full w-full" />
+        </div>
       </CardContent>
     </Card>
   );
