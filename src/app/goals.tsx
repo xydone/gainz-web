@@ -6,15 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Label,
-  PolarGrid,
-  PolarRadiusAxis,
-  RadialBar,
-  RadialBarChart,
-} from "recharts";
 
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Minus, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,21 +22,9 @@ import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { MacronutrientMap, nutrientChart } from "./types";
+import { MacronutrientMap } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Data {
-  nutrient: string;
-  value: number;
-  fill: string;
-}
-
-const chartConfig = {
-  intake: {
-    label: "Intake",
-  },
-  ...nutrientChart,
-} satisfies ChartConfig;
+import { Progress } from "@/components/ui/progress";
 
 export function GoalsCard({
   className,
@@ -57,7 +37,6 @@ export function GoalsCard({
 }) {
   const user = useUserContext();
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
-  const overflow = false;
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
@@ -93,6 +72,7 @@ export function GoalsCard({
   if (isPending) {
     return <Loading />;
   }
+
   //if no intake, but goal data exists
   if (statsData == undefined && goalsData)
     return <NoDataCard nutrient={goalName} goal={goalsData[goalName]} />;
@@ -101,7 +81,9 @@ export function GoalsCard({
     return <NoDataCard nutrient={goalName} goal={0} />;
   //if no goals, but intake exists
   if (!goalsData[goalName]) return <NoGoalsCard nutrient={goalName} />;
-
+  const percentage = Math.round(
+    (statsData[goalName] / goalsData[goalName]) * 100
+  );
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
@@ -114,13 +96,12 @@ export function GoalsCard({
           />
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <BasicChart
-          data={statsData}
-          goalName={goalName}
-          goalValue={goalsData}
-          overflow={overflow}
+      <CardContent className="w-full flex items-center justify-center gap-3">
+        <Progress
+          value={percentage}
+          className={`border border-foreground/10 [&>div]:bg-nutrients-${goalName}`}
         />
+        <span className="text-sm">{percentage}%</span>
       </CardContent>
     </Card>
   );
@@ -217,88 +198,6 @@ function EditGoalsButton({
   );
 }
 
-function BasicChart({
-  data,
-  goalValue,
-  goalName,
-  overflow,
-}: {
-  data: Data[];
-  goalValue: number;
-  goalName: string;
-  overflow?: boolean;
-}) {
-  //@ts-expect-error indexing
-  const loggedForGoal = data[goalName];
-  //@ts-expect-error indexing
-  const goal = goalValue[goalName];
-  const angle = (loggedForGoal / goal) * 360;
-  const chartData = [
-    {
-      nutrient: goalName,
-      intake: loggedForGoal,
-      fill: `var(--color-${goalName})`,
-    },
-  ];
-  return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square max-h-[250px]"
-    >
-      <RadialBarChart
-        data={chartData}
-        startAngle={
-          overflow ? (loggedForGoal / goalValue) * 360 : angle < 360 ? angle : 0
-        }
-        innerRadius={90}
-        outerRadius={160}
-      >
-        <PolarGrid
-          gridType="circle"
-          radialLines={false}
-          stroke="none"
-          className="first:fill-chart-empty last:fill-background"
-          polarRadius={[100, 80]}
-        />
-        <RadialBar dataKey="intake" background />
-        <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-          <Label
-            content={({ viewBox }) => {
-              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                return (
-                  <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    <tspan
-                      x={viewBox.cx}
-                      y={viewBox.cy}
-                      className="fill-foreground text-4xl font-bold"
-                    >
-                      {Math.round(goal - loggedForGoal)}
-                    </tspan>
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy || 0) + 24}
-                      className="fill-muted-foreground"
-                    >
-                      {`${goalName[0].toUpperCase() + goalName.slice(1)} ${
-                        loggedForGoal < goal ? "remain" : "over"
-                      }`}
-                    </tspan>
-                  </text>
-                );
-              }
-            }}
-          />
-        </PolarRadiusAxis>
-      </RadialBarChart>
-    </ChartContainer>
-  );
-}
-
 export function NoGoalsCard({
   className,
   nutrient,
@@ -368,11 +267,10 @@ export function Loading() {
         <CardTitle className="flex flex-col gap-2">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-20 mt-1" />
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64 w-full relative mt-2">
+        <div className="h-5 w-full relative mt-2">
           <Skeleton className="h-full w-full" />
         </div>
       </CardContent>
