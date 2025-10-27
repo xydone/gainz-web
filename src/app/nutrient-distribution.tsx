@@ -19,8 +19,15 @@ import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
 import { nutrientChart } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const chartConfig = nutrientChart satisfies ChartConfig;
+
+type ChartItem = {
+  nutrient: string;
+  intake: number;
+  fill: string;
+};
 
 export default function NutrientDistribution({
   className,
@@ -53,7 +60,7 @@ export default function NutrientDistribution({
   if (error) {
     return <ErrorResponse className={className} />;
   }
-  const chartData = [
+  const chartData: ChartItem[] = [
     {
       nutrient: "Protein",
       intake: Math.round(data.protein),
@@ -130,7 +137,7 @@ export default function NutrientDistribution({
             </Pie>
           </PieChart>
         </ChartContainer>
-        <CustomLegend />
+        <CustomLegend data={chartData} />
       </CardContent>
     </Card>
   );
@@ -199,29 +206,26 @@ function ErrorResponse({ className }: { className: string }) {
   );
 }
 
-function CustomLegend() {
+function CustomLegend({ data }: { data: ChartItem[] }) {
   return (
-    <div className="flex flex-row gap-4 justify-center">
-      {Object.keys(chartConfig).map((item, i) => {
-        //@ts-expect-error indexing
-        if (chartConfig[item].label === "empty") {
-          return;
-        }
-        return (
-          <div key={i} className="flex flex-row gap-2 place-items-center">
-            <div
-              className="h-2 w-2 shrink-0 rounded-[2px]"
-              style={{
-                //@ts-expect-error indexing
-                backgroundColor: chartConfig[item].color,
-              }}
-            />
-            {/* @ts-expect-error indexing */}
-            <span className="text-xs">{chartConfig[item].label}</span>
-          </div>
-        );
-      })}
-    </div>
+    <ScrollArea className="rounded-md border whitespace-nowrap">
+      <div className="flex flex-row gap-4 justify-center space-x-4 p-4">
+        {data.map((item, i) => {
+          return (
+            <div key={i} className="flex flex-row gap-2 place-items-center">
+              <div
+                className="h-2 w-2 shrink-0 rounded-[2px]"
+                style={{
+                  backgroundColor: item.fill,
+                }}
+              />
+              <span className="text-xs">{item.nutrient}</span>
+            </div>
+          );
+        })}
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }
 
