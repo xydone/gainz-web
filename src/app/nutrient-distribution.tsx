@@ -62,22 +62,22 @@ export default function NutrientDistribution({
   }
   const chartData: ChartItem[] = [
     {
-      nutrient: "Protein",
+      nutrient: "protein",
       intake: Math.round(data.protein),
       fill: "var(--color-protein)",
     },
     {
-      nutrient: "Carbs",
+      nutrient: "carbs",
       intake: Math.round(data.carbs),
       fill: "var(--color-carbs)",
     },
     {
-      nutrient: "Fat",
+      nutrient: "fat",
       intake: Math.round(data.fat),
       fill: "var(--color-fat)",
     },
     {
-      nutrient: "Sugar",
+      nutrient: "sugar",
       intake: Math.round(data.sugar),
       fill: "var(--color-sugar)",
     },
@@ -207,22 +207,29 @@ function ErrorResponse({ className }: { className: string }) {
 }
 
 function CustomLegend({ data }: { data: ChartItem[] }) {
+  // Create a set of the keys that actually exist in the data
+  const dataKeys = new Set(data.map((item) => item.nutrient));
+
   return (
     <ScrollArea className="rounded-md border whitespace-nowrap">
       <div className="flex flex-row gap-4 justify-center space-x-4 p-4">
-        {data.map((item, i) => {
-          return (
-            <div key={i} className="flex flex-row gap-2 place-items-center">
-              <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{
-                  backgroundColor: item.fill,
-                }}
-              />
-              <span className="text-xs">{item.nutrient}</span>
-            </div>
-          );
-        })}
+        {Object.keys(chartConfig)
+          .filter((key) => dataKeys.has(key)) // ✅ only include items from data
+          .map((key, i) => {
+            //@ts-expect-error indexing chartConfig
+            const cfg = chartConfig[key];
+            if (cfg.label === "empty") return null;
+
+            return (
+              <div key={i} className="flex flex-row gap-2 place-items-center">
+                <div
+                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  style={{ backgroundColor: cfg.color }}
+                />
+                <span className="text-xs">{cfg.label}</span>
+              </div>
+            );
+          })}
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>

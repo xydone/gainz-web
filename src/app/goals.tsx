@@ -99,7 +99,7 @@ export function GoalsCard({
       <CardContent className="w-full flex items-center justify-center gap-3">
         <Progress
           value={percentage}
-          className={`border border-foreground/10 [&>div]:bg-nutrients-${goalName}`}
+          className={`border border-foreground/10 [&>div]:bg-accent-strong`}
         />
         <span className="text-sm">{percentage}%</span>
       </CardContent>

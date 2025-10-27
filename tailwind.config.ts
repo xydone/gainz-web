@@ -90,6 +90,15 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
     },
+    keyframes: {
+      subtlePulse: {
+        "0%, 100%": { filter: "brightness(1)" },
+        "50%": { filter: "brightness(1.4)" },
+      },
+    },
+    animation: {
+      subtlePulse: "subtlePulse 1.5s linear infinite",
+    },
   },
   plugins: [],
 } satisfies Config;
