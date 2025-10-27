@@ -49,7 +49,7 @@ function LogFoodMenu() {
           Log food
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-5xl">
+      <DialogContent className="max-w-5xl max-h-[90%] overflow-auto">
         <VisuallyHidden>
           <DialogHeader>
             <DialogTitle>Log food</DialogTitle>
