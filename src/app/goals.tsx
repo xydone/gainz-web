@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { MacronutrientMap } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 
 export function GoalsCard({
   className,
@@ -119,6 +120,11 @@ function EditGoalsButton({
   function onClick(adjustment: number) {
     setGoals(goals + adjustment);
   }
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = Number(e.target.value);
+    if (Number.isNaN(value)) return;
+    setGoals(value);
+  }
   const submit = () => {
     axiosInstance
       .post(
@@ -139,9 +145,9 @@ function EditGoalsButton({
           <Settings />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-center">
             Edit {MacronutrientMap[nutrient].toLowerCase()} goals
           </DialogTitle>
         </DialogHeader>
@@ -166,7 +172,12 @@ function EditGoalsButton({
           </Button>
 
           <div className="flex-1 text-center">
-            <div className="text-7xl font-bold tracking-tighter">{goals}</div>
+            <Input
+              className="appearance-none font-bold text-center bg-transparent border-none outline-none p-0 h-20 text-6xl sm:text-7xl"
+              value={goals}
+              onChange={onChange}
+              min={0}
+            />
             <div className="text-[0.70rem] uppercase text-muted-foreground">
               {MacronutrientMap[nutrient]}/day
             </div>
