@@ -26,6 +26,7 @@ import { MacronutrientMap } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { useGetActiveGoals } from "./data/progress/progress.service";
 
 export function GoalsCard({
   className,
@@ -38,21 +39,7 @@ export function GoalsCard({
 }) {
   const user = useUserContext();
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals/active`
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data: goalsData, isPending } = useQuery({
-    queryKey: ["goals", user.accessToken],
-    queryFn: fetchData,
-  });
+  const { data: goalsData, isPending } = useGetActiveGoals();
 
   const day = format(date, "yyyy-MM-dd");
   const fetchStats = async () => {
@@ -74,14 +61,8 @@ export function GoalsCard({
     return <Loading />;
   }
 
-  //if no intake, but goal data exists
-  if (statsData == undefined && goalsData)
-    return <NoDataCard nutrient={goalName} goal={goalsData[goalName]} />;
-  //if no intake and no goals
-  if (goalsData == undefined)
-    return <NoDataCard nutrient={goalName} goal={0} />;
-  //if no goals, but intake exists
-  if (!goalsData[goalName]) return <NoGoalsCard nutrient={goalName} />;
+  if (statsData == undefined || goalsData == undefined || !goalsData[goalName])
+    return <NoGoalsCard nutrient={goalName} goal={goalsData[goalName]} />;
   const percentage = Math.round(
     (statsData[goalName] / goalsData[goalName]) * 100
   );
@@ -212,16 +193,19 @@ function EditGoalsButton({
 export function NoGoalsCard({
   className,
   nutrient,
+  goal,
 }: {
   className?: string;
   nutrient: string;
+  goal: number | null;
 }) {
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>
-          No {MacronutrientMap[nutrient].toLowerCase()} goals!
-          <EditGoalsButton goalValue={0} nutrient={nutrient} />
+          No {MacronutrientMap[nutrient].toLowerCase()}{" "}
+          {goal == null ? "goals" : "data"}!
+          <EditGoalsButton goalValue={goal ?? 0} nutrient={nutrient} />
         </CardTitle>
         <CardDescription>
           {`You haven't entered any goals for ${MacronutrientMap[
@@ -230,41 +214,9 @@ export function NoGoalsCard({
         </CardDescription>
         <CardDescription>
           {`To get progress on your
-        ${MacronutrientMap[
-          nutrient
-        ].toLowerCase()} goals for the day, add a goal and check again!`}
-        </CardDescription>
-      </CardHeader>
-    </Card>
-  );
-}
-
-export function NoDataCard({
-  className,
-  nutrient,
-  goal,
-}: {
-  className?: string;
-  nutrient: string;
-  goal: number;
-}) {
-  return (
-    <Card className={cn("relative", className)}>
-      <CardHeader>
-        <CardTitle>
-          No {MacronutrientMap[nutrient].toLowerCase()} data!
-          <EditGoalsButton goalValue={goal} nutrient={nutrient} />
-        </CardTitle>
-        <CardDescription>
-          {`You haven't entered any data for ${MacronutrientMap[
-            nutrient
-          ].toLowerCase()} yet.`}
-        </CardDescription>
-        <CardDescription>
-          {`To get progress on your
-        ${MacronutrientMap[
-          nutrient
-        ].toLowerCase()} goals for the day, log food and check again!`}
+        ${MacronutrientMap[nutrient].toLowerCase()} goals for the day, ${
+            goal == null ? "add a goal" : "log food"
+          } and check again!`}
         </CardDescription>
       </CardHeader>
     </Card>

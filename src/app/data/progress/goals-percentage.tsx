@@ -12,13 +12,19 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
-import { format, parse } from "date-fns";
+import {
+  eachDayOfInterval,
+  format,
+  fromUnixTime,
+  isSameDay,
+  parse,
+} from "date-fns";
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { MacronutrientMap, Nutrients } from "../../types";
 import NoResponse from "../../../components/ui/NoResponseCard";
 import LineFilter from "./LineFilter";
-import { useGetDetailedStats, useGetGoals } from "./progress.service";
+import { GetGoals, useGetDetailedStats, useGetGoals } from "./progress.service";
 
 interface Response {
   created_at: number;
@@ -48,7 +54,7 @@ export default function GoalsPercentage({
     endDate,
   });
 
-  if (isLoading) return;
+  if (isLoading || goals == undefined) return;
 
   Object.keys(MacronutrientMap).forEach(
     (nutrient) =>
@@ -75,7 +81,7 @@ export default function GoalsPercentage({
       />
     );
   }
-  const processedData = processData(data, goals);
+  const processedData = processData(data, goals, startDate, endDate);
   return (
     <Card className={cn("relative", className)}>
       <CardHeader>
@@ -133,24 +139,60 @@ export default function GoalsPercentage({
   );
 }
 
-function processData(data: Response[] | undefined, goals: Nutrients) {
+function processData(
+  data: Response[] | undefined,
+  goals: GetGoals[],
+  startDate: Date,
+  endDate: Date
+) {
+  const normalize = (t: number) => (t > 1e12 ? Math.floor(t / 1000) : t);
   if (!data) return [];
+
+  const sortedGoals = [...goals].sort((a, b) => a.created_at - b.created_at);
+
   const processedData: ({ created_at: string } & Partial<Nutrients>)[] = [];
-  data.map((element) => {
-    const nutrients = {};
-    Object.keys(MacronutrientMap).forEach((key) => {
-      //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-      if (goals[key]) {
-        //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-        const value = (element.nutrients[key] / goals[key]) * 100;
-        //@ts-expect-error No index signature valid, would require rewriting a lot of code to fix
-        nutrients[key] = Math.round(value * 10) / 10;
-      }
-    });
+
+  const interval = eachDayOfInterval({ start: startDate, end: endDate });
+  const datesMap = data.map((item) => ({
+    date: fromUnixTime(item.created_at / 1_000_000),
+    item,
+  }));
+
+  interval.forEach((date) => {
+    const matched = datesMap.find(({ date: d }) => isSameDay(d, date));
+
+    const nutrients: Partial<Nutrients> = {};
+
+    if (matched) {
+      const element = matched.item;
+
+      Object.keys(MacronutrientMap).forEach((key) => {
+        const goal = [...sortedGoals]
+          .filter(
+            (g) =>
+              g.target === key && normalize(g.created_at) <= element.created_at
+          )
+          .sort((a, b) => normalize(b.created_at) - normalize(a.created_at))[0];
+
+        const nutrientValue = element.nutrients?.[key as keyof Nutrients];
+
+        if (goal) {
+          const percentage = (nutrientValue / goal.value) * 100;
+          nutrients[key as keyof Nutrients] = Math.round(percentage * 10) / 10;
+        }
+      });
+    } else {
+      // no data for given day, push nothing
+      Object.keys(MacronutrientMap).forEach((key) => {
+        nutrients[key as keyof Nutrients] = undefined;
+      });
+    }
+
     processedData.push({
-      created_at: format(new Date(element.created_at / 1000), "dd MMMM yyyy"),
+      created_at: format(date, "dd MMMM yyyy"),
       ...nutrients,
     });
   });
+
   return processedData;
 }

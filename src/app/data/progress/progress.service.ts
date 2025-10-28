@@ -98,12 +98,38 @@ export const useGetWeight = ({
   });
 };
 
+export interface GetGoals {
+  id: number;
+  target: string;
+  value: number;
+  created_at: number;
+}
+
 export const useGetGoals = () => {
+  const user = useUserContext();
+  const fetchGoals = async (): Promise<GetGoals[]> => {
+    try {
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+  return useQuery<GetGoals[]>({
+    queryKey: ["goals", user.accessToken],
+    queryFn: fetchGoals,
+  });
+};
+
+export const useGetActiveGoals = () => {
   const user = useUserContext();
   const fetchGoals = async () => {
     try {
       const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/goals`
+        `${process.env.NEXT_PUBLIC_API_URL}/user/goals/active`
       );
 
       return response.data;
