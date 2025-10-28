@@ -47,14 +47,14 @@ const chartConfig = {
 interface Chart {
   created_at: string;
   scale: number | null;
-  estimated: number;
+  estimated: number | null;
   interpolated: number | null;
   goal?: number;
 }
 
 type ResponseWithDate = { date: Date } & Response;
 
-function processData(data: ResponseWithDate[]) {
+function processData(data: ResponseWithDate[], endDate: Date) {
   const dateMap = new Map();
   if (!data || data.length === 0) {
     return [];
@@ -81,7 +81,6 @@ function processData(data: ResponseWithDate[]) {
     }
   });
   const currentDate = new Date([...dateMap.keys()][0]);
-  const endDate = new Date([...dateMap.keys()].pop());
   while (currentDate <= endDate) {
     const currentDateString = format(currentDate, "dd MMMM yyyy");
     dateStrings.push(currentDateString);
@@ -138,7 +137,7 @@ export default function Weight({
       />
     );
   }
-  const processedData = processData(data);
+  const processedData = processData(data, endDate);
   return (
     <Card className={cn("", className)}>
       <CardHeader>

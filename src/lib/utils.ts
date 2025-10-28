@@ -5,16 +5,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function ewma(data: number[], alpha: number): number[] {
-  const result: number[] = [];
-  let prev = data[0];
+export function ewma(
+  data: (number | null)[],
+  alpha: number
+): (number | null)[] {
+  if (data.length === 0) return [];
+
+  const result: (number | null)[] = [];
+  let prev: number | null = data[0] !== null ? data[0] : null;
   result.push(prev);
 
   for (let i = 1; i < data.length; i++) {
-    const current = alpha * data[i] + (1 - alpha) * prev;
-    //rounding is not necessary for the EMWA, however it is done to get rid of unneeded data
-    result.push(Math.round(current * 10) / 10);
-    prev = current;
+    const value = data[i];
+
+    if (value === null) {
+      const allRemainingNull = data.slice(i).every((v) => v === null);
+      result.push(
+        allRemainingNull
+          ? null
+          : prev !== null
+          ? Math.round(prev * 10) / 10
+          : null
+      );
+    } else if (prev === null) {
+      // if previous was null, start emwa from current value
+      prev = value;
+      result.push(Math.round(prev * 10) / 10);
+    } else {
+      const current = alpha * value + (1 - alpha) * prev;
+      result.push(Math.round(current * 10) / 10);
+      prev = current;
+    }
   }
 
   return result;
