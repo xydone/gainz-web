@@ -26,25 +26,12 @@ export default function EntriesProgress({
     startDate: date.from,
     endDate: date.to,
   });
-  if (isLoading) return;
-  if (error) {
-    return (
-      <NoResponse
-        title="No entries found"
-        description="No entries found in the given range"
-      />
-    );
-  }
 
-  const processedData = data ? processData() : [];
+  const processedData: MacronutrientDataPoint[] = data ? processData() : [];
 
   function processData() {
+    if (!date?.from || !date?.to) return [];
     const transformed: MacronutrientDataPoint[] = [];
-
-    if (!date?.from || !date?.to) {
-      return [];
-    }
-
     const keys = Object.keys(data);
     for (const key of keys) {
       transformed.push({
@@ -55,11 +42,21 @@ export default function EntriesProgress({
     return transformed;
   }
 
+  if (error) {
+    return (
+      <NoResponse
+        title="No entries found"
+        description="No entries found in the given range"
+      />
+    );
+  }
+
   return (
     <CustomBarChart
       className={cn("", className)}
       chartData={processedData}
       date={date}
+      skeleton={isLoading}
     />
   );
 }

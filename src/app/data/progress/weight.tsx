@@ -126,18 +126,10 @@ export default function Weight({
   endDate: Date;
 }) {
   const { data, isLoading, error } = useGetWeight({ startDate, endDate });
-  if (isLoading) {
-    return <WeightCardSkeleton />;
-  }
-  if (error) {
-    return (
-      <NoResponse
-        title="No weight measurements found"
-        description="No weight measurements found in the given range"
-      />
-    );
-  }
-  const processedData = processData(data, endDate);
+
+  // Processed data or empty array if loading/error
+  const processedData = data ? processData(data, endDate) : [];
+
   return (
     <Card className={cn("", className)}>
       <CardHeader>
@@ -147,25 +139,32 @@ export default function Weight({
           "dd MMMM yyyy"
         )}`}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent className="relative">
+        {isLoading && <WeightCardSkeleton />}
+        {error && !isLoading && (
+          <NoResponse
+            title="No weight measurements found"
+            description="No weight measurements found in the given range"
+          />
+        )}
+
+        <ChartContainer
+          config={chartConfig}
+          style={{ opacity: isLoading ? 0.5 : 1 }}
+        >
           <LineChart
             accessibilityLayer
             data={processedData}
-            margin={{
-              left: 18,
-            }}
+            margin={{ left: 18 }}
           >
             <CartesianGrid vertical={false} />
             <YAxis
               domain={["dataMin - 5", "dataMax + 5"]}
               width={12}
-              tickFormatter={(value) => {
-                return Math.round(value).toString();
-              }}
+              tickFormatter={(value) => Math.round(value).toString()}
             />
             <XAxis
-              dataKey={"created_at"}
+              dataKey="created_at"
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => {
@@ -174,7 +173,6 @@ export default function Weight({
               }}
             />
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
-
             <Line
               dataKey="scale"
               type="monotone"
@@ -196,7 +194,6 @@ export default function Weight({
               }}
               isAnimationActive={false}
             />
-
             <Line
               dataKey="estimated"
               type="monotone"
@@ -221,22 +218,10 @@ export default function Weight({
   );
 }
 
-export function WeightCardSkeleton({ className }: { className?: string }) {
+export function WeightCardSkeleton() {
   return (
-    <Card className={cn("", className)}>
-      <CardHeader>
-        <CardTitle>
-          <Skeleton className="h-5 w-24" />
-        </CardTitle>
-        <CardDescription>
-          <Skeleton className="h-4 w-40 mt-1" />
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-64 w-full relative">
-          <Skeleton className="h-full w-full" />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex p-6 pt-0 absolute inset-0 z-10">
+      <Skeleton className="w-full h-full" notRounded />
+    </div>
   );
 }

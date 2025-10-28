@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "./skeleton";
 
 type MacronutrientDataPoint = {
   macronutrient: string;
@@ -35,13 +36,18 @@ export default function CustomBarChart({
   className,
   chartData,
   date,
+  skeleton,
 }: {
   className?: string;
   chartData: MacronutrientDataPoint[];
   date: IDate | undefined;
+  skeleton: boolean;
 }) {
-  if (date == undefined || date.from == undefined || date.to == undefined)
-    return;
+  if (!date?.from || !date?.to) return null;
+
+  // Use empty array if chartData is not ready
+  const data = chartData || [];
+
   return (
     <Card className={cn("", className)}>
       <CardHeader>
@@ -51,16 +57,17 @@ export default function CustomBarChart({
           "dd MMMM yyyy"
         )}`}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent style={{ position: "relative" }}>
+        {skeleton && <CustomBarChartSkeleton />}
+
+        <ChartContainer
+          config={chartConfig}
+          style={{ opacity: chartData.length === 0 ? 0.5 : 1 }}
+        >
           <BarChart
             accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 8,
-              right: 8,
-            }}
+            data={data}
+            margin={{ top: 20, left: 8, right: 8 }}
           >
             <CartesianGrid vertical={false} strokeWidth={0.2} />
             <XAxis
@@ -83,5 +90,29 @@ export default function CustomBarChart({
         </ChartContainer>
       </CardContent>
     </Card>
+  );
+}
+
+export function CustomBarChartSkeleton() {
+  const length = 15;
+
+  const barHeights = Array.from({ length }).map(() =>
+    Math.floor(Math.random() * 200)
+  );
+
+  return (
+    <div className="flex p-6 pt-0 absolute inset-0 z-10">
+      <div className="w-full flex flex-col justify-end space-y-2">
+        <div className="flex w-full justify-between px-4 pb-4 items-end">
+          {barHeights.map((height, i) => (
+            <Skeleton
+              key={i}
+              className="w-6 rounded-md"
+              style={{ height: height }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

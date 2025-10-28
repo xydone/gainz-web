@@ -25,6 +25,7 @@ import { MacronutrientMap, Nutrients } from "../../types";
 import NoResponse from "../../../components/ui/NoResponseCard";
 import LineFilter from "./LineFilter";
 import { GetGoals, useGetDetailedStats, useGetGoals } from "./progress.service";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Response {
   created_at: number;
@@ -53,8 +54,6 @@ export default function GoalsPercentage({
     startDate,
     endDate,
   });
-
-  if (isLoading || goals == undefined) return;
 
   Object.keys(MacronutrientMap).forEach(
     (nutrient) =>
@@ -97,7 +96,12 @@ export default function GoalsPercentage({
           map={MacronutrientMap}
         />
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
+        {isLoading && (
+          <div className="absolute inset-0 z-10">
+            <GoalsPercentageSkeleton />
+          </div>
+        )}
         <ChartContainer config={chartConfig}>
           <LineChart data={processedData} margin={{ left: 24 }}>
             <CartesianGrid vertical={false} />
@@ -195,4 +199,12 @@ function processData(
   });
 
   return processedData;
+}
+
+export function GoalsPercentageSkeleton() {
+  return (
+    <div className="flex p-6 pt-0 absolute inset-0 z-10">
+      <Skeleton className="w-full h-full" notRounded />
+    </div>
+  );
 }
