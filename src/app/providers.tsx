@@ -30,6 +30,8 @@ export function Providers({
       queries: {
         refetchOnWindowFocus: false,
         retry: false,
+        placeholderData: (prev) => prev,
+        staleTime: 10 * 1000, //10s
       },
     },
   });

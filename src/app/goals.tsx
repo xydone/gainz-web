@@ -39,18 +39,23 @@ export function GoalsCard({
   date: Date;
 }) {
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
-  const { data: goalsData, isPending } = useGetActiveGoals();
+  const { data: goalsData, isLoading } = useGetActiveGoals();
 
   const { data: statsData } = useGetEntryStats({
     startDate: date,
     endDate: date,
   });
-  if (isPending) {
+  if (isLoading) {
     return <Loading />;
   }
 
   if (statsData == undefined || goalsData == undefined || !goalsData[goalName])
-    return <NoGoalsCard nutrient={goalName} goal={goalsData[goalName]} />;
+    return (
+      <NoGoalsCard
+        nutrient={goalName}
+        goal={goalsData ? goalsData[goalName] : null}
+      />
+    );
   const percentage = Math.round(
     (statsData[goalName as keyof Nutrients] / goalsData[goalName]) * 100
   );

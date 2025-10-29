@@ -51,8 +51,6 @@ export const useGetExerciseRange = ({
     queryKey: ["exerciseRange", start, end, user.accessToken],
     queryFn: fetchData,
     enabled: !user.loading,
-    staleTime: 10 * 1000, //10s
-    placeholderData: lastFail ? undefined : keepPreviousData,
   });
 };
 
@@ -69,16 +67,13 @@ export type ExerciseUnitResponse = ExerciseUnit[];
 
 export const useGetExerciseUnits = () => {
   const user = useUserContext();
-  const [lastFail, setLastFail] = useState<boolean>(false);
   const fetchData = async (): Promise<ExerciseUnitResponse> => {
     try {
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_API_URL}/exercise/unit`
       );
-      setLastFail(false);
       return response.data;
     } catch (error) {
-      setLastFail(true);
       throw error;
     }
   };
@@ -86,8 +81,6 @@ export const useGetExerciseUnits = () => {
     queryKey: ["exerciseUnits", user.accessToken],
     queryFn: fetchData,
     enabled: !user.loading,
-    staleTime: 10 * 1000, //10s
-    placeholderData: lastFail ? undefined : keepPreviousData,
   });
 };
 

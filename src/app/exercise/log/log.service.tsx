@@ -13,16 +13,13 @@ export type ExerciseResponse = Exercise[];
 
 export const useGetExercises = () => {
   const user = useUserContext();
-  const [lastFail, setLastFail] = useState<boolean>(false);
   const fetchData = async (): Promise<ExerciseResponse> => {
     try {
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_API_URL}/exercise`
       );
-      setLastFail(false);
       return response.data;
     } catch (error) {
-      setLastFail(true);
       throw error;
     }
   };
@@ -30,8 +27,6 @@ export const useGetExercises = () => {
     queryKey: ["exerciseRange", user.accessToken],
     queryFn: fetchData,
     enabled: !user.loading,
-    staleTime: 10 * 1000, //10s
-    placeholderData: lastFail ? undefined : keepPreviousData,
   });
 };
 

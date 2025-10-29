@@ -1,44 +1,26 @@
 "use client";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { Button } from "@/components/ui/button";
-import { subDays, format } from "date-fns";
+import { subDays } from "date-fns";
 import { useState } from "react";
 import { useUserContext } from "@/app/context";
 import { DataTable } from "@/components/ui/datatable";
-import { columns, Entry } from "./columns";
+import { columns } from "./columns";
 import { DateRange } from "react-day-picker";
-import { axiosInstance } from "@/lib/api";
+import { useGetEntry } from "./entry.service";
 
 export default function Entries() {
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
-  const { accessToken, isSignedIn } = useUserContext();
-  const [APIResponse, setAPIResponse] = useState<Entry[] | null>(null);
+  const { isSignedIn } = useUserContext();
 
-  const fetchAPI = async () => {
-    if (accessToken === null) {
-      throw new Error("Access token is null!");
-    }
+  const { data, refetch } = useGetEntry({ from: date?.from, to: date?.to });
 
-    //annoying little thing we have to do because of errors
-    if (date == undefined || date.from == undefined || date.to == undefined)
-      throw new Error("Dates are not defined");
-    axiosInstance
-      .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry?start=${format(
-          date.from,
-          "yyyy-MM-dd"
-        )}&end=${format(date.to, "yyyy-MM-dd")}`,
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-      )
-      .then((response) => {
-        setAPIResponse(response.data);
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-      });
+  const handleClick = () => {
+    if (date == undefined) return;
+    refetch();
   };
 
   return (
@@ -50,15 +32,13 @@ export default function Entries() {
           id="date"
           variant={"outline"}
           className={"mt-3"}
-          onClick={fetchAPI}
+          onClick={handleClick}
           disabled={!isSignedIn}
         >
           Submit
         </Button>
       </div>
-      {APIResponse && (
-        <DataTable columns={columns} data={APIResponse} paginated={true} />
-      )}
+      {data && <DataTable columns={columns} data={data} paginated={true} />}
     </>
   );
 }
