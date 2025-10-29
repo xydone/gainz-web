@@ -38,7 +38,16 @@ export function DatePicker({
             {date ? format(date, "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0 flex flex-col pt-2">
+          <Button
+            className="self-center"
+            variant="outline"
+            onClick={() => {
+              setDate(new Date());
+            }}
+          >
+            Today
+          </Button>
           <Calendar
             mode="single"
             selected={date}

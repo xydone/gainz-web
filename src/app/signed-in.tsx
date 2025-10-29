@@ -6,6 +6,8 @@ import Weight from "./data/progress/weight";
 import { useState } from "react";
 import { Nutrients } from "./types";
 
+import { DatePicker } from "@/components/ui/datepicker";
+
 interface Goal {
   value: number;
 }
@@ -23,21 +25,26 @@ export interface GoalsResponse {
   value: number;
 }
 export default function SignedIn() {
-  const date = new Date();
-  const weightStartDate = subMonths(date, 3);
-  const [goalCards, setGoalCards] = useState<(keyof Nutrients)[]>([
+  const [date, setDate] = useState<Date>(new Date());
+  const [goalCards] = useState<(keyof Nutrients)[]>([
     "calories",
     "protein",
     "sugar",
   ]);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {goalCards.map((card, i) => {
-        return <GoalsCard key={i} goalName={card} date={date} />;
-      })}
-      <NutrientDistribution className="" date={date} />
-      <QuickAdd />
-      <Weight className="" startDate={weightStartDate} endDate={date} />
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-center gap-4">
+        <DatePicker date={date} setDate={setDate} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {goalCards.map((card, i) => {
+          return <GoalsCard key={i} goalName={card} date={date} />;
+        })}
+        <NutrientDistribution className="" date={date} />
+        <QuickAdd />
+        <Weight className="" startDate={subMonths(date, 3)} endDate={date} />
+      </div>
     </div>
   );
 }
