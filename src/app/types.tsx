@@ -86,19 +86,19 @@ export const nutrientChart = {
   },
   sat_fat: {
     label: "Saturated Fat",
-    color: "var(--sat-fat)",
+    color: "var(--sat_fat)",
   },
   polyunsat_fat: {
     label: "Polyunsaturated Fat",
-    color: "var(--polyunsat-fat)",
+    color: "var(--polyunsat_fat)",
   },
   monounsat_fat: {
     label: "Monounsaturated Fat",
-    color: "var(--monounsat-fat)",
+    color: "var(--monounsat_fat)",
   },
   trans_fat: {
     label: "Trans Fat",
-    color: "var(--trans-fat)",
+    color: "var(--trans_fat)",
   },
   cholesterol: {
     label: "Cholesterol",
@@ -130,11 +130,11 @@ export const nutrientChart = {
   },
   vitamin_a: {
     label: "Vitamin A",
-    color: "var(--vitamin-a)",
+    color: "var(--vitamin_a)",
   },
   vitamin_c: {
     label: "Vitamin C",
-    color: "var(--vitamin-c)",
+    color: "var(--vitamin_c)",
   },
   calcium: {
     label: "Calcium",
@@ -146,15 +146,15 @@ export const nutrientChart = {
   },
   added_sugars: {
     label: "Added Sugars",
-    color: "var(--added-sugars)",
+    color: "var(--added_sugars)",
   },
   vitamin_d: {
     label: "Vitamin D",
-    color: "var(--vitamin-d)",
+    color: "var(--vitamin_d)",
   },
   sugar_alcohols: {
     label: "Sugar Alcohols",
-    color: "var(--sugar-alcohols)",
+    color: "var(--sugar_alcohols)",
   },
   empty: {
     label: "Sugar",

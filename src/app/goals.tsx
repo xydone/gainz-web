@@ -20,13 +20,14 @@ import {
 import { useState } from "react";
 import { axiosInstance } from "@/lib/api";
 import { useUserContext } from "./context";
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { MacronutrientMap } from "./types";
+import { MacronutrientMap, Nutrients } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { useGetActiveGoals } from "./data/progress/progress.service";
+import {
+  useGetActiveGoals,
+  useGetEntryStats,
+} from "./data/progress/progress.service";
 
 export function GoalsCard({
   className,
@@ -37,25 +38,12 @@ export function GoalsCard({
   goalName: string;
   date: Date;
 }) {
-  const user = useUserContext();
   const nutrientCaps = goalName[0].toUpperCase() + goalName.slice(1);
   const { data: goalsData, isPending } = useGetActiveGoals();
 
-  const day = format(date, "yyyy-MM-dd");
-  const fetchStats = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${day}&end=${day}`
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data: statsData } = useQuery({
-    queryKey: ["stats", user.accessToken, date],
-    queryFn: fetchStats,
+  const { data: statsData } = useGetEntryStats({
+    startDate: date,
+    endDate: date,
   });
   if (isPending) {
     return <Loading />;
@@ -64,7 +52,7 @@ export function GoalsCard({
   if (statsData == undefined || goalsData == undefined || !goalsData[goalName])
     return <NoGoalsCard nutrient={goalName} goal={goalsData[goalName]} />;
   const percentage = Math.round(
-    (statsData[goalName] / goalsData[goalName]) * 100
+    (statsData[goalName as keyof Nutrients] / goalsData[goalName]) * 100
   );
   return (
     <Card className={cn("relative", className)}>

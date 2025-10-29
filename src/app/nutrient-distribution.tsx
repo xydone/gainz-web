@@ -13,13 +13,23 @@ import {
 } from "@/components/ui/chart";
 import { Label, Pie, PieChart } from "recharts";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { axiosInstance } from "@/lib/api";
-import { useUserContext } from "./context";
-import { nutrientChart } from "./types";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+
+import { MacronutrientMap, nutrientChart, Nutrients } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useGetEntryStats } from "./data/progress/progress.service";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 
 const chartConfig = nutrientChart satisfies ChartConfig;
 
@@ -36,57 +46,34 @@ export default function NutrientDistribution({
   className: string;
   date: Date;
 }) {
-  const user = useUserContext();
-  const today = format(date, "yyyy-MM-dd");
-  const fetchEntry = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats?start=${today}&end=${today}`
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["stats", user.accessToken, date],
-    queryFn: fetchEntry,
+  const { data, isLoading, error } = useGetEntryStats({
+    startDate: date,
+    endDate: date,
   });
 
-  if (isLoading) {
-    return <NutrientGoalsCardSkeleton />;
-  }
+  const [nutrients, setNutrients] = useState<(keyof Nutrients)[]>([
+    "carbs",
+    "fat",
+    "protein",
+  ]);
   if (error) {
     return <ErrorResponse className={className} />;
   }
-  const chartData: ChartItem[] = [
-    {
-      nutrient: "protein",
-      intake: Math.round(data.protein),
-      fill: "var(--color-protein)",
-    },
-    {
-      nutrient: "carbs",
-      intake: Math.round(data.carbs),
-      fill: "var(--color-carbs)",
-    },
-    {
-      nutrient: "fat",
-      intake: Math.round(data.fat),
-      fill: "var(--color-fat)",
-    },
-    {
-      nutrient: "sugar",
-      intake: Math.round(data.sugar),
-      fill: "var(--color-sugar)",
-    },
-  ];
+  if (isLoading || data == undefined) {
+    return <NutrientGoalsCardSkeleton />;
+  }
+
+  const chartData: ChartItem[] = nutrients.map((nutrient) => ({
+    nutrient,
+    intake: Math.round(data[nutrient]),
+    fill: `var(--color-${nutrient})`,
+  }));
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn("relative", className)}>
       <CardHeader>
         <CardTitle>Nutrient Distribution</CardTitle>
         <CardDescription>Nutrient Distribution for today</CardDescription>
+        <Filter lines={nutrients} setLines={setNutrients} />
       </CardHeader>
       <CardContent>
         <ChartContainer
@@ -207,14 +194,13 @@ function ErrorResponse({ className }: { className: string }) {
 }
 
 function CustomLegend({ data }: { data: ChartItem[] }) {
-  // Create a set of the keys that actually exist in the data
   const dataKeys = new Set(data.map((item) => item.nutrient));
 
   return (
     <ScrollArea className="rounded-md border whitespace-nowrap">
       <div className="flex flex-row gap-4 justify-center space-x-4 p-4">
         {Object.keys(chartConfig)
-          .filter((key) => dataKeys.has(key)) // ✅ only include items from data
+          .filter((key) => dataKeys.has(key))
           .map((key, i) => {
             //@ts-expect-error indexing chartConfig
             const cfg = chartConfig[key];
@@ -233,6 +219,69 @@ function CustomLegend({ data }: { data: ChartItem[] }) {
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
+  );
+}
+
+function Filter({
+  lines: filters,
+  setLines: setFilters,
+}: {
+  lines: (keyof Nutrients)[];
+  setLines: Dispatch<SetStateAction<(keyof Nutrients)[]>>;
+}) {
+  const allowed = (Object.keys(MacronutrientMap) as (keyof Nutrients)[]).filter(
+    (key) => key !== "calories"
+  );
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="absolute top-5 right-5 text-muted">
+          <Settings />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Display lines</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-3 ">
+          {allowed.map((el, i) => {
+            return (
+              <div key={i} className="flex gap-3 items-center">
+                <Checkbox
+                  value={el}
+                  checked={(() => {
+                    if (filters && filters.some((element) => element === el)) {
+                      return true;
+                    }
+                    return false;
+                  })()}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setFilters((prevLines) =>
+                        prevLines ? [...prevLines, el] : [el]
+                      );
+                    } else {
+                      setFilters(
+                        (prevLines) =>
+                          prevLines?.filter((element) => element !== el) || null
+                      );
+                    }
+                  }}
+                />
+                <div
+                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  style={{
+                    backgroundColor: `var(--${el})`,
+                  }}
+                />
+                <label>{MacronutrientMap[el]}</label>
+              </div>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

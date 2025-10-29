@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserContext } from "../../context";
 import { format } from "date-fns";
 import { z } from "zod";
-import { Measurements } from "@/app/types";
+import { Measurements, Nutrients } from "@/app/types";
 
 export const useGetDetailedStats = ({
   startDate,
@@ -43,10 +43,12 @@ export const useGetEntryStats = ({
   endDate: Date;
 }) => {
   const user = useUserContext();
+  const startString = format(startDate, "yyyy-MM-dd");
+  const endString = format(endDate, "yyyy-MM-dd");
 
-  const fetchData = async () => {
+  const fetchData = async (): Promise<Nutrients> => {
     try {
-      const response = await axiosInstance.get(
+      const response = await axiosInstance.get<Nutrients>(
         `${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats`,
         {
           params: {
@@ -63,7 +65,7 @@ export const useGetEntryStats = ({
   };
 
   return useQuery({
-    queryKey: ["entries", startDate, endDate, user.accessToken],
+    queryKey: ["entries", startString, endString, user.accessToken],
     queryFn: fetchData,
   });
 };
