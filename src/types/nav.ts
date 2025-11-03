@@ -1,5 +1,5 @@
 export interface NavItem {
-  title: string;
-  href?: string;
-  popover?: NavItem[];
+	title: string;
+	href?: string;
+	popover?: NavItem[];
 }

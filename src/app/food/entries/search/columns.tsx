@@ -1,12 +1,12 @@
 import {
-  AddItems,
-  Food,
-  ImportantNutrients,
-  NameColumns,
+	AddItems,
+	type Food,
+	ImportantNutrients,
+	NameColumns,
 } from "@/components/table/BasicColumn";
 
 export const columns = [
-  ...NameColumns<Food>(),
-  ...ImportantNutrients<Food>(),
-  AddItems,
+	...NameColumns<Food>(),
+	...ImportantNutrients<Food>(),
+	AddItems,
 ];

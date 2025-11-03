@@ -3,108 +3,109 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: hsl(40, 50%, 98%);
-    --foreground: hsl(0, 0%, 0%);
-    --accent: hsl(0, 0%, 78%);
-    --accent-strong: hsl(0, 1%, 67%);
-    --muted-foreground: hsl(0, 0%, 50%);
-    --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(0, 0%, 3.9%);
-    --popover: hsl(0, 0%, 100%);
-    --popover-foreground: hsl(0, 0%, 3.9%);
-    --primary: hsl(60, 3%, 88%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 96.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
-    --destructive: hsl(0, 84.2%, 60.2%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 89.8%);
-    --input: hsl(0, 0%, 89.8%);
-    --ring: hsl(0, 0%, 3.9%);
-    --chart-1: hsl(0, 0%, 0%);
-    --protein: hsl(359, 47%, 71%);
-    --carbs: hsl(52, 46%, 31%);
-    --fat: hsl(77, 47%, 57%);
-    --goal: hsla(135, 100%, 27%, 0.3);
-    --weight-scale: hsla(260, 66%, 56%, 0.568);
-    --weight-estimated: hsl(259, 73%, 74%);
-    --chart-empty: hsl(0, 0%, 50%);
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: hsl(240, 10%, 4%);
-    --foreground: hsl(0, 0%, 98%);
-    --accent-strong: hsl(240, 5%, 24%);
-    --card: hsl(0, 0%, 3.9%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 3.9%);
-    --popover-foreground: hsl(0, 0%, 98%);
-    --primary: hsl(240, 4%, 9%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 14.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 33%);
-    --muted-foreground: hsl(0, 0%, 50%);
-    --accent: hsl(240, 3%, 15%);
-    --accent-foreground: hsl(0, 0%, 98%);
-    --destructive: hsl(0, 62.8%, 30.6%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 14.9%);
-    --input: hsl(0, 0%, 14.9%);
-    --ring: hsl(0, 0%, 83.1%);
-    --chart-1: hsl(0, 0%, 98%);
+	:root {
+		--background: hsl(40, 50%, 98%);
+		--foreground: hsl(0, 0%, 0%);
+		--accent: hsl(0, 0%, 78%);
+		--accent-strong: hsl(0, 1%, 67%);
+		--muted-foreground: hsl(0, 0%, 50%);
+		--card: hsl(0, 0%, 100%);
+		--card-foreground: hsl(0, 0%, 3.9%);
+		--popover: hsl(0, 0%, 100%);
+		--popover-foreground: hsl(0, 0%, 3.9%);
+		--primary: hsl(60, 3%, 88%);
+		--primary-foreground: hsl(0, 0%, 98%);
+		--secondary: hsl(0, 0%, 96.1%);
+		--secondary-foreground: hsl(0, 0%, 9%);
+		--muted: hsl(0, 0%, 96.1%);
+		--accent-foreground: hsl(0, 0%, 9%);
+		--destructive: hsl(0, 84.2%, 60.2%);
+		--destructive-foreground: hsl(0, 0%, 98%);
+		--border: hsl(0, 0%, 89.8%);
+		--input: hsl(0, 0%, 89.8%);
+		--ring: hsl(0, 0%, 3.9%);
+		--chart-1: hsl(0, 0%, 0%);
+		--protein: hsl(359, 47%, 71%);
+		--carbs: hsl(52, 46%, 31%);
+		--fat: hsl(77, 47%, 57%);
+		--goal: hsla(135, 100%, 27%, 0.3);
+		--weight-scale: hsla(260, 66%, 56%, 0.568);
+		--weight-estimated: hsl(259, 73%, 74%);
+		--chart-empty: hsl(0, 0%, 50%);
+		--radius: 0.5rem;
+	}
+	.dark {
+		--background: hsl(240, 10%, 4%);
+		--foreground: hsl(0, 0%, 98%);
+		--accent-strong: hsl(240, 5%, 24%);
+		--card: hsl(0, 0%, 3.9%);
+		--card-foreground: hsl(0, 0%, 98%);
+		--popover: hsl(0, 0%, 3.9%);
+		--popover-foreground: hsl(0, 0%, 98%);
+		--primary: hsl(240, 4%, 9%);
+		--primary-foreground: hsl(0, 0%, 9%);
+		--secondary: hsl(0, 0%, 14.9%);
+		--secondary-foreground: hsl(0, 0%, 98%);
+		--muted: hsl(0, 0%, 33%);
+		--muted-foreground: hsl(0, 0%, 50%);
+		--accent: hsl(240, 3%, 15%);
+		--accent-foreground: hsl(0, 0%, 98%);
+		--destructive: hsl(0, 62.8%, 30.6%);
+		--destructive-foreground: hsl(0, 0%, 98%);
+		--border: hsl(0, 0%, 14.9%);
+		--input: hsl(0, 0%, 14.9%);
+		--ring: hsl(0, 0%, 83.1%);
+		--chart-1: hsl(0, 0%, 98%);
 
-    --calories: hsla(34, 66%, 56%, 0.8);
+		--calories: hsla(34, 66%, 56%, 0.8);
 
-    --fat: hsla(61, 90%, 62%, 0.8);
-    --sat_fat: hsla(61, 80%, 52%, 0.8);
-    --polyunsat_fat: hsla(61, 70%, 42%, 0.8);
-    --monounsat_fat: hsla(61, 60%, 32%, 0.8);
-    --trans_fat: hsla(61, 50%, 22%, 0.8);
+		--fat: hsla(61, 90%, 62%, 0.8);
+		--sat_fat: hsla(61, 80%, 52%, 0.8);
+		--polyunsat_fat: hsla(61, 70%, 42%, 0.8);
+		--monounsat_fat: hsla(61, 60%, 32%, 0.8);
+		--trans_fat: hsla(61, 50%, 22%, 0.8);
 
-    --protein: hsla(0, 75%, 43%, 0.8);
+		--protein: hsla(0, 75%, 43%, 0.8);
 
-    --carbs: hsla(118, 66%, 66%, 0.8);
-    --sugar: hsla(118, 46%, 36%, 0.8);
-    --fiber: hsla(118, 26%, 26%, 0.8);
-    --added_sugars: hsla(118, 16%, 16%, 0.8);
-    --sugar_alcohols: hsla(118, 6%, 6%, 0.8);
+		--carbs: hsla(118, 66%, 66%, 0.8);
+		--sugar: hsla(118, 46%, 36%, 0.8);
+		--fiber: hsla(118, 26%, 26%, 0.8);
+		--added_sugars: hsla(118, 16%, 16%, 0.8);
+		--sugar_alcohols: hsla(118, 6%, 6%, 0.8);
 
-    --sodium: hsla(337, 66%, 56%, 0.8);
-    --potassium: hsla(337, 56%, 46%, 0.8);
-    --iron: hsla(337, 46%, 46%, 0.8);
-    --calcium: hsla(337, 36%, 36%, 0.8);
+		--sodium: hsla(337, 66%, 56%, 0.8);
+		--potassium: hsla(337, 56%, 46%, 0.8);
+		--iron: hsla(337, 46%, 46%, 0.8);
+		--calcium: hsla(337, 36%, 36%, 0.8);
 
-    --vitamin_a: hsla(187, 66%, 56%, 0.8);
-    --vitamin_c: hsla(187, 56%, 56%, 0.8);
-    --vitamin_d: hsla(187, 46%, 56%, 0.8);
+		--vitamin_a: hsla(187, 66%, 56%, 0.8);
+		--vitamin_c: hsla(187, 56%, 56%, 0.8);
+		--vitamin_d: hsla(187, 46%, 56%, 0.8);
 
-    --cholesterol: hsla(0, 66%, 56%, 0.8);
+		--cholesterol: hsla(0, 66%, 56%, 0.8);
 
-    --weight: hsla(260, 66%, 56%, 0.568);
-    --weight-scale: hsla(260, 66%, 56%, 0.568);
-    --weight-estimated: hsla(259, 73%, 74%, 0.9);
-    --chart-empty: hsl(0, 0%, 50%);
-    --radius: 0.5rem;
-  }
+		--weight: hsla(260, 66%, 56%, 0.568);
+		--weight-scale: hsla(260, 66%, 56%, 0.568);
+		--weight-estimated: hsla(259, 73%, 74%, 0.9);
+		--chart-empty: hsl(0, 0%, 50%);
+		--radius: 0.5rem;
+	}
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }
 
 body {
-  color: var(--text-color);
-  background-color: var(--background);
-  margin: 0;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
+	color: var(--text-color);
+	background-color: var(--background);
+	margin: 0;
+	font-family:
+		Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+		Bitstream Vera Sans Mono, Courier New, monospace;
 }
