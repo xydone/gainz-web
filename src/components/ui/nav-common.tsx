@@ -27,12 +27,24 @@ import Link from "next/link";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import { Button } from "./button";
 
-export const FormSchema = z.object({
+export const SignInFormSchema = z.object({
+	username: z.string().nonempty(),
+	password: z.string().nonempty(),
+});
+
+export const SignUpFormSchema = z.object({
+	display_name: z.string().nonempty(),
 	username: z.string().nonempty(),
 	password: z.string().nonempty(),
 });
 
 export enum SignInStatus {
+	successful = 0,
+	rejected = 1,
+	serverError = 2,
+}
+
+export enum SignUpStatus {
 	successful = 0,
 	rejected = 1,
 	serverError = 2,
@@ -44,14 +56,14 @@ export function SignInForm({
 	setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
 	const user = useUserContext();
-	const form = useForm<z.infer<typeof FormSchema>>({
-		resolver: zodResolver(FormSchema),
+	const form = useForm<z.infer<typeof SignInFormSchema>>({
+		resolver: zodResolver(SignInFormSchema),
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [signInStatus, setSignInStatus] = useState<SignInStatus | undefined>(
 		undefined,
 	);
-	function onSubmit(data: z.infer<typeof FormSchema>) {
+	function onSubmit(data: z.infer<typeof SignInFormSchema>) {
 		axios
 			.post(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
 				username: data.username,
@@ -127,7 +139,6 @@ export function SignInForm({
 					type="submit"
 					variant={"outline"}
 					className={"place-self-center"}
-					disabled={user.isSignedIn}
 				>
 					Submit
 				</Button>
@@ -140,6 +151,119 @@ export function SignInForm({
 				{signInStatus === SignInStatus.serverError && (
 					<ErrorMessage>
 						A server error occurred while signing in. Please try again later!
+					</ErrorMessage>
+				)}
+			</form>
+		</Form>
+	);
+}
+export function SignUpForm({
+	setOpen,
+}: {
+	setOpen: Dispatch<SetStateAction<boolean>>;
+}) {
+	const form = useForm<z.infer<typeof SignUpFormSchema>>({
+		resolver: zodResolver(SignUpFormSchema),
+	});
+	const [showPassword, setShowPassword] = useState(false);
+	const [signUpStatus, setSignUpStatus] = useState<SignUpStatus | undefined>(
+		undefined,
+	);
+	function onSubmit(data: z.infer<typeof SignUpFormSchema>) {
+		axios
+			.post(`${process.env.NEXT_PUBLIC_API_URL}/user/`, {
+				display_name: data.display_name,
+				username: data.username,
+				password: data.password,
+			})
+			.then(() => {
+				setOpen(false);
+			})
+			.catch((error: AxiosError) => {
+				if (error.status === 401) {
+					setSignUpStatus(SignUpStatus.rejected);
+				} else {
+					console.log({ error });
+					setSignUpStatus(SignUpStatus.serverError);
+				}
+			});
+	}
+
+	return (
+		<Form {...form}>
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className="flex flex-col gap-5"
+			>
+				<FormField
+					control={form.control}
+					name={"display_name"}
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Display name</FormLabel>
+							<FormControl>
+								<Input onChange={field.onChange} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name={"username"}
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Username</FormLabel>
+							<FormControl>
+								<Input onChange={field.onChange} />
+							</FormControl>
+
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name={"password"}
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Password</FormLabel>
+							<FormControl>
+								<Input
+									onChange={field.onChange}
+									type={showPassword ? "text" : "password"}
+								/>
+							</FormControl>
+
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<div className="flex gap-3">
+					<Checkbox
+						className="place-self-center"
+						checked={showPassword}
+						onCheckedChange={() => setShowPassword(!showPassword)}
+					/>
+					<div>
+						<label>Show password</label>
+					</div>
+				</div>
+				<Button
+					type="submit"
+					variant={"outline"}
+					className={"place-self-center"}
+				>
+					Submit
+				</Button>
+				{signUpStatus === SignUpStatus.rejected && (
+					<ErrorMessage>Username already exists!</ErrorMessage>
+				)}
+
+				{signUpStatus === SignUpStatus.serverError && (
+					<ErrorMessage>
+						A server error occurred while signing up. Please try again later!
 					</ErrorMessage>
 				)}
 			</form>

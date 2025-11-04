@@ -1,7 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { ChevronDown, LogIn,CircleUser, Moon, Sun, User } from "lucide-react";
+import { ChevronDown, LogIn, CircleUser, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import {
@@ -23,12 +23,13 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import { ProfileMenu, SignInForm } from "./nav-common";
+import { ProfileMenu, SignInForm, SignUpForm } from "./nav-common";
 
 export default function MainNav({ className }: { className?: string }) {
 	const { theme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
-	const [open, setOpen] = useState(false);
+	const [isSignInOpen, setIsSignInOpen] = useState(false);
+	const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 	useEffect(() => setMounted(true), []);
 	return (
 		<nav className={cn("hidden md:flex flex-row gap-5", className)}>
@@ -78,15 +79,26 @@ export default function MainNav({ className }: { className?: string }) {
 							<User />
 						</Button>
 					</DropdownMenuTrigger>
-					<MenuManager setOpen={setOpen} />
+					<MenuManager
+						setIsSignInOpen={setIsSignInOpen}
+						setIsSignUpOpen={setIsSignUpOpen}
+					/>
 				</DropdownMenu>
 
-				<Dialog open={open} onOpenChange={setOpen}>
+				<Dialog open={isSignUpOpen} onOpenChange={setIsSignUpOpen}>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>Sign-up</DialogTitle>
+						</DialogHeader>
+						<SignUpForm setOpen={setIsSignUpOpen} />
+					</DialogContent>
+				</Dialog>
+				<Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
 					<DialogContent className="sm:max-w-[425px]">
 						<DialogHeader>
 							<DialogTitle>Sign-in</DialogTitle>
 						</DialogHeader>
-						<SignInForm setOpen={setOpen} />
+						<SignInForm setOpen={setIsSignInOpen} />
 					</DialogContent>
 				</Dialog>
 			</div>
@@ -95,22 +107,25 @@ export default function MainNav({ className }: { className?: string }) {
 }
 
 function MenuManager({
-	setOpen,
+	setIsSignInOpen,
+	setIsSignUpOpen,
 }: {
-	setOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSignUpOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSignInOpen: Dispatch<SetStateAction<boolean>>;
 }) {
 	const user = useUserContext();
 
 	if (user.isSignedIn) return <ProfileMenu user={user} />;
 	return (
 		<DropdownMenuContent>
-				<DropdownMenuItem onClick={() => setOpen(true)}>
+			<DropdownMenuItem onClick={() => setIsSignInOpen(true)}>
 				<CircleUser />
-				Log in
-			</DropdownMenuItem><DropdownMenuItem onClick={() => setOpen(true)}>
-				<LogIn />
-				Sign up
+				Sign-in
 			</DropdownMenuItem>
-    </DropdownMenuContent>
+			<DropdownMenuItem onClick={() => setIsSignUpOpen(true)}>
+				<LogIn />
+				Sign-up{" "}
+			</DropdownMenuItem>
+		</DropdownMenuContent>
 	);
 }

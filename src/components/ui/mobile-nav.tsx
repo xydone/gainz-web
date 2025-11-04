@@ -13,7 +13,15 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-import { ChevronDown, LogIn, Menu, Moon, Sun, User } from "lucide-react";
+import {
+	ChevronDown,
+	CircleUser,
+	LogIn,
+	Menu,
+	Moon,
+	Sun,
+	User,
+} from "lucide-react";
 
 import { useUserContext } from "@/app/context";
 import { navLinksConfig } from "@/config/nav-links";
@@ -29,12 +37,13 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { ProfileMenu, SignInForm } from "./nav-common";
+import { ProfileMenu, SignUpForm, SignInForm } from "./nav-common";
 import { Separator } from "./separator";
 export default function MobileNav({ className }: { className?: string }) {
 	const { theme, setTheme } = useTheme();
+	const [isSignInOpen, setSignInOpen] = useState(false);
+	const [isSignUpOpen, setSignUpOpen] = useState(false);
 	const [open, setOpen] = useState(false);
-
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
 	return (
@@ -101,12 +110,22 @@ export default function MobileNav({ className }: { className?: string }) {
 						<User />
 					</Button>
 				</DropdownMenuTrigger>
-				<MenuManager setOpen={setOpen} />
+				<MenuManager
+					setSignInOpen={setSignInOpen}
+					setSignUpOpen={setSignUpOpen}
+				/>
 			</DropdownMenu>
-			<Dialog open={open} onOpenChange={setOpen}>
+			<Dialog open={isSignInOpen} onOpenChange={setSignInOpen}>
 				<DialogContent>
-					<DialogTitle>Log In</DialogTitle>
-					<SignInForm setOpen={setOpen} />
+					<DialogTitle>Sign-in</DialogTitle>
+					<SignInForm setOpen={setSignInOpen} />
+				</DialogContent>
+			</Dialog>
+
+			<Dialog open={isSignUpOpen} onOpenChange={setSignUpOpen}>
+				<DialogContent>
+					<DialogTitle>Sign-up</DialogTitle>
+					<SignUpForm setOpen={setSignUpOpen} />
 				</DialogContent>
 			</Dialog>
 		</nav>
@@ -114,17 +133,24 @@ export default function MobileNav({ className }: { className?: string }) {
 }
 
 function MenuManager({
-	setOpen,
+	setSignInOpen,
+	setSignUpOpen,
 }: {
-	setOpen: Dispatch<SetStateAction<boolean>>;
+	setSignInOpen: Dispatch<SetStateAction<boolean>>;
+	setSignUpOpen: Dispatch<SetStateAction<boolean>>;
 }) {
 	const user = useUserContext();
 	if (user.isSignedIn) return <ProfileMenu className="mx-5" user={user} />;
 	return (
 		<DropdownMenuContent className="mx-5">
-			<DropdownMenuItem onClick={() => setOpen(true)}>
+			<DropdownMenuItem onClick={() => setSignInOpen(true)}>
+				<CircleUser />
+				Sign-in
+			</DropdownMenuItem>
+
+			<DropdownMenuItem onClick={() => setSignUpOpen(true)}>
 				<LogIn />
-				Log in
+				Sign-up
 			</DropdownMenuItem>
 		</DropdownMenuContent>
 	);
