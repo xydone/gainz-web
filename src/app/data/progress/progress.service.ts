@@ -70,20 +70,19 @@ export const useGetWeight = ({
 	endDate: Date;
 }) => {
 	const user = useUserContext();
+	const startDateString = format(startDate, "yyyy-MM-dd");
+	const endDateString = format(endDate, "yyyy-MM-dd");
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
 			`${
 				process.env.NEXT_PUBLIC_API_URL
-			}/user/measurement?type=weight&start=${format(
-				startDate,
-				"yyyy-MM-dd",
-			)}&end=${format(endDate, "yyyy-MM-dd")}`,
+			}/user/measurement?type=weight&start=${startDateString}&end=${endDateString}`,
 		);
 		return response.data;
 	};
 
 	return useQuery({
-		queryKey: ["weight", startDate, endDate, user.accessToken],
+		queryKey: ["getWeight", startDateString, endDateString, user.accessToken],
 		queryFn: fetchData,
 	});
 };

@@ -129,7 +129,14 @@ export default function Weight({
 
 	// Processed data or empty array if loading/error
 	const processedData = data ? processData(data, endDate) : [];
-
+	if (error && !isLoading) {
+		return (
+			<NoResponse
+				title="No weight measurements found"
+				description="No weight measurements found in the given range"
+			/>
+		);
+	}
 	return (
 		<Card className={cn("", className)}>
 			<CardHeader>
@@ -141,12 +148,6 @@ export default function Weight({
 			</CardHeader>
 			<CardContent className="relative">
 				{isLoading && <WeightCardSkeleton />}
-				{error && !isLoading && (
-					<NoResponse
-						title="No weight measurements found"
-						description="No weight measurements found in the given range"
-					/>
-				)}
 
 				<ChartContainer
 					config={chartConfig}
