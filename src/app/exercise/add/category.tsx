@@ -17,14 +17,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 
-import { useUserContext } from "@/app/context";
-import { axiosInstance } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { postCategory } from "./add-exercise.service";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useUserContext } from "@/app/context";
 
 export const FormSchema = z.object({
 	name: z.string().nonempty(),
@@ -33,33 +32,23 @@ export const FormSchema = z.object({
 
 export default function Category({ className }: { className?: string }) {
 	const user = useUserContext();
-
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 	});
 
-	const { mutate, error } = useMutation({
-		mutationFn: async (form: FormData) => {
-			try {
-				const response = await axiosInstance.post(
-					`${process.env.NEXT_PUBLIC_API_URL}/exercise/category`,
-					{ ...form },
-					{
-						headers: { Authorization: `Bearer ${user.accessToken}` },
-					},
-				);
-				toast.success("Category created successfully!");
+	const onSubmit = (form: z.infer<typeof FormSchema>) => {
+		try {
+			postCategory(form);
 
-				return response.data;
-			} catch {
-				toast.error("Failed to create category. Please try again.");
-			}
-		},
-	});
+			toast.success("Category created successfully!");
+		} catch {
+			toast.error("Failed to create category. Please try again.");
+		}
+	};
+
 	return (
 		<Form {...form}>
-			{/* @ts-expect-error Weird form error */}
-			<form onSubmit={form.handleSubmit(mutate)} className={cn(className)}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
 				<Card className="flex flex-col">
 					<CardHeader>
 						<CardTitle>{"Category"}</CardTitle>
@@ -108,11 +97,6 @@ export default function Category({ className }: { className?: string }) {
 					>
 						Submit
 					</Button>
-					{error && (
-						<CardDescription className="self-center mb-3 text-destructive">
-							Error! Please try again.
-						</CardDescription>
-					)}
 				</Card>
 			</form>
 		</Form>

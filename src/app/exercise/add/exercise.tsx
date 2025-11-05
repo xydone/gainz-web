@@ -17,14 +17,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-
 import { useUserContext } from "@/app/context";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +24,14 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { postExercise, useGetCategory } from "./add-exercise.service";
+import {
+	MultiSelect,
+	MultiSelectContent,
+	MultiSelectGroup,
+	MultiSelectItem,
+	MultiSelectTrigger,
+	MultiSelectValue,
+} from "@/components/ui/multi-select";
 
 interface Category {
 	id: number;
@@ -44,7 +44,7 @@ export const FormSchema = z.object({
 	description: z.string().optional(),
 	base_amount: z.coerce.number().min(1),
 	base_unit: z.string().nonempty(),
-	category_id: z.coerce.number(),
+	category_ids: z.array(z.coerce.number()),
 });
 
 export default function Exercise({ className }: { className?: string }) {
@@ -135,24 +135,29 @@ export default function Exercise({ className }: { className?: string }) {
 						/>
 						<FormField
 							control={form.control}
-							name={"category_id"}
+							name={"category_ids"}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Category</FormLabel>
-									<Select onValueChange={field.onChange}>
+									<MultiSelect onValuesChange={field.onChange}>
 										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Select a category" />
-											</SelectTrigger>
+											<MultiSelectTrigger className="w-full">
+												<MultiSelectValue placeholder="Select a category" />
+											</MultiSelectTrigger>
 										</FormControl>
-										<SelectContent>
-											{data?.map((element: Category) => (
-												<SelectItem value={`${element.id}`} key={element.id}>
-													{element.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+										<MultiSelectContent>
+											<MultiSelectGroup>
+												{data?.map((element: Category) => (
+													<MultiSelectItem
+														value={`${element.id}`}
+														key={element.id}
+													>
+														{element.name}
+													</MultiSelectItem>
+												))}
+											</MultiSelectGroup>
+										</MultiSelectContent>
+									</MultiSelect>
 									<FormMessage />
 								</FormItem>
 							)}
