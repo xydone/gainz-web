@@ -1,9 +1,7 @@
 "use client";
 
-import { FrontBody } from "@/components/ui/body";
-
+import Body, { SlugList } from "@/components/ui/body/index";
 import NoResponse from "@/components/ui/NoResponseCard";
-import { frontBodyParts } from "@/components/ui/body-part";
 import { DataTable } from "@/components/ui/datatable";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -27,13 +25,11 @@ export default function ExerciseBreakdown({
 		endDate,
 	});
 
-	const [frontBody, setFrontBody] = useState(() =>
-		initCategories(frontBodyParts),
-	);
+	const [slug, setSlug] = useState(() => initCategories(SlugList));
 
 	useEffect(() => {
 		if (data) {
-			setFrontBody(countAndScaleCategories(data, frontBodyParts));
+			setSlug(countAndScaleCategories(data, SlugList));
 		}
 	}, [data]);
 	const handleDeleted = () => {
@@ -52,9 +48,10 @@ export default function ExerciseBreakdown({
 			/>
 		);
 	}
-
-	const createTransparentColor = (percent: number) =>
-		`color-mix(in srgb, var(--protein) ${percent}%, transparent)`;
+	const bodyData = Object.keys(slug).map((key) => {
+		return { slug: key, intensity: slug[key] };
+	});
+	console.log(bodyData);
 	return (
 		<div
 			className={cn(
@@ -62,24 +59,8 @@ export default function ExerciseBreakdown({
 				className,
 			)}
 		>
-			<FrontBody
-				className="w-3/4"
-				styles={{
-					outline: "var(--foreground)",
-					calves: createTransparentColor(frontBody.calves),
-					quads: createTransparentColor(frontBody.quads),
-					abs: createTransparentColor(frontBody.abs),
-					biceps: createTransparentColor(frontBody.biceps),
-					obliques: createTransparentColor(frontBody.obliques),
-					hands: createTransparentColor(frontBody.hands),
-					forearms: createTransparentColor(frontBody.forearms),
-					"front-shoulders": createTransparentColor(
-						frontBody["front-shoulders"],
-					),
-					chest: createTransparentColor(frontBody.chest),
-					traps: createTransparentColor(frontBody.traps),
-				}}
-			/>
+			<Body data={bodyData} gender="male" side="front" scale={1.7} />
+
 			<DataTable<ExerciseEntry, unknown>
 				columns={Columns({ handleDeleted, handleEdited })}
 				data={data}
