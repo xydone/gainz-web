@@ -51,7 +51,7 @@ export type BodyProps = {
 	data: ReadonlyArray<BodyPart>;
 	scale?: number;
 	side?: "front" | "back";
-	gender?: "male" | "female";
+	sex?: "male" | "female";
 	onBodyPartPress?: (b: BodyPart, side?: "left" | "right") => void;
 	border?: string | "none";
 	disabledParts?: Slug[];
@@ -65,7 +65,7 @@ const Body = ({
 	data,
 	scale = 1,
 	side = "front",
-	gender = "male",
+	sex = "male",
 	onBodyPartPress,
 	border = "#dfdfdf",
 	disabledParts = [],
@@ -84,7 +84,6 @@ const Body = ({
 				.map((d) => {
 					const basePart = filteredMap.get(d.slug)!;
 					const intensity = dataMap.get(d.slug)?.intensity;
-
 					return {
 						...basePart,
 						color:
@@ -115,10 +114,10 @@ const Body = ({
 	const isPartDisabled = (slug?: Slug) => slug && disabledParts.includes(slug);
 
 	const renderBodySvg = (bodyToRender: ReadonlyArray<BodyPart>) => {
-		const SvgWrapper = gender === "male" ? SvgMaleWrapper : SvgFemaleWrapper;
+		const SvgWrapper = sex === "male" ? SvgMaleWrapper : SvgFemaleWrapper;
 
 		return (
-			<SvgWrapper side={side} scale={scale} border={border}>
+			<SvgWrapper side={side} scale={scale} border={"none"}>
 				{mergedBodyParts(bodyToRender).map((bodyPart: BodyPart) => {
 					const commonPaths = (bodyPart.path?.common || []).map((path) => {
 						const dataCommonPath = data.find((d) => d.slug === bodyPart.slug)
@@ -136,6 +135,10 @@ const Body = ({
 								id={bodyPart.slug}
 								fill={dataCommonPath ? getColorToFill(bodyPart) : "#3f3f3f"}
 								d={path}
+								stroke={border}
+								strokeWidth="1"
+								strokeOpacity="50%"
+								vectorEffect="non-scaling-stroke"
 							/>
 						);
 					});
@@ -155,6 +158,10 @@ const Body = ({
 								id={bodyPart.slug}
 								fill={isOnlyRight ? "#3f3f3f" : bodyPart.color}
 								d={path}
+								stroke={border}
+								strokeWidth="1"
+								strokeOpacity="50%"
+								vectorEffect="non-scaling-stroke"
 							/>
 						);
 					});
@@ -173,6 +180,10 @@ const Body = ({
 								id={bodyPart.slug}
 								fill={isOnlyLeft ? "#3f3f3f" : bodyPart.color}
 								d={path}
+								stroke={border}
+								strokeWidth="1"
+								strokeOpacity="50%"
+								vectorEffect="non-scaling-stroke"
 							/>
 						);
 					});
@@ -183,7 +194,7 @@ const Body = ({
 		);
 	};
 
-	if (gender === "female") {
+	if (sex === "female") {
 		return renderBodySvg(side === "front" ? bodyFemaleFront : bodyFemaleBack);
 	}
 

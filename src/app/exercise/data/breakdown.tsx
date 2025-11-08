@@ -11,6 +11,7 @@ import {
 	type ExerciseRangeResponse,
 	useGetExerciseRange,
 } from "./entry.service";
+import { Button } from "@/components/ui/button";
 export default function ExerciseBreakdown({
 	className,
 	startDate,
@@ -26,6 +27,8 @@ export default function ExerciseBreakdown({
 	});
 
 	const [slug, setSlug] = useState(() => initCategories(SlugList));
+	const [isFront, setFront] = useState<boolean>(true);
+	const [isMale, setMale] = useState<boolean>(true);
 
 	useEffect(() => {
 		if (data) {
@@ -51,20 +54,35 @@ export default function ExerciseBreakdown({
 	const bodyData = Object.keys(slug).map((key) => {
 		return { slug: key, intensity: slug[key] };
 	});
-	console.log(bodyData);
 	return (
 		<div
 			className={cn(
-				"flex flex-col w-3/4 mx-auto gap-4 items-center sm:flex-row sm:items-start",
+				"flex flex-col w-full mx-4 lg:flex-row lg:items-start lg:justify-center",
 				className,
 			)}
 		>
-			<Body data={bodyData} gender="male" side="front" scale={1.7} />
-
-			<DataTable<ExerciseEntry, unknown>
-				columns={Columns({ handleDeleted, handleEdited })}
-				data={data}
-			/>
+			<div className="flex flex-col order-2 self-center items-center lg:order-1">
+				<Body
+					data={bodyData}
+					sex={isMale ? "male" : "female"}
+					scale={1}
+					side={isFront ? "front" : "back"}
+				/>
+				<div className="flex flex-row gap-2">
+					<Button variant="outline" onClick={() => setFront(!isFront)}>
+						Rotate
+					</Button>
+					<Button variant="outline" onClick={() => setMale(!isMale)}>
+						Change sex
+					</Button>
+				</div>
+			</div>
+			<div className="order-1 lg:order-2">
+				<DataTable<ExerciseEntry, unknown>
+					columns={Columns({ handleDeleted, handleEdited })}
+					data={data}
+				/>
+			</div>
 		</div>
 	);
 }
