@@ -38,7 +38,7 @@ export const useGetExerciseRange = ({
 	const fetchData = async (): Promise<ExerciseRangeResponse> => {
 		try {
 			const response = await axiosInstance.get(
-				`${process.env.NEXT_PUBLIC_API_URL}/exercise/entry/range?&start=${start}&end=${end}`,
+				`${process.env.NEXT_PUBLIC_API_URL}/exercise/entry/range?&range_start=${start}&range_end=${end}`,
 			);
 			setLastFail(false);
 			return response.data;

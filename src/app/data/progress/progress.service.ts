@@ -13,20 +13,19 @@ export const useGetDetailedStats = ({
 	endDate: Date;
 }) => {
 	const user = useUserContext();
+	const end = format(endDate, "yyyy-MM-dd");
+	const start = format(startDate, "yyyy-MM-dd");
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
 			`${
 				process.env.NEXT_PUBLIC_API_URL
-			}/user/entry/stats/detailed?&start=${format(
-				startDate,
-				"yyyy-MM-dd",
-			)}&end=${format(endDate, "yyyy-MM-dd")}`,
+			}/user/entry/stats/detailed?&range_start=${start}&range_end=${end}`,
 		);
 		return response.data;
 	};
 
 	return useQuery({
-		queryKey: ["detailedStats", startDate, endDate, user.accessToken],
+		queryKey: ["detailedStats", start, end, user.accessToken],
 		queryFn: fetchData,
 	});
 };
@@ -47,8 +46,8 @@ export const useGetEntryStats = ({
 			`${process.env.NEXT_PUBLIC_API_URL}/user/entry/stats`,
 			{
 				params: {
-					start: format(startDate, "yyyy-MM-dd"),
-					end: format(endDate, "yyyy-MM-dd"),
+					range_start: startString,
+					range_end: endString,
 				},
 				headers: { Authorization: `Bearer ${user.accessToken}` },
 			},
@@ -76,7 +75,7 @@ export const useGetWeight = ({
 		const response = await axiosInstance.get(
 			`${
 				process.env.NEXT_PUBLIC_API_URL
-			}/user/measurement?type=weight&start=${startDateString}&end=${endDateString}`,
+			}/user/measurement?measurement_type=weight&range_start=${startDateString}&range_end=${endDateString}`,
 		);
 		return response.data;
 	};
@@ -145,7 +144,7 @@ export const useGetMeasurement = (type: Measurements) => {
 	const user = useUserContext();
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
-			`${process.env.NEXT_PUBLIC_API_URL}/user/measurement/recent?type=${type}`,
+			`${process.env.NEXT_PUBLIC_API_URL}/user/measurement/recent?measurement_type=${type}`,
 		);
 		return response.data;
 	};

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { z } from "zod";
 import type { FormSchema } from "./exercise";
 import type { FormSchema as CategorySchema } from "./category";
-export function useGetCategory() {
+export function useGetCategories() {
 	const user = useUserContext();
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
@@ -14,7 +14,7 @@ export function useGetCategory() {
 	};
 
 	return useQuery({
-		queryKey: ["getExerciseCategory", user.accessToken],
+		queryKey: ["getExerciseCategories", user.accessToken],
 		enabled: !user.loading,
 		queryFn: fetchData,
 	});

@@ -6,6 +6,18 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { type User, UserContext } from "./context";
+
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+			retry: false,
+			placeholderData: (prev) => prev,
+			staleTime: 10 * 1000, //10s
+		},
+	},
+});
+
 export function Providers({
 	children,
 }: Readonly<{
@@ -25,17 +37,6 @@ export function Providers({
 		loading,
 		setLoading,
 	};
-	const queryClient = new QueryClient({
-		defaultOptions: {
-			queries: {
-				refetchOnWindowFocus: false,
-				retry: false,
-				placeholderData: (prev) => prev,
-				staleTime: 10 * 1000, //10s
-			},
-		},
-	});
-
 	return (
 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 			<UserContext.Provider value={user}>

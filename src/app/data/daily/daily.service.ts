@@ -8,7 +8,7 @@ export const useGetEntryDay = ({ date }: { date: Date }) => {
 	const dateString = format(date, "yyyy-MM-dd");
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
-			`${process.env.NEXT_PUBLIC_API_URL}/user/entry?&start=${dateString}&end=${dateString}`,
+			`${process.env.NEXT_PUBLIC_API_URL}/user/entry?&range_start=${dateString}&range_end=${dateString}`,
 		);
 		return response.data;
 	};

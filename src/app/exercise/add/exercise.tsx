@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { postExercise, useGetCategory } from "./add-exercise.service";
+import { postExercise, useGetCategories } from "./add-exercise.service";
 import {
 	MultiSelect,
 	MultiSelectContent,
@@ -32,6 +32,7 @@ import {
 	MultiSelectTrigger,
 	MultiSelectValue,
 } from "@/components/ui/multi-select";
+import { ExerciseUnit, useGetExerciseUnits } from "../data/entry.service";
 
 interface Category {
 	id: number;
@@ -42,9 +43,8 @@ interface Category {
 export const FormSchema = z.object({
 	name: z.string().nonempty(),
 	description: z.string().optional(),
-	base_amount: z.coerce.number().min(1),
-	base_unit: z.string().nonempty(),
 	category_ids: z.array(z.coerce.number()),
+	unit_ids: z.array(z.coerce.number()),
 });
 
 export default function Exercise({ className }: { className?: string }) {
@@ -54,8 +54,9 @@ export default function Exercise({ className }: { className?: string }) {
 		resolver: zodResolver(FormSchema),
 	});
 
-	const { data } = useGetCategory();
+	const { data: categories } = useGetCategories();
 
+	const { data: units } = useGetExerciseUnits();
 	const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 		try {
 			await postExercise(data);
@@ -70,7 +71,7 @@ export default function Exercise({ className }: { className?: string }) {
 			<form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
 				<Card className="mt-5 flex flex-col">
 					<CardHeader>
-						<CardTitle>{"Exercise"}</CardTitle>
+						<CardTitle>Exercise</CardTitle>
 						<CardDescription>
 							Create a new exercise without making a new category. The base unit
 							is automatically created.
@@ -107,28 +108,29 @@ export default function Exercise({ className }: { className?: string }) {
 						/>
 						<FormField
 							control={form.control}
-							name={"base_amount"}
+							name={"unit_ids"}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Base Amount</FormLabel>
-									<FormControl>
-										<Input onChange={field.onChange} />
-									</FormControl>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name={"base_unit"}
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Base Unit</FormLabel>
-									<FormControl>
-										<Input onChange={field.onChange} />
-									</FormControl>
-
+									<FormLabel>Unit</FormLabel>
+									<MultiSelect onValuesChange={field.onChange}>
+										<FormControl>
+											<MultiSelectTrigger className="w-full">
+												<MultiSelectValue placeholder="Select a unit" />
+											</MultiSelectTrigger>
+										</FormControl>
+										<MultiSelectContent>
+											<MultiSelectGroup>
+												{units?.map((element: ExerciseUnit) => (
+													<MultiSelectItem
+														value={`${element.id}`}
+														key={element.id}
+													>
+														{element.amount} {element.unit}
+													</MultiSelectItem>
+												))}
+											</MultiSelectGroup>
+										</MultiSelectContent>
+									</MultiSelect>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -147,7 +149,7 @@ export default function Exercise({ className }: { className?: string }) {
 										</FormControl>
 										<MultiSelectContent>
 											<MultiSelectGroup>
-												{data?.map((element: Category) => (
+												{categories?.map((element: Category) => (
 													<MultiSelectItem
 														value={`${element.id}`}
 														key={element.id}
@@ -171,11 +173,6 @@ export default function Exercise({ className }: { className?: string }) {
 					>
 						Submit
 					</Button>
-					{/* {error && (
-            <CardDescription className="self-center mb-3 text-destructive">
-              Error! Please try again.
-            </CardDescription>
-          )} */}
 				</Card>
 			</form>
 		</Form>

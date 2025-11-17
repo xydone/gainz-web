@@ -15,7 +15,7 @@ export const useGetEntry = ({
 	const toString = to ? format(to, "yyyy-MM-dd") : undefined;
 	const fetchData = async () => {
 		const response = await axiosInstance.get(
-			`${process.env.NEXT_PUBLIC_API_URL}/user/entry?start=${fromString}&end=${toString}`,
+			`${process.env.NEXT_PUBLIC_API_URL}/user/entry?range_start=${fromString}&range_end=${toString}`,
 			{ headers: { Authorization: `Bearer ${user.accessToken}` } },
 		);
 		return response.data;
