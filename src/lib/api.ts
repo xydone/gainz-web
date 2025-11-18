@@ -42,9 +42,16 @@ function AxiosInterceptor() {
 				if (error.response?.status === 401 && !originalRequest._retry) {
 					if (isRefreshing) {
 						// if we are refreshing, add the new request to a queue
-						return new Promise<string>((resolve, reject) => {
-							failedQueue.push({ resolve, reject });
-						}).catch((err) => Promise.reject(err));
+						return new Promise((reject) => {
+							failedQueue.push({
+								resolve: (token: string) => {
+									if (originalRequest.headers) {
+										originalRequest.headers.Authorization = `Bearer ${token}`;
+									}
+								},
+								reject: (err) => reject(err),
+							});
+						});
 					}
 
 					originalRequest._retry = true;
