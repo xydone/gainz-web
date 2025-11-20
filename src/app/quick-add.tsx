@@ -1,5 +1,6 @@
 "use client";
 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -15,13 +16,11 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { cn } from "@/lib/utils";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import AddExercise from "./exercise/add/page";
 import Create from "./food/add/page";
 import Search from "./food/entries/search/page";
-import MeasurementLog from "./measurement/log/page";
+import { MeasurementContent } from "./settings/measurement";
 
 export default function QuickAdd({ className }: { className?: string }) {
 	return (
@@ -135,7 +134,7 @@ function AddMeasurementMenu() {
 						<DialogTitle>Add measurement</DialogTitle>
 					</DialogHeader>
 				</VisuallyHidden>
-				<MeasurementLog />
+				<MeasurementContent />
 			</DialogContent>
 		</Dialog>
 	);
