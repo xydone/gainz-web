@@ -11,29 +11,28 @@ export const navLinksConfig: NavLinksConfig = {
 			href: "/",
 		},
 		{
-			title: "Log",
+			title: "Food",
 			popover: [
-				{ title: "Log Meal", href: "/food/entries/search" },
-				{ title: "Log Exercise", href: "/exercise/log" },
-				{ title: "Log Measurement", href: "/measurement/log" },
-				{ title: "Log Workout", href: "/workout/log" },
+				{ title: "Create Food", href: "/food/add" },
+				{ title: "Log Food", href: "/food/entries/search" },
+				{ title: "Daily Food Data", href: "/data/daily" },
+				{ title: "Raw Food Entry Data", href: "/food/entries/raw" },
 			],
 		},
 		{
-			title: "Create",
+			title: "Exercise",
 			popover: [
-				{ title: "Create Food", href: "/food/add" },
 				{ title: "Create Exercise", href: "/exercise/add" },
+				{ title: "Log Exercise", href: "/exercise/log" },
 				{ title: "Create Workout", href: "/workout/add" },
+				{ title: "Log Workout", href: "/workout/log" },
 			],
 		},
 		{
 			title: "Data",
 			popover: [
-				{ title: "View Daily Intake", href: "/data/daily" },
 				{ title: "View Progress", href: "/data/progress" },
 				{ title: "View Exercise Data", href: "/exercise/data" },
-				{ title: "View Raw Food Entry Data", href: "/food/entries/raw" },
 			],
 		},
 	],

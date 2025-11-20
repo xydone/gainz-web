@@ -157,6 +157,7 @@ export default function SignedIn() {
 
 				<Button
 					variant="outline"
+					className="text-muted"
 					onClick={() => setIsSortingDisabled(!isSortingDisabled)}
 				>
 					<Settings />
