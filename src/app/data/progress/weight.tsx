@@ -1,7 +1,10 @@
 "use client";
 
+import { compareAsc, format, parse } from "date-fns";
+import { Settings } from "lucide-react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -15,9 +18,17 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 import { cn, ewma, lerp } from "@/lib/utils";
-import { compareAsc, format, parse } from "date-fns";
 import NoResponse from "../../../components/ui/NoResponseCard";
 import { useGetWeight } from "./progress.service";
 
@@ -54,7 +65,7 @@ interface Chart {
 
 type ResponseWithDate = { date: Date } & Response;
 
-function processData(data: ResponseWithDate[], endDate: Date) {
+function processData(data: ResponseWithDate[], endDate: Date, alpha: number) {
 	const dateMap = new Map();
 	if (!data || data.length === 0) {
 		return [];
@@ -102,17 +113,16 @@ function processData(data: ResponseWithDate[], endDate: Date) {
 		}
 		return null;
 	});
-	const emwaData = ewma(interpolatedData, 0.5);
+	const ewmaData = ewma(interpolatedData, alpha);
 	for (let idx = 0; idx < dateStrings.length; idx++) {
 		const obj: Chart = {
 			created_at: dateStrings[idx],
 			scale: scale[idx],
 			interpolated: cleanInterpolatedData[idx],
-			estimated: emwaData[idx],
+			estimated: ewmaData[idx],
 		};
 		processedData.push(obj);
 	}
-
 	return processedData;
 }
 
@@ -127,8 +137,23 @@ export default function Weight({
 }) {
 	const { data, isLoading, error } = useGetWeight({ startDate, endDate });
 
+	// load alpha from localStorage
+
+	const [alpha, setAlpha] = useState<number>(() => {
+		const savedAlpha = localStorage.getItem("alpha");
+		if (savedAlpha) {
+			return Number(savedAlpha);
+		}
+		// default to 0.5
+		return 0.5;
+	});
+
+	useEffect(() => {
+		localStorage.setItem("alpha", alpha.toString());
+	}, [alpha]);
+
 	// Processed data or empty array if loading/error
-	const processedData = data ? processData(data, endDate) : [];
+	const processedData = data ? processData(data, endDate, alpha) : [];
 	if (error && !isLoading) {
 		return (
 			<NoResponse
@@ -138,13 +163,14 @@ export default function Weight({
 		);
 	}
 	return (
-		<Card className={cn("", className)}>
+		<Card className={cn("relative", className)}>
 			<CardHeader>
 				<CardTitle>Weight</CardTitle>
 				<CardDescription>{`${format(startDate, "dd MMMM yyyy")} - ${format(
 					endDate,
 					"dd MMMM yyyy",
 				)}`}</CardDescription>
+				<EditAlphaButton alpha={alpha} setAlpha={setAlpha} />
 			</CardHeader>
 			<CardContent className="relative">
 				{isLoading && <WeightCardSkeleton />}
@@ -216,6 +242,98 @@ export default function Weight({
 				</ChartContainer>
 			</CardContent>
 		</Card>
+	);
+}
+
+function EditAlphaButton({
+	alpha,
+	setAlpha,
+}: {
+	alpha: number;
+	setAlpha: Dispatch<SetStateAction<number>>;
+}) {
+	const sampleConfig = {
+		raw: {
+			label: "Raw data",
+			color: "var(--weight-scale)",
+		},
+		estimated: {
+			label: "Estimated data",
+			color: "var(--weight-estimated)",
+		},
+	} satisfies ChartConfig;
+
+	const rawData = [60, 63, 61, 65, 69, 70, 59, 60, 65];
+	const estimatedData = ewma(rawData, alpha);
+	var sampleData = [];
+	for (let idx = 0; idx < estimatedData.length; idx++) {
+		sampleData[idx] = {
+			time: idx,
+			raw: rawData[idx],
+			estimated: estimatedData[idx],
+		};
+	}
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button variant="outline" className="absolute top-5 right-5 text-muted">
+					<Settings />
+				</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle className="text-center">
+						Modify the estimation
+					</DialogTitle>
+					<DialogDescription className="text-center">
+						New data and old data are valued differently depending how much
+						recent data is valued.
+					</DialogDescription>
+				</DialogHeader>
+				<div className="flex flex-row gap-4">
+					<span className="text-right">Past data</span>
+					<Slider
+						min={0}
+						max={100}
+						defaultValue={[alpha * 100]}
+						onValueChange={(number) => setAlpha(number[0] / 100)}
+					/>
+					<span className="text-left">New data</span>
+				</div>
+				<span className="text-sm text-muted-foreground text-center">
+					Preview:
+				</span>
+				<ChartContainer config={sampleConfig}>
+					<LineChart accessibilityLayer data={sampleData} margin={{ left: 18 }}>
+						<CartesianGrid vertical={false} />
+						<YAxis
+							domain={["dataMin - 5", "dataMax + 5"]}
+							width={12}
+							tickFormatter={(value) => Math.round(value).toString()}
+						/>
+						<XAxis dataKey="time" tickLine={false} axisLine={false} />
+						<ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+						<Line
+							dataKey="raw"
+							type="monotone"
+							stroke="var(--color-raw)"
+							strokeWidth={2}
+							dot={false}
+							isAnimationActive={false}
+						/>
+						<Line
+							dataKey="estimated"
+							type="monotone"
+							stroke="var(--color-estimated)"
+							strokeWidth={2}
+							dot={false}
+							isAnimationActive={false}
+						/>
+					</LineChart>
+				</ChartContainer>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
