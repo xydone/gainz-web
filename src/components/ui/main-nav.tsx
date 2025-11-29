@@ -1,27 +1,25 @@
 "use client";
 
-import { Separator } from "@/components/ui/separator";
-import { ChevronDown, LogIn, CircleUser, Moon, Sun, User } from "lucide-react";
+import { ChevronDown, CircleUser, LogIn, Moon, Sun, User } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
-
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { useUserContext } from "@/app/context";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { useUserContext } from "@/app/context";
-import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { navLinksConfig } from "@/config/nav-links";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
 import { ProfileMenu, SignInForm, SignUpForm } from "./nav-common";
 
@@ -73,7 +71,7 @@ export default function MainNav({ className }: { className?: string }) {
 					</Button>
 				)}
 
-				<DropdownMenu>
+				<DropdownMenu modal={false}>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline">
 							<User />
@@ -124,7 +122,7 @@ function MenuManager({
 			</DropdownMenuItem>
 			<DropdownMenuItem onClick={() => setIsSignUpOpen(true)}>
 				<LogIn />
-				Sign-up{" "}
+				Sign-up
 			</DropdownMenuItem>
 		</DropdownMenuContent>
 	);
