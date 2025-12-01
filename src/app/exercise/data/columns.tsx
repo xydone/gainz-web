@@ -1,22 +1,18 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Dialog } from "@radix-ui/react-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
-
+import { type Dispatch, type SetStateAction, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import TableDialog from "@/components/table/TableDialog";
+import { Button } from "@/components/ui/button";
 import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Dialog } from "@radix-ui/react-dialog";
-import { useState } from "react";
-import {
-	type ExerciseEntry,
-	useDeleteExerciseEntry,
-	useEditExerciseEntry,
-	useGetExerciseUnits,
-} from "./entry.service";
-
 import {
 	Form,
 	FormControl,
@@ -24,13 +20,7 @@ import {
 	FormItem,
 	FormLabel,
 } from "@/components/ui/form";
-
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import {
 	Select,
 	SelectContent,
@@ -38,6 +28,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	type ExerciseEntry,
+	useDeleteExerciseEntry,
+	useEditExerciseEntry,
+	useGetExerciseUnits,
+} from "./entry.service";
 export const Columns = ({
 	handleDeleted,
 	handleEdited,
@@ -134,153 +130,184 @@ function ManageMenu({
 					]}
 				/>
 			</div>
-			{isEditOpen && <EditDialog />}
-			<DeleteDialog />
+			{isEditOpen && (
+				<EditDialog
+					entry={entry}
+					handleEdited={handleEdited}
+					isEditOpen={isEditOpen}
+					setEditOpen={setEditOpen}
+				/>
+			)}
+			<DeleteDialog
+				isDeleteOpen={isDeleteOpen}
+				setDeleteOpen={setDeleteOpen}
+				entry={entry}
+				deleteMutate={deleteMutate}
+			/>
 		</div>
 	);
-	function EditDialog() {
-		const FormSchema = z.object({
-			exercise_id: z.coerce.number(),
-			value: z.coerce.number(),
-			unit_id: z.coerce.number(),
-			notes: z.string().nullable(),
-		});
+}
 
-		const form = useForm<z.infer<typeof FormSchema>>({
-			resolver: zodResolver(FormSchema),
-			defaultValues: {
-				exercise_id: entry.exercise_id,
-				value: entry.value,
-				unit_id: entry.unit_id,
-				notes: entry.notes,
-			},
-		});
+function EditDialog({
+	entry,
+	handleEdited,
+	isEditOpen,
+	setEditOpen,
+}: {
+	entry: ExerciseEntry;
+	handleEdited: () => void;
+	isEditOpen: boolean;
+	setEditOpen: Dispatch<SetStateAction<boolean>>;
+}) {
+	const FormSchema = z.object({
+		exercise_id: z.coerce.number(),
+		value: z.coerce.number(),
+		unit_id: z.coerce.number(),
+		notes: z.string().nullable(),
+	});
 
-		const formValues = form.watch();
-		const { mutate } = useEditExerciseEntry({
-			entry_id: entry.entry_id,
-			exercise_id: formValues.exercise_id,
-			value: formValues.value,
-			unit_id: formValues.unit_id,
-			notes: formValues.notes,
-			callback: () => {
-				handleEdited();
-				setEditOpen(false);
-			},
-		});
+	const form = useForm<z.infer<typeof FormSchema>>({
+		resolver: zodResolver(FormSchema),
+		defaultValues: {
+			exercise_id: entry.exercise_id,
+			value: entry.value,
+			unit_id: entry.unit_id,
+			notes: entry.notes,
+		},
+	});
 
-		const { data: unitData } = useGetExerciseUnits();
+	const formValues = form.watch();
+	const { mutate } = useEditExerciseEntry({
+		entry_id: entry.entry_id,
+		exercise_id: formValues.exercise_id,
+		value: formValues.value,
+		unit_id: formValues.unit_id,
+		notes: formValues.notes,
+		callback: () => {
+			handleEdited();
+			setEditOpen(false);
+		},
+	});
 
-		const onSubmit = async () => {
-			mutate();
-		};
+	const { data: unitData } = useGetExerciseUnits();
 
-		return (
-			<Dialog open={isEditOpen} onOpenChange={setEditOpen}>
-				<DialogContent className="max-w-xl w-5/6">
-					<DialogHeader>
-						<DialogTitle>Edit your entry for {entry.exercise_name}</DialogTitle>
-					</DialogHeader>
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="flex flex-col gap-5"
-						>
-							<div className="flex gap-5 flex-col sm:flex-row">
-								<FormField
-									control={form.control}
-									name="value"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Value</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													className=""
-													placeholder="Value"
-													onChange={field.onChange}
-													value={field.value}
-												/>
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="unit_id"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Unit</FormLabel>
-											<Select
-												value={`${field.value}`}
-												onValueChange={field.onChange}
-											>
-												<FormControl>
-													<SelectTrigger className="w-[100%] sm:max-w-36 sm:w-36">
-														<SelectValue />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent className="bg-popover">
-													{unitData?.map((unit) => (
-														<SelectItem key={unit.id} value={`${unit.id}`}>
-															{unit.amount} {unit.unit}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="notes"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Notes</FormLabel>
-											<FormControl>
-												<Input
-													className=""
-													placeholder="(optional)"
-													value={field.value ?? ""}
-													onChange={field.onChange}
-												/>
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-							</div>
-							<Button
-								variant="outline"
-								className="active:bg-accent-strong"
-								type="submit"
-							>
-								Edit
-							</Button>
-						</form>
-					</Form>
-				</DialogContent>
-			</Dialog>
-		);
-	}
-	function DeleteDialog() {
-		return (
-			<Dialog open={isDeleteOpen} onOpenChange={setDeleteOpen}>
-				<DialogContent className="max-w-xl w-5/6">
-					<DialogHeader>
-						<DialogTitle>
-							Delete your entry for {entry.exercise_name}
-						</DialogTitle>
-					</DialogHeader>
-					<Button
-						variant="destructive"
-						onClick={() => {
-							deleteMutate();
-						}}
+	const onSubmit = async () => {
+		mutate();
+	};
+
+	return (
+		<Dialog open={isEditOpen} onOpenChange={setEditOpen}>
+			<DialogContent className="max-w-xl w-5/6">
+				<DialogHeader>
+					<DialogTitle>Edit your entry for {entry.exercise_name}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="flex flex-col gap-5"
 					>
-						Delete
-					</Button>
-				</DialogContent>
-			</Dialog>
-		);
-	}
+						<div className="flex gap-5 flex-col sm:flex-row">
+							<FormField
+								control={form.control}
+								name="value"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Value</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												className=""
+												placeholder="Value"
+												onChange={field.onChange}
+												value={field.value}
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="unit_id"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Unit</FormLabel>
+										<Select
+											value={`${field.value}`}
+											onValueChange={field.onChange}
+										>
+											<FormControl>
+												<SelectTrigger className="w-[100%] sm:max-w-36 sm:w-36">
+													<SelectValue />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent className="bg-popover">
+												{unitData?.map((unit) => (
+													<SelectItem key={unit.id} value={`${unit.id}`}>
+														{unit.amount} {unit.unit}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="notes"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Notes</FormLabel>
+										<FormControl>
+											<Input
+												className=""
+												placeholder="(optional)"
+												value={field.value ?? ""}
+												onChange={field.onChange}
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Button
+							variant="outline"
+							className="active:bg-accent-strong"
+							type="submit"
+						>
+							Edit
+						</Button>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+function DeleteDialog({
+	isDeleteOpen,
+	setDeleteOpen,
+	entry,
+	deleteMutate,
+}: {
+	isDeleteOpen: boolean;
+	setDeleteOpen: Dispatch<SetStateAction<boolean>>;
+	entry: ExerciseEntry;
+	deleteMutate: () => void;
+}) {
+	return (
+		<Dialog open={isDeleteOpen} onOpenChange={setDeleteOpen}>
+			<DialogContent className="max-w-xl w-5/6">
+				<DialogHeader>
+					<DialogTitle>Delete your entry for {entry.exercise_name}</DialogTitle>
+				</DialogHeader>
+				<Button
+					variant="destructive"
+					onClick={() => {
+						deleteMutate();
+					}}
+				>
+					Delete
+				</Button>
+			</DialogContent>
+		</Dialog>
+	);
 }
