@@ -2,6 +2,7 @@ import { rectSortingStrategy } from "@dnd-kit/sortable";
 import { subMonths } from "date-fns";
 import { Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import PredictedWeight from "@/components/dashboardCards/predictedweight";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/datepicker";
 import { SortableList } from "@/components/ui/SortableList";
@@ -32,7 +33,12 @@ export interface GoalsResponse {
 }
 export type DashboardItem = {
 	id: string;
-	component: "GoalsCard" | "NutrientDistribution" | "QuickAdd" | "Weight";
+	component:
+		| "GoalsCard"
+		| "NutrientDistribution"
+		| "QuickAdd"
+		| "Weight"
+		| "PredictedWeight";
 	// biome-ignore lint: ease of use, cant be certain what we will need in the future. no real benefit in maintaining type safety here for now.
 	props?: any;
 };
@@ -46,6 +52,7 @@ const allAvailableCards: DashboardItem[] = [
 	{ id: "nutrient-distribution", component: "NutrientDistribution" },
 	{ id: "quick-add", component: "QuickAdd" },
 	{ id: "weight-chart", component: "Weight" },
+	{ id: "weight-prediction", component: "PredictedWeight" },
 ];
 
 const initialDashboardLayout: DashboardItem[] = [
@@ -97,6 +104,8 @@ export default function SignedIn() {
 					return <NutrientDistribution className="" date={date} />;
 				case "QuickAdd":
 					return <QuickAdd />;
+				case "PredictedWeight":
+					return <PredictedWeight date={date} />;
 				case "Weight":
 					return (
 						<Weight
